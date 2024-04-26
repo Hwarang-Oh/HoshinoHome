@@ -6,6 +6,32 @@
 - This sprint will focus on integrating the Spring Framework to develop the backend of the website.
 - The database will serve as a vital component in our project's development, providing a structured and efficient way to store and manage data.
 
+## MAIN API
+
+---
+
+### Notice CRUD
+
+- Create Notice
+  _Creating Notice_
+  ![Create](API_Info/Notice_Create.png)
+
+- Retrieve Notice
+  _Retrieving One Notice_
+  ![RetrieveOne](API_Info/Notice_RetrieveOne.png)\
+  _Retrieving All Notice_
+  ![RetrieveAll](API_Info/Notice_RetrieveAll.png)
+
+- Update Notice
+  _Updating One Notice_
+  ![Update1](API_Info/Notice_Update1.png)
+  ![Update2](API_Info/Notice_Update2.png)
+
+- Delete Notice
+  _Deleting One Notice_
+  ![Delete1](API_Info/Notice_Delete1.png)
+  ![Delete1](API_Info/Notice_Delete1.png)
+
 ## 기능 및 요구사항
 
 ### 필수 기능
