@@ -25,6 +25,15 @@ public class NoticeController {
         this.noticeService = noticeService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<Notice>> getAllNotices() throws Exception {
+        List<Notice> notices = noticeService.getNotices();
+        if (notices.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(notices);
+    }
+
     @PostMapping
     protected ResponseEntity<?> registerNotice(@RequestBody Notice notice) throws Exception{
         boolean result = noticeService.addNotice(notice);
