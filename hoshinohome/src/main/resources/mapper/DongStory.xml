@@ -1,90 +1,90 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">-->
 
-<mapper namespace="com.ssafy.hoshinohome.model.dao.DongStoryDao">
-	<insert id="insertDept" parameterType="Dept"> insert into dept(deptno,dname,loc)
-		values(#{deptno},#{dname},#{loc}) </insert>
+<!--<mapper namespace="com.ssafy.hoshinohome.model.dao.DongStoryDao">-->
+<!--	<insert id="insertDept" parameterType="Dept"> insert into dept(deptno,dname,loc)-->
+<!--		values(#{deptno},#{dname},#{loc}) </insert>-->
 
-	<update id="updateDept" parameterType="Dept"> update dept set dname = #{dname}, loc = #{loc} where
-		deptno = #{deptno} </update>
+<!--	<update id="updateDept" parameterType="Dept"> update dept set dname = #{dname}, loc = #{loc} where-->
+<!--		deptno = #{deptno} </update>-->
 
-	<delete id="deleteDept" parameterType="map"> delete from dept <where> deptno = 0 <if
-				test="array != null"> or <foreach collection="array" item="item" open="deptno in ("
-					close=")" separator=","> #{item} </foreach>
-			</if>
-		</where>
-	</delete>
+<!--	<delete id="deleteDept" parameterType="map"> delete from dept <where> deptno = 0 <if-->
+<!--				test="array != null"> or <foreach collection="array" item="item" open="deptno in ("-->
+<!--					close=")" separator=","> #{item} </foreach>-->
+<!--			</if>-->
+<!--		</where>-->
+<!--	</delete>-->
 
-	<sql id="basicSelectDeptSQL"> select deptno,dname,loc from dept </sql>
+<!--	<sql id="basicSelectDeptSQL"> select deptno,dname,loc from dept </sql>-->
 
-	<resultMap type="Dept" id="DeptResultMap">
-		<id column="deptno" property="deptno" />
-		<result column="dname" property="dname" />
-		<result column="loc" property="loc" />
-	</resultMap>
+<!--	<resultMap type="Dept" id="DeptResultMap">-->
+<!--		<id column="deptno" property="deptno" />-->
+<!--		<result column="dname" property="dname" />-->
+<!--		<result column="loc" property="loc" />-->
+<!--	</resultMap>-->
 
-	<select id="selectDepts" resultMap="DeptResultMap">
-		<include refid="basicSelectDeptSQL"></include>
-	</select>
+<!--	<select id="selectDepts" resultMap="DeptResultMap">-->
+<!--		<include refid="basicSelectDeptSQL"></include>-->
+<!--	</select>-->
 
-	<select id="selectDeptsByDname" parameterType="string">
-		<include refid="basicSelectDeptSQL"></include> where dname like concat('%',#{dname},'%') </select>
+<!--	<select id="selectDeptsByDname" parameterType="string">-->
+<!--		<include refid="basicSelectDeptSQL"></include> where dname like concat('%',#{dname},'%') </select>-->
 
-	<!--   	<select id="selectDept" parameterType="int" resultType="Dept">  		 
-  		<include refid="basicSelectDeptSQL"></include>
-  		where deptno = #{value}
-  	</select> -->
+<!--	&lt;!&ndash;   	<select id="selectDept" parameterType="int" resultType="Dept">  		 -->
+<!--  		<include refid="basicSelectDeptSQL"></include>-->
+<!--  		where deptno = #{value}-->
+<!--  	</select> &ndash;&gt;-->
 
-	<!--   	<resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">
-		<collection property="emps" ofType="Emp">
-			<id column="empno" property="empno"/>
-			<result column="ename" property="ename"/>
-			<result column="job" property="job"/>
-		</collection>
-  	</resultMap> -->
+<!--	&lt;!&ndash;   	<resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">-->
+<!--		<collection property="emps" ofType="Emp">-->
+<!--			<id column="empno" property="empno"/>-->
+<!--			<result column="ename" property="ename"/>-->
+<!--			<result column="job" property="job"/>-->
+<!--		</collection>-->
+<!--  	</resultMap> &ndash;&gt;-->
 
-	<resultMap type="Emp" id="EmpResultMap">
-		<id column="empno" property="empno" />
-		<result column="ename" property="ename" />
-		<result column="job" property="job" />
-	</resultMap>
+<!--	<resultMap type="Emp" id="EmpResultMap">-->
+<!--		<id column="empno" property="empno" />-->
+<!--		<result column="ename" property="ename" />-->
+<!--		<result column="job" property="job" />-->
+<!--	</resultMap>-->
 
-	<resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">
-		<collection property="emps" ofType="Emp" resultMap="EmpResultMap" />
-	</resultMap>
+<!--	<resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">-->
+<!--		<collection property="emps" ofType="Emp" resultMap="EmpResultMap" />-->
+<!--	</resultMap>-->
 
-	<select id="selectDept" resultMap="DeptEmpResultMap"> select deptno,dname,loc,empno,ename,job from
-		dept left outer join emp using (deptno) where deptno = #{deptno} </select>
+<!--	<select id="selectDept" resultMap="DeptEmpResultMap"> select deptno,dname,loc,empno,ename,job from-->
+<!--		dept left outer join emp using (deptno) where deptno = #{deptno} </select>-->
 
-	<select id="selectDeptsByMultiCondition" resultType="Dept">
-		<include refid="basicSelectDeptSQL"></include>
-		<where>
-			<if test="dname != null and dname != ''"> dname like concat('%',#{dname},'%') </if>
-			<if
-				test="loc != null and loc != ''"> and loc = #{loc} </if>
-		</where>
-	</select>
-</mapper>
-<!-- and의 추가되는 것을 방지해 주고 있음 -->
-<!-- Type에는 Table or 별칭? -->
-<!-- Association : 1 대 1의 관계성, Collection : 1 대 다의 관계성 -->
-<!-- column과 Proprety의 특성 +  column과 Proprerty 중 Property는 대소문자를 가린다.  -->
+<!--	<select id="selectDeptsByMultiCondition" resultType="Dept">-->
+<!--		<include refid="basicSelectDeptSQL"></include>-->
+<!--		<where>-->
+<!--			<if test="dname != null and dname != ''"> dname like concat('%',#{dname},'%') </if>-->
+<!--			<if-->
+<!--				test="loc != null and loc != ''"> and loc = #{loc} </if>-->
+<!--		</where>-->
+<!--	</select>-->
+<!--</mapper>-->
+<!--&lt;!&ndash; and의 추가되는 것을 방지해 주고 있음 &ndash;&gt;-->
+<!--&lt;!&ndash; Type에는 Table or 별칭? &ndash;&gt;-->
+<!--&lt;!&ndash; Association : 1 대 1의 관계성, Collection : 1 대 다의 관계성 &ndash;&gt;-->
+<!--&lt;!&ndash; column과 Proprety의 특성 +  column과 Proprerty 중 Property는 대소문자를 가린다.  &ndash;&gt;-->
 
 
-<!-- Join 해보기 
-  	문제는 Join이 될 때는, 최종적인 Type은 알려줄 수 있지만
-  	값이 중간에 전달되는 과정에서의 Type을 알려줄 수 가 없다는 단점이 존재한다.
-  	그래서 ResultMap을 설정해줘야 한다.
-  	collection의 성질 -> deptno가 1개일 때, 다수개가 되는 성질을 가지고 있다.
-  	-->
+<!--&lt;!&ndash; Join 해보기 -->
+<!--  	문제는 Join이 될 때는, 최종적인 Type은 알려줄 수 있지만-->
+<!--  	값이 중간에 전달되는 과정에서의 Type을 알려줄 수 가 없다는 단점이 존재한다.-->
+<!--  	그래서 ResultMap을 설정해줘야 한다.-->
+<!--  	collection의 성질 -> deptno가 1개일 때, 다수개가 되는 성질을 가지고 있다.-->
+<!--  	&ndash;&gt;-->
 
-<!-- N + 1 Problem -> 다수 개의 Record를 불렀을 때, 다른 연관된 Data를 가져오는 것 N + 1 Problem In myBatis -->
-<!-- 이런 문제가 있을 수도 있다는 것을 알고 있어야 한다. -->
-  
-  
-  
-  
-  
-  
-  
-  
+<!--&lt;!&ndash; N + 1 Problem -> 다수 개의 Record를 불렀을 때, 다른 연관된 Data를 가져오는 것 N + 1 Problem In myBatis &ndash;&gt;-->
+<!--&lt;!&ndash; 이런 문제가 있을 수도 있다는 것을 알고 있어야 한다. &ndash;&gt;-->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!--  -->
+<!-- -->

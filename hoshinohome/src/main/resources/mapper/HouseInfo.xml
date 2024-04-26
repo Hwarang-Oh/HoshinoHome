@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">-->
 
-<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseInfoDao">
-	<select id="login" parameterType="User" resultType="string"> select name from userinfo where
-		userid=#{userId} and password=#{password} </select>
+<!--<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseInfoDao">-->
+<!--	<select id="login" parameterType="User" resultType="string"> select name from userinfo where-->
+<!--		userid=#{userId} and password=#{password} </select>-->
 
-	<insert id="register" parameterType="User"> insert into userinfo
-		values(#{userId},#{password},#{name},#{email}) </insert>
+<!--	<insert id="register" parameterType="User"> insert into userinfo-->
+<!--		values(#{userId},#{password},#{name},#{email}) </insert>-->
 
-</mapper>
+<!--</mapper>-->

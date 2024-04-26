@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class HouseInfoDto {
+public class HouseInfo {
 
     private Long apt_code; // PK
     private int build_year;
@@ -27,13 +27,13 @@ public class HouseInfoDto {
     private String lon;
     private String lat;
 
-    public HouseInfoDto() {
+    public HouseInfo() {
     }
 
-    public HouseInfoDto(Long apt_code, int build_year, String road_name, String road_name_main_num,
-            String road_name_sub_num, String road_name_seq, String road_name_basement_code, String road_name_code,
-            String dong, String main_num, String sub_num, String si_gun_gu_code, String eub_myeon_dong_code,
-            String dong_code, String land_code, String apartment_name, String jibun, String lon, String lat) {
+    public HouseInfo(Long apt_code, int build_year, String road_name, String road_name_main_num,
+                     String road_name_sub_num, String road_name_seq, String road_name_basement_code, String road_name_code,
+                     String dong, String main_num, String sub_num, String si_gun_gu_code, String eub_myeon_dong_code,
+                     String dong_code, String land_code, String apartment_name, String jibun, String lon, String lat) {
         this.apt_code = apt_code;
         this.build_year = build_year;
         this.road_name = road_name;

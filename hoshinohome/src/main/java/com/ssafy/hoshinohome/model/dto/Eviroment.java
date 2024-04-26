@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class EviromentDto {
+public class Eviroment {
     private String dong_code; // PK , FK
     private int Station_proximity;
     private int commercial_area;
@@ -13,11 +13,11 @@ public class EviromentDto {
     private int Security_index;
     private int dong_score;
 
-    public EviromentDto() {
+    public Eviroment() {
     }
 
-    public EviromentDto(String dong_code, int station_proximity, int commercial_area, int academic_num,
-            int security_index, int dong_score) {
+    public Eviroment(String dong_code, int station_proximity, int commercial_area, int academic_num,
+                     int security_index, int dong_score) {
         this.dong_code = dong_code;
         Station_proximity = station_proximity;
         this.commercial_area = commercial_area;

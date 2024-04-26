@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class HouseDealDto {
+public class HouseDeal {
     private int deal_code; // PK
     private String deal_amount;
     private String deal_year;
@@ -15,11 +15,11 @@ public class HouseDealDto {
     private String floor;
     private String apt_code; // FK
 
-    public HouseDealDto() {
+    public HouseDeal() {
     }
 
-    public HouseDealDto(int deal_code, String deal_amount, String deal_year, String deal_month, String deal_day,
-            String area, String floor, String apt_code) {
+    public HouseDeal(int deal_code, String deal_amount, String deal_year, String deal_month, String deal_day,
+                     String area, String floor, String apt_code) {
         this.deal_code = deal_code;
         this.deal_amount = deal_amount;
         this.deal_year = deal_year;

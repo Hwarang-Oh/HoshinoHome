@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DongStoryDto {
+public class DongStory {
     private int post_id;
     private String user_id;
     private String dong_code;
@@ -13,10 +13,10 @@ public class DongStoryDto {
     private String content;
     private String datetime;
 
-    public DongStoryDto() {
+    public DongStory() {
     }
 
-    public DongStoryDto(int post_id, String user_id, String dong_code, String title, String content, String datetime) {
+    public DongStory(int post_id, String user_id, String dong_code, String title, String content, String datetime) {
         this.post_id = post_id;
         this.user_id = user_id;
         this.dong_code = dong_code;

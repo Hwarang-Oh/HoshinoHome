@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserInfoDto {
+public class UserInfo {
     private String user_id; // PK
     private String user_pwd;
     private String user_name;
@@ -13,11 +13,11 @@ public class UserInfoDto {
     private String user_phone;
     private String[] user_favorite_place; // HOW?
 
-    public UserInfoDto() {
+    public UserInfo() {
     }
 
-    public UserInfoDto(String user_id, String user_pwd, String user_name, String user_address, String user_phone,
-            String[] user_favorite_place) {
+    public UserInfo(String user_id, String user_pwd, String user_name, String user_address, String user_phone,
+                    String[] user_favorite_place) {
         this.user_id = user_id;
         this.user_pwd = user_pwd;
         this.user_name = user_name;
