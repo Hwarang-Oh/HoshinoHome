@@ -42,7 +42,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public List<Dong> getFavoritePlace(String id) throws Exception {
+    public List<?> getFavoritePlace(String id) throws Exception {
         return null;
     }
 

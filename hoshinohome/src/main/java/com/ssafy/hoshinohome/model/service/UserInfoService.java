@@ -20,5 +20,5 @@ public interface UserInfoService {
 
     boolean registerFavoritePlace(String[] places) throws Exception;
 
-    List<Dong> getFavoritePlace(String id) throws Exception;
+    List<?> getFavoritePlace(String id) throws Exception;
 }
