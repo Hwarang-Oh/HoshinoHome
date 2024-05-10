@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.ssafy.hoshinohome.model.dto.Notice;
 import com.ssafy.hoshinohome.model.service.NoticeService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +26,7 @@ public class NoticeController {
         this.noticeService = noticeService;
     }
 
+    @Operation(summary = "모든 공지 조회")
     @GetMapping
     public ResponseEntity<List<Notice>> getAllNotices() throws Exception {
         List<Notice> notices = noticeService.getNotices();
@@ -34,6 +36,7 @@ public class NoticeController {
         return ResponseEntity.ok(notices);
     }
 
+    @Operation(summary = "공지 등록")
     @PostMapping
     protected ResponseEntity<?> registerNotice(@RequestBody Notice notice) throws Exception{
         boolean result = noticeService.addNotice(notice);
@@ -44,6 +47,7 @@ public class NoticeController {
         }
     }
 
+    @Operation(summary = "공지 상세보기")
     @GetMapping("/{post_id}")
     protected ResponseEntity<?> getNoticeDetail(@PathVariable("post_id") String post_id) throws Exception{
         Notice notice = noticeService.getNotice(post_id);
@@ -54,12 +58,14 @@ public class NoticeController {
         }
     }
 
+    @Operation(summary = "공지 수정")
     @PutMapping("/{post_id}")
     protected ResponseEntity<?> modifyNotice(@RequestBody Notice notice) throws Exception{
         noticeService.modifyNotice(notice);
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "공지 삭제")
     @DeleteMapping("/{post_id}")
     protected ResponseEntity<?> removeNotice(@PathVariable("post_id") String post_id) throws Exception{
         if(noticeService.removeNotice(post_id)){
