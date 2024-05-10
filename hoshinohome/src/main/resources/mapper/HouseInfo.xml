@@ -1,11 +1,12 @@
-<!--<?xml version="1.0" encoding="UTF-8"?>-->
-<!--<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!--<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseInfoDao">-->
-<!--	<select id="login" parameterType="User" resultType="string"> select name from userinfo where-->
-<!--		userid=#{userId} and password=#{password} </select>-->
+<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseInfoDao">
 
-<!--	<insert id="register" parameterType="User"> insert into userinfo-->
-<!--		values(#{userId},#{password},#{name},#{email}) </insert>-->
+  <select id="selectHouseInfos" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo"> SELECT
+    apt_code, build_year, road_name, road_name_bonbun, road_name_bubun, road_name_seq,
+    road_name_basement_code, road_name_code, dong, bonbun, bubun, si_gun_gu_code,
+    eub_myun_dong_code, dong_code, land_code, apartment_name, jibun, lng, lat FROM houseinfo WHERE
+    lng BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} </select>
 
-<!--</mapper>-->
+</mapper>

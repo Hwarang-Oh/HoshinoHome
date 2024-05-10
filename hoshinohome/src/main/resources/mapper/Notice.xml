@@ -2,33 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.ssafy.hoshinohome.model.dao.NoticeDao">
-	<insert id="insertNotice" parameterType="Notice">
-		insert into Notice(title,content,date) values(#{title}, #{content}, #{date})
-	</insert>
+	<insert id="insertNotice" parameterType="Notice"> insert into Notice(title,content,date)
+		values(#{title}, #{content}, #{date}) </insert>
 
-	<update id="updateNotice" parameterType="Notice">
-		update Notice set title = #{title}, content = #{content}, date = #{date} where post_id = #{post_id}
-	</update>
+	<update id="updateNotice" parameterType="Notice"> update Notice set title = #{title}, content =
+		#{content}, date = #{date} where post_id = #{post_id} </update>
 
-	<delete id="deleteNotice" parameterType="map">
-		delete from Notice
-		<where>
-			post_id = #{post_id}
-		</where>
+	<delete id="deleteNotice" parameterType="map"> delete from Notice <where> post_id = #{post_id} </where>
 	</delete>
 
-	<select id="selectNotice" parameterType="String" resultType="Notice">
-		select * from Notice where post_id = #{id}
-	</select>
+	<select id="selectNotice" parameterType="String" resultType="Notice"> select * from Notice where
+		post_id = #{id} </select>
 
 	<resultMap type="com.ssafy.hoshinohome.model.dto.Notice" id="NoticeResultMap">
-		<id column="post_id" property="post_id"/>
-		<result column="title" property="title"/>
-		<result column="content" property="content"/>
-		<result column="date" property="date"/>
+		<id column="post_id" property="post_id" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="date" property="date" />
 	</resultMap>
 
-	<select id="selectAllNotices" resultMap="NoticeResultMap">
-		select * from Notice
-	</select>
+	<select id="selectAllNotices" resultMap="NoticeResultMap"> select * from Notice </select>
 </mapper>

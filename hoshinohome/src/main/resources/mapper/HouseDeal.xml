@@ -1,90 +1,47 @@
-<!--<?xml version="1.0" encoding="UTF-8"?>-->
-<!--<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!--<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseDealDao">-->
-<!--	<insert id="insertDept" parameterType="Dept"> insert into dept(deptno,dname,loc)-->
-<!--		values(#{deptno},#{dname},#{loc}) </insert>-->
+<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseDealDao">
 
-<!--	<update id="updateDept" parameterType="Dept"> update dept set dname = #{dname}, loc = #{loc} where-->
-<!--		deptno = #{deptno} </update>-->
+  <!-- ResultMap for HouseDealVo -->
+  <resultMap id="HouseDealVoResultMap" type="com.ssafy.hoshinohome.model.vo.HouseDealVo">
+    <result property="deal_code" column="deal_code" />
+    <result property="deal_amount" column="deal_amount" />
+    <result property="deal_year" column="deal_year" />
+    <result property="deal_month" column="deal_month" />
+    <result property="deal_day" column="deal_day" />
+    <result property="area" column="area" />
+    <result property="floor" column="floor" />
+    <result property="apt_code" column="apt_code" />
+    <result property="apartment_name" column="apartment_name" />
+    <result property="lng" column="lng" />
+    <result property="lat" column="lat" />
+    <result property="address" column="address" />
+  </resultMap>
 
-<!--	<delete id="deleteDept" parameterType="map"> delete from dept <where> deptno = 0 <if-->
-<!--				test="array != null"> or <foreach collection="array" item="item" open="deptno in ("-->
-<!--					close=")" separator=","> #{item} </foreach>-->
-<!--			</if>-->
-<!--		</where>-->
-<!--	</delete>-->
+  <!-- ResultMap for HouseDeal -->
+  <resultMap id="HouseDealResultMap" type="com.ssafy.hoshinohome.model.dto.HouseDeal">
+    <result property="deal_code" column="deal_code" />
+    <result property="deal_amount" column="deal_amount" />
+    <result property="deal_year" column="deal_year" />
+    <result property="deal_month" column="deal_month" />
+    <result property="deal_day" column="deal_day" />
+    <result property="area" column="area" />
+    <result property="floor" column="floor" />
+    <result property="apt_code" column="apt_code" />
+  </resultMap>
 
-<!--	<sql id="basicSelectDeptSQL"> select deptno,dname,loc from dept </sql>-->
+  <!-- Query for selectHouseDealLocations using resultMap -->
+  <select id="selectHouseDealLocations" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo AS
+    ( SELECT apt_code, apartment_name, lng, lat FROM houseinfo WHERE lng BETWEEN #{lngFrom} AND
+    #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ORDER BY apt_code LIMIT 10 ) SELECT ranked.*
+    FROM ( SELECT hd.deal_code, hd.deal_amount, hd.deal_year, hd.deal_month, hd.deal_day, hd.area,
+    hd.floor, hd.apt_code, hi.apartment_name, hi.lng, hi.lat, ROW_NUMBER() OVER (PARTITION BY
+    hd.apt_code ORDER BY hd.deal_code DESC) AS row_num FROM housedeal hd INNER JOIN
+    filteredHouseInfo hi ON hd.apt_code = hi.apt_code ) ranked WHERE ranked.row_num = 1; </select>
 
-<!--	<resultMap type="Dept" id="DeptResultMap">-->
-<!--		<id column="deptno" property="deptno" />-->
-<!--		<result column="dname" property="dname" />-->
-<!--		<result column="loc" property="loc" />-->
-<!--	</resultMap>-->
+  <!-- Query for selectHouseDeals using resultMap -->
+  <select id="selectHouseDeals" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
+    apt_code = #{aptCode}; </select>
 
-<!--	<select id="selectDepts" resultMap="DeptResultMap">-->
-<!--		<include refid="basicSelectDeptSQL"></include>-->
-<!--	</select>-->
-
-<!--	<select id="selectDeptsByDname" parameterType="string">-->
-<!--		<include refid="basicSelectDeptSQL"></include> where dname like concat('%',#{dname},'%') </select>-->
-
-<!--	&lt;!&ndash;   	<select id="selectDept" parameterType="int" resultType="Dept">  		 -->
-<!--  		<include refid="basicSelectDeptSQL"></include>-->
-<!--  		where deptno = #{value}-->
-<!--  	</select> &ndash;&gt;-->
-
-<!--	&lt;!&ndash;   	<resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">-->
-<!--		<collection property="emps" ofType="Emp">-->
-<!--			<id column="empno" property="empno"/>-->
-<!--			<result column="ename" property="ename"/>-->
-<!--			<result column="job" property="job"/>-->
-<!--		</collection>-->
-<!--  	</resultMap> &ndash;&gt;-->
-
-<!--	<resultMap type="Emp" id="EmpResultMap">-->
-<!--		<id column="empno" property="empno" />-->
-<!--		<result column="ename" property="ename" />-->
-<!--		<result column="job" property="job" />-->
-<!--	</resultMap>-->
-
-<!--	<resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">-->
-<!--		<collection property="emps" ofType="Emp" resultMap="EmpResultMap" />-->
-<!--	</resultMap>-->
-
-<!--	<select id="selectDept" resultMap="DeptEmpResultMap"> select deptno,dname,loc,empno,ename,job from-->
-<!--		dept left outer join emp using (deptno) where deptno = #{deptno} </select>-->
-
-<!--	<select id="selectDeptsByMultiCondition" resultType="Dept">-->
-<!--		<include refid="basicSelectDeptSQL"></include>-->
-<!--		<where>-->
-<!--			<if test="dname != null and dname != ''"> dname like concat('%',#{dname},'%') </if>-->
-<!--			<if-->
-<!--				test="loc != null and loc != ''"> and loc = #{loc} </if>-->
-<!--		</where>-->
-<!--	</select>-->
-<!--</mapper>-->
-<!--&lt;!&ndash; and의 추가되는 것을 방지해 주고 있음 &ndash;&gt;-->
-<!--&lt;!&ndash; Type에는 Table or 별칭? &ndash;&gt;-->
-<!--&lt;!&ndash; Association : 1 대 1의 관계성, Collection : 1 대 다의 관계성 &ndash;&gt;-->
-<!--&lt;!&ndash; column과 Proprety의 특성 +  column과 Proprerty 중 Property는 대소문자를 가린다.  &ndash;&gt;-->
-
-
-<!--&lt;!&ndash; Join 해보기 -->
-<!--  	문제는 Join이 될 때는, 최종적인 Type은 알려줄 수 있지만-->
-<!--  	값이 중간에 전달되는 과정에서의 Type을 알려줄 수 가 없다는 단점이 존재한다.-->
-<!--  	그래서 ResultMap을 설정해줘야 한다.-->
-<!--  	collection의 성질 -> deptno가 1개일 때, 다수개가 되는 성질을 가지고 있다.-->
-<!--  	&ndash;&gt;-->
-
-<!--&lt;!&ndash; N + 1 Problem -> 다수 개의 Record를 불렀을 때, 다른 연관된 Data를 가져오는 것 N + 1 Problem In myBatis &ndash;&gt;-->
-<!--&lt;!&ndash; 이런 문제가 있을 수도 있다는 것을 알고 있어야 한다. &ndash;&gt;-->
-<!--  -->
-<!--  -->
-<!--  -->
-<!--  -->
-<!--  -->
-<!--  -->
-<!--  -->
-<!-- -->
+</mapper>
