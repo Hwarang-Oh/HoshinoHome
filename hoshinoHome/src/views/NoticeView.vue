@@ -1,7 +1,8 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import noticeAPI from "@/api/notice.js";
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import { useNoticesStore } from '@/stores/noticesStore';
 
 export default {
   name: 'NoticePage',
@@ -50,10 +51,28 @@ export default {
       };
 
 
-      const router = useRouter()
+
+
+
+      // -------------- 게시글 클릭 시 ----------
+    
+    const router = useRouter()
+    const noticesStore = useNoticesStore();
+
     const toNoticeDetail = (id) => {
-      router.push({ name: 'noticeDetail', params: { id } });
+      const notice = notices.value.find(notice => notice.post_id === id);
+      if (notice) {
+        noticesStore.setSelectedNotice(notice);
+        router.push({ name: 'noticeDetail', params: { id } });
+      }
     };
+
+
+    const toNoticeRegist=()=>{
+      router.push({ name: 'noticeRegist'});
+    };
+
+
 
     return {
       currentPage,
@@ -62,7 +81,8 @@ export default {
       prevPage,
       nextPage,
         goToPage,
-        toNoticeDetail  
+        toNoticeDetail,
+        toNoticeRegist
       };
 
       
@@ -97,7 +117,9 @@ export default {
 
       <!-- Register Button -->
       <div class="text-right mb-8">
-        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+        <button 
+        @click="toNoticeRegist" 
+        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
           등록하기
         </button>
       </div>

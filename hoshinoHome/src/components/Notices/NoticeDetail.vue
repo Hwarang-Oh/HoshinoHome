@@ -1,32 +1,31 @@
 <!-- NoticeDetail.vue -->
 
 <script setup>
-import { watch, ref } from "vue";
-import { useRouter } from 'vue-router'
+import { ref } from "vue";
+import { useRouter } from 'vue-router';
+import { useNoticesStore } from '@/stores/noticesStore';
 import noticeAPI from "@/api/notice.js";
-const props = defineProps(['id'])
-const notice = ref({})
-// const router = useRouter()
 
-const getNotice = () => {
-    noticeAPI.getNoticeDetail(
-    props.id,
-        ({ data }) => {
-            (notice.value = data) 
-        },
-    () => console.log('공지 조회를 실패했습니다.')
+const noticesStore = useNoticesStore();
+const selectedNotice = ref(noticesStore.selectedNotice);
+
+const router = useRouter()
+
+const toNoticeModify = (id) => {
+    router.push({ name: 'noticeModify', params: { id } });
+};
+
+const removeNotice= (id)=>{
+  noticeAPI.removeNotice(
+    id,
+    () => { //성공시
+    router.push({ name: 'notice' });
+    },
+    (error) => { //실패시
+    console.error("공지사항 데이터를 삭제하는 데 실패했습니다.", error);
+    }
   )
 }
-
-
-watch(
-  () => props.id,
-  () => {
-    getNotice()
-  },
-  { immediate: true }
-)
-
 
 </script>
 
@@ -41,22 +40,24 @@ watch(
           <span>등록일</span>
         </div>
         <div class="flex justify-between mt-2">
-          <span>{{ notice.value.title }}</span>  
-          <span>{{ notice.value.date }}</span>
+          <span>{{ selectedNotice.title }}</span>  
+          <span>{{ selectedNotice.date }}</span>
         </div>
       </div>
       <div class="mt-4">
-        <p class="text-gray-700">{{ notice.value.content }}</p>
+        <p class="text-gray-700">{{ selectedNotice.content }}</p>
       </div>
       <div class="mt-6 flex justify-end space-x-4">
         <!-- Modify Button -->
         <button
+          @click="toNoticeModify(selectedNotice.post_id)"
           class="bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
         >
           수정하기
         </button>
         <!-- Delete Button -->
         <button
+          @click="removeNotice(selectedNotice.post_id)"
           class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-red-500 hover:to-orange-800 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
         >
           삭제하기

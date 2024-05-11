@@ -34,10 +34,16 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/noticeModify/:id',
+      name: 'noticeModify',
+      component: () => import('../components/Notices/NoticeModify.vue'),
+      props: true
+    },
+    {
       path: '/noticeRegist',
       name: 'noticeRegist',
       component: () => import('../components/Notices/NoticeRegist.vue')
-    }
+    },
   ]
 })
 
