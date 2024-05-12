@@ -1,37 +1,37 @@
 <!-- NoticeDetail.vue -->
 
 <script setup>
-import { ref } from "vue";
-import { useRouter } from 'vue-router';
-import { useNoticesStore } from '@/stores/noticesStore';
-import noticeAPI from "@/api/notice.js";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useNoticesStore } from '@/stores/noticesStore'
+import noticeAPI from '@/api/notice.js'
 
-const noticesStore = useNoticesStore();
-const selectedNotice = ref(noticesStore.selectedNotice);
+const noticesStore = useNoticesStore()
+const selectedNotice = ref(noticesStore.selectedNotice)
 
 const router = useRouter()
 
 const toNoticeModify = (id) => {
-    router.push({ name: 'noticeModify', params: { id } });
-};
+  router.push({ name: 'noticeModify', params: { id } })
+}
 
-const removeNotice= (id)=>{
+const removeNotice = (id) => {
   noticeAPI.removeNotice(
     id,
-    () => { //성공시
-    router.push({ name: 'notice' });
+    () => {
+      //성공시
+      router.push({ name: 'notice' })
     },
-    (error) => { //실패시
-    console.error("공지사항 데이터를 삭제하는 데 실패했습니다.", error);
+    (error) => {
+      //실패시
+      console.error('공지사항 데이터를 삭제하는 데 실패했습니다.', error)
     }
   )
 }
-
 </script>
 
-
 <template>
-    <div class="min-h-screen bg-gray-100 py-8">
+  <div class="min-h-screen bg-gray-100 py-8">
     <div class="max-w-2xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
       <h1 class="text-2xl font-bold text-green-600 text-center mb-6">공지사항 상세</h1>
       <div class="bg-green-100 text-green-700 py-2 px-4 rounded-md mb-4">
@@ -40,7 +40,7 @@ const removeNotice= (id)=>{
           <span>등록일</span>
         </div>
         <div class="flex justify-between mt-2">
-          <span>{{ selectedNotice.title }}</span>  
+          <span>{{ selectedNotice.title }}</span>
           <span>{{ selectedNotice.date }}</span>
         </div>
       </div>
@@ -64,10 +64,7 @@ const removeNotice= (id)=>{
         </button>
       </div>
     </div>
-</div>
-  </template>
-  
-  
- 
-  
-  <style scoped></style>
+  </div>
+</template>
+
+<style scoped></style>

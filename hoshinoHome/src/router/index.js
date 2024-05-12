@@ -43,7 +43,7 @@ const router = createRouter({
       path: '/noticeRegist',
       name: 'noticeRegist',
       component: () => import('../components/Notices/NoticeRegist.vue')
-    },
+    }
   ]
 })
 

@@ -5,9 +5,7 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <div
     class="bg-white hover:bg-green-500 transition duration-300 shadow p-4 flex justify-between items-center"
-  >
- 
-  </div>
+  ></div>
 </template>
 
 <style>

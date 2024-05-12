@@ -5,8 +5,6 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <main>
     <div>
-
-
       <!-- Hero Section -->
       <section class="relative">
         <img src="/skyscraper.jpg" alt="Hero Background" class="w-full object-cover opacity-80" />
@@ -26,7 +24,9 @@ import { RouterLink, RouterView } from 'vue-router'
               placeholder="지역, 지하철, 건물명, 학교명으로 검색하세요"
               class="w-80 p-2 rounded-lg text-gray-700 border border-gray-300 h-12"
             />
-            <button class="bg-sky-500 text-white py-2 px-4 rounded-lg hover:bg-sky-700 text-lg ml-3 h-12">
+            <button
+              class="bg-sky-500 text-white py-2 px-4 rounded-lg hover:bg-sky-700 text-lg ml-3 h-12"
+            >
               검색
             </button>
           </div>
@@ -51,8 +51,6 @@ import { RouterLink, RouterView } from 'vue-router'
           <p>손쉽게 찾아보는 부동산 정보</p>
         </div>
       </section>
-
-      
     </div>
   </main>
 </template>
