@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +19,7 @@ import com.ssafy.hoshinohome.model.vo.InputRangeVo;
 // 인터셉터에서는 로그인여부 체크해서 로그인 되었으면 계속해서 진행
 //								 안되어있으면 로그인화면으로...
 
-@RequestMapping("/api/Map")
+@RequestMapping("/api/map")
 @RestController
 public class MapController {
 
@@ -28,7 +29,7 @@ public class MapController {
         this.mapService = mapService;
     }
 
-    @GetMapping("/list")
+    @PostMapping("/list")
     public ResponseEntity<List<HouseDealVo>> getHouseDealVoList(@RequestBody InputRangeVo InputRangeVo)
             throws Exception {
         List<HouseDealVo> houseDealVoList = mapService.getHouseDealVoList(
