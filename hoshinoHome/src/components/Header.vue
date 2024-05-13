@@ -11,10 +11,8 @@
     </span>
 
     <nav class="space-x-4 flex text-lg">
-      <a href="#" class="hover:underline">탐색지도</a>
-      <a href="#" class="hover:underline">설명가이드</a>
-      <a href="#" class="hover:underline">부동산현황</a>
-      <a href="#" class="hover:underline">고객센터</a>
+      <RouterLink to="/login" class="ml-5 text-lg">Login</RouterLink>
+      <RouterLink to="/register" class="ml-5 text-lg">Register</RouterLink>
     </nav>
   </header>
 </template>
