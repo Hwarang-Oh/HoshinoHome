@@ -68,6 +68,12 @@
 			<version>2.4.0</version>
 		</dependency>
 
+		<!-- JWT 의존성 -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.9.1</version>
+		</dependency>
 
 	</dependencies>
 
