@@ -1,7 +1,6 @@
 <!--
   * 가독성을 위해 Template Style Script로 Code 순서를 변경함!
 -->
-
 <template>
   <div>
     <div id="map"></div>
@@ -32,7 +31,8 @@ button {
 </style>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import mapAPI from '@/api/map.js'
 
 // Define data as `refs`
 const markerPositions1 = [
@@ -52,7 +52,8 @@ const markerPositions2 = [
 
 const markers = ref([])
 const infowindow = ref(null)
-const map = ref(null)
+let map = reactive({})
+const dealList = ref([])
 
 // 1. 지도를 생성하는 Code
 const initMap = () => {
@@ -66,9 +67,26 @@ const initMap = () => {
   let zoomControl = new kakao.maps.ZoomControl()
 
   // Initialize the map
-  map.value = new kakao.maps.Map(container, options)
-  map.value.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
-  map.value.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
+  map = new kakao.maps.Map(container, options)
+  map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
+  map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
+
+  // const geocoder = new kakao.maps.services.Geocoder()
+  // let currentCodes = new Set()
+  kakao.maps.event.addListener(map, 'bounds_changed', function () {
+    if (isMoving) return // 지도 이동 중이라면 함수 실행 중지
+    drawApts() // 아파트 정보 그리기 함수 호출
+  })
+
+  let isMoving = false
+  kakao.maps.event.addListener(map, 'drag', function () {
+    isMoving = true
+  })
+
+  kakao.maps.event.addListener(map, 'dragend', function () {
+    isMoving = false
+    drawApts()
+  })
 }
 
 // 2. 지도의 크기를 변경하는 Code => Hide / Show 기능에 사용
@@ -77,6 +95,33 @@ const changeSize = (size) => {
   container.style.width = `${size}px`
   container.style.height = `${size}px`
   map.value.relayout()
+}
+
+// 3. kakaoMap services.Geocoder => 주소 - 좌표간 변화 Service 객체
+const drawApts = () => {
+  // 남서 ~ 북동 Range 좌표
+  // let swLat = map.getBounds().getSouthWest().getLat(),
+  //   swLng = map.getBounds().getSouthWest().getLng(),
+  //   neLat = map.getBounds().getNorthEast().getLat(),
+  //   neLng = map.getBounds().getNorthEast().getLng();
+  let range = {
+    lngFrom: map.getBounds().getSouthWest().getLng().toString(),
+    lngTo: map.getBounds().getNorthEast().getLng().toString(),
+    latFrom: map.getBounds().getSouthWest().getLat().toString(),
+    latTo: map.getBounds().getNorthEast().getLat().toString()
+  }
+  mapAPI.getDealList(
+    range,
+    (response) => {
+      console.log(range)
+      console.log(response.data)
+      dealList.value = response.data
+      console.log(dealList.value)
+    },
+    () => {
+      console.log('실거래가 정보를 불러오는 데 실패했습니다.')
+    }
+  )
 }
 
 const displayMarker = (markerPositions) => {

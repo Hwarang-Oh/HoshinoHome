@@ -1,59 +1,70 @@
 <script>
-import { ref, computed, onMounted } from 'vue';
-import noticeAPI from "@/api/notice.js";
+import { ref, computed, onMounted } from 'vue'
+import noticeAPI from '@/api/notice.js'
 import { useRouter } from 'vue-router'
+import { useNoticesStore } from '@/stores/noticesStore'
 
 export default {
   name: 'NoticePage',
   setup() {
-      const notices = ref([]);
+    const notices = ref([])
 
     const fetchNotices = () => {
-        noticeAPI.getNoticeList(
-            (response) => {
-            notices.value = response.data;
-            },
-            (error) => {
-            console.error("공지사항 데이터를 불러오는 데 실패했습니다.", error);
-            }
-        );
-      };
-    
-    onMounted(fetchNotices);
-      
+      noticeAPI.getNoticeList(
+        (response) => {
+          notices.value = response.data
+        },
+        (error) => {
+          console.error('공지사항 데이터를 불러오는 데 실패했습니다.', error)
+        }
+      )
+    }
 
-    const itemsPerPage = 5;
-    const currentPage = ref(1);
+    onMounted(fetchNotices)
+
+    const itemsPerPage = 5
+    const currentPage = ref(1)
 
     // Calculate the total number of pages
-    const totalPages = computed(() => Math.ceil(notices.value.length / itemsPerPage));
+    const totalPages = computed(() => Math.ceil(notices.value.length / itemsPerPage))
 
     // Get the notices to display for the current page
     const paginatedNotices = computed(() => {
-      const startIndex = (currentPage.value - 1) * itemsPerPage;
-      return notices.value.slice(startIndex, startIndex + itemsPerPage);
-    });
+      const startIndex = (currentPage.value - 1) * itemsPerPage
+      return notices.value.slice(startIndex, startIndex + itemsPerPage)
+    })
 
     // Go to the previous page
     const prevPage = () => {
-      if (currentPage.value > 1) currentPage.value -= 1;
-    };
+      if (currentPage.value > 1) currentPage.value -= 1
+    }
 
     // Go to the next page
     const nextPage = () => {
-      if (currentPage.value < totalPages.value) currentPage.value += 1;
-    };
+      if (currentPage.value < totalPages.value) currentPage.value += 1
+    }
 
     // Go to a specific page
     const goToPage = (page) => {
-      if (page >= 1 && page <= totalPages.value) currentPage.value = page;
-      };
+      if (page >= 1 && page <= totalPages.value) currentPage.value = page
+    }
 
+    // -------------- 게시글 클릭 시 ----------
 
-      const router = useRouter()
+    const router = useRouter()
+    const noticesStore = useNoticesStore()
+
     const toNoticeDetail = (id) => {
-      router.push({ name: 'noticeDetail', params: { id } });
-    };
+      const notice = notices.value.find((notice) => notice.post_id === id)
+      if (notice) {
+        noticesStore.setSelectedNotice(notice)
+        router.push({ name: 'noticeDetail', params: { id } })
+      }
+    }
+
+    const toNoticeRegist = () => {
+      router.push({ name: 'noticeRegist' })
+    }
 
     return {
       currentPage,
@@ -61,15 +72,12 @@ export default {
       paginatedNotices,
       prevPage,
       nextPage,
-        goToPage,
-        toNoticeDetail  
-      };
-
-      
+      goToPage,
+      toNoticeDetail,
+      toNoticeRegist
     }
-
-    
-};
+  }
+}
 </script>
 
 <template>
@@ -88,7 +96,12 @@ export default {
         </thead>
         <tbody>
           <!-- Loop over notices to populate table rows -->
-          <tr v-for="(notice, index) in paginatedNotices" :key="notice.post_id" class="hover:bg-green-50" @click="toNoticeDetail(notice.post_id)">
+          <tr
+            v-for="(notice, index) in paginatedNotices"
+            :key="notice.post_id"
+            class="hover:bg-green-50"
+            @click="toNoticeDetail(notice.post_id)"
+          >
             <td class="py-2 px-4 border-b border-gray-200">{{ notice.title }}</td>
             <td class="py-2 px-4 border-b border-gray-200">{{ notice.date }}</td>
           </tr>
@@ -97,7 +110,10 @@ export default {
 
       <!-- Register Button -->
       <div class="text-right mb-8">
-        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+        <button
+          @click="toNoticeRegist"
+          class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >
           등록하기
         </button>
       </div>
@@ -111,8 +127,15 @@ export default {
         >
           &lt;
         </button>
-        <span v-for="page in totalPages" :key="page" @click="goToPage(page)"
-          :class="page === currentPage ? 'bg-green-500 text-white' : 'bg-white text-green-700 hover:bg-green-200'"
+        <span
+          v-for="page in totalPages"
+          :key="page"
+          @click="goToPage(page)"
+          :class="
+            page === currentPage
+              ? 'bg-green-500 text-white'
+              : 'bg-white text-green-700 hover:bg-green-200'
+          "
           class="px-3 py-1 border rounded-full cursor-pointer"
         >
           {{ page }}
@@ -128,7 +151,5 @@ export default {
     </div>
   </div>
 </template>
-
-
 
 <style scoped></style>
