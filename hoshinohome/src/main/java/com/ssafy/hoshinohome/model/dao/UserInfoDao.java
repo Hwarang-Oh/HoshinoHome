@@ -1,10 +1,10 @@
 package com.ssafy.hoshinohome.model.dao;
 
 import com.ssafy.hoshinohome.model.dto.UserInfo;
+import org.apache.ibatis.annotations.Param;
 
 public interface UserInfoDao {
 
-    String login(UserInfo userInfo);
-
-    void register(UserInfo userInfo);
+    UserInfo findByUsername(@Param("username") String username);
+    void insertUser(UserInfo user);
 }

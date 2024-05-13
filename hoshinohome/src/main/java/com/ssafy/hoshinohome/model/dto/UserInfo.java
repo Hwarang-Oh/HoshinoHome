@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
+@Setter
 public class UserInfo {
     private int user_id; // PK
     private String user_name;
