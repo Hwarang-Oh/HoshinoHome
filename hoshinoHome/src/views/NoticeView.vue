@@ -3,11 +3,13 @@ import { ref, computed, onMounted } from 'vue'
 import noticeAPI from '@/api/notice.js'
 import { useRouter } from 'vue-router'
 import { useNoticesStore } from '@/stores/noticesStore'
+import axios from 'axios';
 
 export default {
   name: 'NoticePage',
   setup() {
     const notices = ref([])
+    const isAdmin = ref(false)
 
     const fetchNotices = () => {
       noticeAPI.getNoticeList(
@@ -20,7 +22,24 @@ export default {
       )
     }
 
-    onMounted(fetchNotices)
+    const checkAdmin = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8080/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        isAdmin.value = response.data.user_type === '1234';
+      } catch (error) {
+        console.error('사용자 정보를 불러오지 못했습니다.', error);
+      }
+    }
+
+    onMounted(() => {
+      fetchNotices();
+      checkAdmin();
+    });
 
     const itemsPerPage = 5
     const currentPage = ref(1)
@@ -74,7 +93,8 @@ export default {
       nextPage,
       goToPage,
       toNoticeDetail,
-      toNoticeRegist
+      toNoticeRegist,
+      isAdmin
     }
   }
 }
@@ -109,7 +129,7 @@ export default {
       </table>
 
       <!-- Register Button -->
-      <div class="text-right mb-8">
+      <div class="text-right mb-8" v-if="isAdmin">
         <button
           @click="toNoticeRegist"
           class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"

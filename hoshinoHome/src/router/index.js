@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import axios from 'axios';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,9 +13,6 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     },
     {
@@ -34,15 +32,17 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/noticeModify/:id',
+      path: '/notice/modify/:id',
       name: 'noticeModify',
       component: () => import('../components/Notices/NoticeModify.vue'),
-      props: true
+      props: true,
+      meta: { requiresAdmin: true }
     },
     {
-      path: '/noticeRegist',
+      path: '/notice/regist',
       name: 'noticeRegist',
-      component: () => import('../components/Notices/NoticeRegist.vue')
+      component: () => import('../components/Notices/NoticeRegist.vue'),
+      meta: { requiresAdmin: true }
     },
     {
       path: '/login',
@@ -55,6 +55,43 @@ const router = createRouter({
       component: () => import('../components/User/Register.vue')
     }
   ]
-})
+});
 
-export default router
+// 네비게이션 가드 추가
+router.beforeEach(async (to, from, next) => {
+  const publicPages = ['/login', '/register', '/', '/about', '/notice', '/map'];
+  const isPublicPage = publicPages.some(page => to.path === page || to.path.startsWith(`${page}/`));
+  const loggedIn = localStorage.getItem('token');
+
+  if (!isPublicPage && !loggedIn) {
+    alert('로그인이 필요합니다. 로그인 해주세요.');
+    return next('/');
+  }
+
+  // 관리자 권한이 필요한 페이지 확인
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('관리자 권한이 필요합니다.');
+      return next('/');
+    }
+    try {
+      const response = await axios.get('http://localhost:8080/auth/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (response.data.user_type !== '1234') {
+        alert('관리자 권한이 필요합니다.');
+        return next('/');
+      }
+    } catch (error) {
+      alert('사용자 정보를 불러오지 못했습니다.');
+      return next('/');
+    }
+  }
+
+  next();
+});
+
+export default router;
