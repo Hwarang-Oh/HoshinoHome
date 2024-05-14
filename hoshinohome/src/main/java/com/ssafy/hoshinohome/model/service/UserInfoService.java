@@ -29,4 +29,8 @@ public class UserInfoService {
             return false;
         }
     }
+
+    public void updateUser(UserInfo user) {
+        userInfoDao.updateUser(user);
+    }
 }

@@ -7,4 +7,5 @@ public interface UserInfoDao {
 
     UserInfo findByUsername(@Param("username") String username);
     void insertUser(UserInfo user);
+    void updateUser(UserInfo user);
 }

@@ -14,4 +14,13 @@
 		INSERT INTO userinfo (user_name, user_password, user_address, user_favorite_place, user_type)
 		VALUES (#{user_name}, #{user_password}, #{user_address}, #{user_favorite_place}, #{user_type})
 	</insert>
+
+	<!-- 사용자 정보 업데이트 -->
+	<update id="updateUser">
+		UPDATE userinfo
+		SET user_address = #{user_address},
+		user_favorite_place = #{user_favorite_place},
+		user_type = #{user_type}
+		WHERE user_name = #{user_name}
+	</update>
 </mapper>

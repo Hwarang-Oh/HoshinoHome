@@ -6,10 +6,7 @@ import com.ssafy.hoshinohome.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,5 +37,35 @@ public class AuthController {
             return ResponseEntity.ok(token);
         }
         return ResponseEntity.badRequest().body("Invalid credentials");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String username = jwtUtil.extractUsername(token);
+        UserInfo user = userInfoService.getUserByUsername(username);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.badRequest().body("Invalid token");
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<?> updateUserInfo(@RequestHeader("Authorization") String token, @RequestBody UserInfo updatedUser) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String username = jwtUtil.extractUsername(token);
+        UserInfo user = userInfoService.getUserByUsername(username);
+        if (user != null) {
+            user.setUser_address(updatedUser.getUser_address());
+            user.setUser_favorite_place(updatedUser.getUser_favorite_place());
+            user.setUser_type(updatedUser.getUser_type());
+            userInfoService.updateUser(user);
+            return ResponseEntity.ok("User info updated successfully");
+        }
+        return ResponseEntity.badRequest().body("Invalid token");
     }
 }
