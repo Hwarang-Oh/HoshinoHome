@@ -3,10 +3,15 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import noticeAPI from '@/api/notice.js'
 
-const notice = reactive({})
+const notice = reactive({
+  title: '',
+  content: '',
+  date: new Date().toISOString().slice(0, 10) // YYYY-MM-DD 형식으로 설정
+})
 const router = useRouter()
 
-const registNotice = (id) => {
+const registNotice = () => {
+
   noticeAPI.registerNotice(
     notice,
     () => {
@@ -15,13 +20,14 @@ const registNotice = (id) => {
     },
     (error) => {
       //실패시
-      console.error('공지사항 데이터를 삭제하는 데 실패했습니다.', error)
+      console.error('공지사항 데이터를 등록하는 데 실패했습니다.', error)
     }
   )
 }
 </script>
 
 <template>
+  <div class="min-h-screen bg-gray-100 py-8">
   <div class="max-w-2xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold text-green-600 text-center mb-6">공지사항 생성</h1>
     <div class="space-y-4">
@@ -51,13 +57,14 @@ const registNotice = (id) => {
         <!-- Submit Button -->
         <button
           @click="registNotice()"
-          class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+          class="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
         >
           등록하기
         </button>
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <style scoped></style>
