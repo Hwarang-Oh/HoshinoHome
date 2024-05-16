@@ -68,4 +68,18 @@ public class AuthController {
         }
         return ResponseEntity.badRequest().body("Invalid token");
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deleteUserInfo(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String username = jwtUtil.extractUsername(token);
+        UserInfo user = userInfoService.getUserByUsername(username);
+        if (user != null) {
+            userInfoService.deleteUser(username);
+            return ResponseEntity.ok("User deleted successfully");
+        }
+        return ResponseEntity.badRequest().body("Invalid token");
+    }
 }

@@ -33,4 +33,8 @@ public class UserInfoService {
     public void updateUser(UserInfo user) {
         userInfoDao.updateUser(user);
     }
+
+    public void deleteUser(String username) {
+        userInfoDao.deleteUser(username);
+    }
 }
