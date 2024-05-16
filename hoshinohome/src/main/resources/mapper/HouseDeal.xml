@@ -5,43 +5,55 @@
 
   <!-- ResultMap for HouseDealVo -->
   <resultMap id="HouseDealVoResultMap" type="com.ssafy.hoshinohome.model.vo.HouseDealVo">
-    <result property="deal_code" column="deal_code" />
+    <result property="house_code" column="house_code" />
+    <result property="house_type" column="house_type" />
+    <result property="deal_type" column="deal_type" />
+    <result property="house_name" column="house_name" />
+    <result property="jibun_address" column="jibun_address" />
+    <result property="road_address" column="road_address" />
     <result property="deal_amount" column="deal_amount" />
+    <result property="deposit_amount" column="deposit_amount" />
+    <result property="monthly_amount" column="monthly_amount" />
     <result property="deal_year" column="deal_year" />
     <result property="deal_month" column="deal_month" />
     <result property="deal_day" column="deal_day" />
     <result property="area" column="area" />
     <result property="floor" column="floor" />
-    <result property="apt_code" column="apt_code" />
-    <result property="apartment_name" column="apartment_name" />
     <result property="lng" column="lng" />
     <result property="lat" column="lat" />
-    <result property="address" column="address" />
   </resultMap>
 
   <!-- ResultMap for HouseDeal -->
   <resultMap id="HouseDealResultMap" type="com.ssafy.hoshinohome.model.dto.HouseDeal">
     <result property="deal_code" column="deal_code" />
+    <result property="deal_type" column="deal_type" />
     <result property="deal_amount" column="deal_amount" />
+    <result property="deposit_amount" column="deposit_amount" />
+    <result property="monthly_amount" column="monthly_amount" />
+    <result property="jibun_address" column="jibun_address" />
+    <result property="road_address" column="road_address" />
     <result property="deal_year" column="deal_year" />
     <result property="deal_month" column="deal_month" />
     <result property="deal_day" column="deal_day" />
     <result property="area" column="area" />
     <result property="floor" column="floor" />
-    <result property="apt_code" column="apt_code" />
+    <result property="house_code" column="house_code" />
+    <result property="house_type" column="house_type" />
   </resultMap>
 
   <!-- Query for selectHouseDealLocations using resultMap -->
-  <select id="selectHouseDealLocations" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo AS
-    ( SELECT apt_code, apartment_name, lng, lat FROM houseinfo WHERE lng BETWEEN #{lngFrom} AND
-    #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ORDER BY apt_code LIMIT 10 ) SELECT ranked.*
-    FROM ( SELECT hd.deal_code, hd.deal_amount, hd.deal_year, hd.deal_month, hd.deal_day, hd.area,
-    hd.floor, hd.apt_code, hi.apartment_name, hi.lng, hi.lat, ROW_NUMBER() OVER (PARTITION BY
-    hd.apt_code ORDER BY hd.deal_code DESC) AS row_num FROM housedeal hd INNER JOIN
-    filteredHouseInfo hi ON hd.apt_code = hi.apt_code ) ranked WHERE ranked.row_num = 1; </select>
+  <select id="selectHouseDealVoList" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo AS (
+    SELECT house_code, house_name, jibun_address, road_address, lng, lat FROM houseinfo WHERE lng
+    BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ORDER BY house_code
+    LIMIT 20) SELECT ranked.* FROM ( SELECT hd.house_code, hd.house_type, hd.deal_type,
+    hi.house_name, hd.deal_amount, hd.deposit_amount, hd.monthly_amount, hi.jibun_address,
+    hi.road_address, hd.deal_year, hd.deal_month, hd.deal_day, hd.area, hd.floor, hi.lng, hi.lat,
+    ROW_NUMBER() OVER (PARTITION BY hd.house_code ORDER BY hd.deal_code DESC) AS row_num FROM
+    housedeal hd INNER JOIN filteredHouseInfo hi ON hd.house_code = hi.house_code ) ranked WHERE
+    ranked.row_num = 1; </select>
 
   <!-- Query for selectHouseDeals using resultMap -->
-  <select id="selectHouseDeals" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
-    apt_code = #{aptCode}; </select>
+  <!-- <select id="selectHouseDeals" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
+    apt_code = #{aptCode}; </select> -->
 
 </mapper>

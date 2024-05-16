@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface HouseDealDao {
-    List<HouseDealVo> selectHouseDealLocations(@Param("lngFrom") String lngFrom,
+    List<HouseDealVo> selectHouseDealVoList(@Param("lngFrom") String lngFrom,
             @Param("lngTo") String lngTo,
             @Param("latFrom") String latFrom,
             @Param("latTo") String latTo);

@@ -24,6 +24,12 @@ public class MapServiceImpl implements MapService {
     }
 
     @Override
+    public List<HouseDealVo> getHouseDealVoList(String lngFrom, String lngTo, String latFrom, String latTo)
+            throws Exception {
+        return houseDealDao.selectHouseDealVoList(lngFrom, lngTo, latFrom, latTo);
+    }
+
+    @Override
     public List<HouseInfo> getHouseInfoList(String lngFrom, String lngTo, String latFrom, String latTo)
             throws Exception {
         return houseInfoDao.selectHouseInfos(lngFrom, lngTo, latFrom, latTo);
@@ -33,11 +39,4 @@ public class MapServiceImpl implements MapService {
     public List<HouseDeal> getHouseDealList(Long aptCode) throws Exception {
         return houseDealDao.selectHouseDeals(aptCode);
     }
-
-    @Override
-    public List<HouseDealVo> getHouseDealVoList(String lngFrom, String lngTo, String latFrom, String latTo)
-            throws Exception {
-        return houseDealDao.selectHouseDealLocations(lngFrom, lngTo, latFrom, latTo);
-    }
-
 }
