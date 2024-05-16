@@ -1,7 +1,7 @@
 import axios from 'axios'
 const { VITE_API_BASE_URL } = import.meta.env
 
-const noticeAxios = () => {
+const Axios = () => {
   return axios.create({
     baseURL: VITE_API_BASE_URL,
     headers: {
@@ -10,4 +10,4 @@ const noticeAxios = () => {
   })
 }
 
-export { noticeAxios }
+export { Axios }

@@ -1,6 +1,6 @@
-import { noticeAxios } from '@/utils/axios'
+import { Axios } from '@/utils/axios'
 
-const mapAPI = noticeAxios()
+const mapAPI = Axios()
 
 const getDealList = (range, success, fail) => {
   mapAPI.post('api/map/list', range).then(success).catch(fail)

@@ -29,6 +29,10 @@ const removeNotice = (id) => {
   );
 };
 
+const toNoticeList = () => {
+  router.push({ name: 'notice' });
+};
+
 const checkAdmin = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -65,21 +69,30 @@ onMounted(() => {
       <div class="mt-4">
         <p class="text-gray-700">{{ selectedNotice.content }}</p>
       </div>
-      <div class="mt-6 flex justify-end space-x-4" v-if="isAdmin">
-        <!-- Modify Button -->
+      <div class="mt-6 flex justify-end space-x-4">
+        <!-- List Button -->
         <button
-          @click="toNoticeModify(selectedNotice.post_id)"
-          class="bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+          @click="toNoticeList"
+          class="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
         >
-          수정하기
+          목록
         </button>
-        <!-- Delete Button -->
-        <button
-          @click="removeNotice(selectedNotice.post_id)"
-          class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-red-500 hover:to-orange-800 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
-        >
-          삭제하기
-        </button>
+        <template v-if="isAdmin">
+          <!-- Modify Button -->
+          <button
+            @click="toNoticeModify(selectedNotice.post_id)"
+            class="bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+          >
+            수정하기
+          </button>
+          <!-- Delete Button -->
+          <button
+            @click="removeNotice(selectedNotice.post_id)"
+            class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-red-500 hover:to-orange-800 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+          >
+            삭제하기
+          </button>
+        </template>
       </div>
     </div>
   </div>

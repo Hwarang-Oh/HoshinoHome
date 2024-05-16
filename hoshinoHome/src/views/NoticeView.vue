@@ -41,7 +41,7 @@ export default {
       checkAdmin();
     });
 
-    const itemsPerPage = 5
+    const itemsPerPage = 10
     const currentPage = ref(1)
 
     // Calculate the total number of pages
@@ -110,8 +110,8 @@ export default {
       <table class="w-full border-collapse table-fixed text-left mb-8">
         <thead>
           <tr class="bg-green-100 text-green-700">
-            <th class="w-3/4 py-2 px-4 border-b border-green-200">제목</th>
-            <th class="w-1/4 py-2 px-4 border-b border-green-200">등록일</th>
+            <th class="w-3/4 py-3 px-4 border-b border-green-200 text-lg font-semibold pdLeft">제목</th>
+            <th class="w-1/4 py-3 px-4 border-b border-green-200 text-lg font-semibold">등록일</th>
           </tr>
         </thead>
         <tbody>
@@ -119,11 +119,11 @@ export default {
           <tr
             v-for="(notice, index) in paginatedNotices"
             :key="notice.post_id"
-            class="hover:bg-green-50"
+            class="hover:bg-green-50 cursor-pointer"
             @click="toNoticeDetail(notice.post_id)"
           >
-            <td class="py-2 px-4 border-b border-gray-200">{{ notice.title }}</td>
-            <td class="py-2 px-4 border-b border-gray-200">{{ notice.date }}</td>
+            <td class="py-3 px-6 border-b border-gray-200">{{ notice.title }}</td>
+            <td class="py-3 px-4 border-b border-gray-200">{{ notice.date }}</td>
           </tr>
         </tbody>
       </table>
@@ -132,7 +132,7 @@ export default {
       <div class="text-right mb-8" v-if="isAdmin">
         <button
           @click="toNoticeRegist"
-          class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          class="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
         >
           등록하기
         </button>
@@ -172,4 +172,19 @@ export default {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* 테이블 헤더 스타일 */
+th {
+  text-align: left;
+}
+
+/* 테이블 본문 스타일 */
+td {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.pdLeft {
+  padding-left: 20px;
+}
+</style>

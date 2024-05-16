@@ -1,14 +1,26 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+  
 </script>
 
 <template>
-  <div
-    class="bg-white hover:bg-green-500 transition duration-300 shadow p-4 flex justify-between items-center"
-  ></div>
+ <div class="about">
+    <img src="/Karina.gif"  class="gif-image">
+ </div>
 </template>
 
 <style>
+.about {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.gif-image {
+  max-width: 100%;
+  height: auto;
+}
+
 @media (min-width: 1024px) {
   .about {
     min-height: 100vh;

@@ -1,6 +1,6 @@
-import { noticeAxios } from '@/utils/axios'
+import { Axios } from '@/utils/axios'
 
-const noticeAPI = noticeAxios()
+const noticeAPI = Axios()
 
 const getNoticeList = (success, fail) => {
   noticeAPI.get('/api/notices').then(success).catch(fail)
