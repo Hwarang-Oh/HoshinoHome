@@ -1,24 +1,40 @@
 package com.ssafy.hoshinohome.model.service;
 
-import java.util.List;
 
+import com.ssafy.hoshinohome.model.dao.UserInfoDao;
 import com.ssafy.hoshinohome.model.dto.UserInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-public interface UserInfoService {
+@Service
+public class UserInfoService {
 
-    boolean registerUserInfo(UserInfo userInfo) throws Exception;
+    @Autowired
+    private UserInfoDao userInfoDao;
 
-    boolean modifyUserInfo(UserInfo userInfo) throws Exception;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    boolean removeUserInfo(String id) throws Exception;
+    public UserInfo getUserByUsername(String username) {
+        return userInfoDao.findByUsername(username);
+    }
 
-    UserInfo getUserInfo(String id) throws Exception;
+    public boolean registerUser(UserInfo user) {
+        user.setUser_password(passwordEncoder.encode(user.getUser_password()));
+        try {
+            userInfoDao.insertUser(user);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-    String login(String id, String password) throws Exception;
+    public void updateUser(UserInfo user) {
+        userInfoDao.updateUser(user);
+    }
 
-    boolean removeFavoritePlace(String[] places) throws Exception;
-
-    boolean registerFavoritePlace(String[] places) throws Exception;
-
-    List<?> getFavoritePlace(String id) throws Exception;
+    public void deleteUser(String username) {
+        userInfoDao.deleteUser(username);
+    }
 }
