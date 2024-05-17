@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import noticeAPI from '@/api/notice.js'
 import { useRouter } from 'vue-router'
 import { useNoticesStore } from '@/stores/noticesStore'
-import axios from 'axios';
+import axios from 'axios'
 
 export default {
   name: 'NoticePage',
@@ -24,22 +24,22 @@ export default {
 
     const checkAdmin = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token')
         const response = await axios.get('http://localhost:8080/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`
           }
-        });
-        isAdmin.value = response.data.user_type === '1234';
+        })
+        isAdmin.value = response.data.user_type === '1234'
       } catch (error) {
-        console.error('사용자 정보를 불러오지 못했습니다.', error);
+        console.error('사용자 정보를 불러오지 못했습니다.', error)
       }
     }
 
     onMounted(() => {
-      fetchNotices();
-      checkAdmin();
-    });
+      fetchNotices()
+      checkAdmin()
+    })
 
     const itemsPerPage = 10
     const currentPage = ref(1)
@@ -110,7 +110,9 @@ export default {
       <table class="w-full border-collapse table-fixed text-left mb-8">
         <thead>
           <tr class="bg-green-100 text-green-700">
-            <th class="w-3/4 py-3 px-4 border-b border-green-200 text-lg font-semibold pdLeft">제목</th>
+            <th class="w-3/4 py-3 px-4 border-b border-green-200 text-lg font-semibold pdLeft">
+              제목
+            </th>
             <th class="w-1/4 py-3 px-4 border-b border-green-200 text-lg font-semibold">등록일</th>
           </tr>
         </thead>

@@ -1,55 +1,55 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useNoticesStore } from '@/stores/noticesStore';
-import noticeAPI from '@/api/notice.js';
-import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useNoticesStore } from '@/stores/noticesStore'
+import noticeAPI from '@/api/notice.js'
+import axios from 'axios'
 
-const noticesStore = useNoticesStore();
-const selectedNotice = ref(noticesStore.selectedNotice);
-const isAdmin = ref(false);
+const noticesStore = useNoticesStore()
+const selectedNotice = ref(noticesStore.selectedNotice)
+const isAdmin = ref(false)
 
-const router = useRouter();
+const router = useRouter()
 
 const toNoticeModify = (id) => {
-  router.push({ name: 'noticeModify', params: { id } });
-};
+  router.push({ name: 'noticeModify', params: { id } })
+}
 
 const removeNotice = (id) => {
   noticeAPI.removeNotice(
     id,
     () => {
       // 성공시
-      router.push({ name: 'notice' });
+      router.push({ name: 'notice' })
     },
     (error) => {
       // 실패시
-      console.error('공지사항 데이터를 삭제하는 데 실패했습니다.', error);
+      console.error('공지사항 데이터를 삭제하는 데 실패했습니다.', error)
     }
-  );
-};
+  )
+}
 
 const toNoticeList = () => {
-  router.push({ name: 'notice' });
-};
+  router.push({ name: 'notice' })
+}
 
 const checkAdmin = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     const response = await axios.get('http://localhost:8080/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    });
-    isAdmin.value = response.data.user_type === '1234';
+    })
+    isAdmin.value = response.data.user_type === '1234'
   } catch (error) {
-    console.error('사용자 정보를 불러오지 못했습니다.', error);
+    console.error('사용자 정보를 불러오지 못했습니다.', error)
   }
-};
+}
 
 onMounted(() => {
-  checkAdmin();
-});
+  checkAdmin()
+})
 </script>
 
 <template>

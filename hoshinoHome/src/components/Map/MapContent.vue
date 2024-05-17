@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, inject } from 'vue'
-const { initMap, changeSize, displayMarker, displayInfoWindow } = inject('service')
+const { initMap } = inject('service')
 
 // Initialize the map after the component is mounted
 onMounted(() => {
@@ -18,16 +18,6 @@ onMounted(() => {
 
 <template>
   <div id="map" class="absolute inset-0 z-0"></div>
-  <!-- <div>
-    <div class="button-group">
-      <button @click="changeSize(0)">Hide</button>
-      <button @click="changeSize(400)">Show</button>
-      <button @click="displayMarker(markerPositions1)">Marker Set 1</button>
-      <button @click="displayMarker(markerPositions2)">Marker Set 2</button>
-      <button @click="displayMarker([])">Marker Set 3 (Empty)</button>
-      <button @click="displayInfoWindow">Infowindow</button>
-    </div>
-  </div> -->
 </template>
 
 <style scoped>

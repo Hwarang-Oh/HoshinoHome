@@ -1,7 +1,7 @@
 <template>
   <div class="relative h-screen">
     <MapContent />
-    <MapList />
+    <router-view />
   </div>
 </template>
 
@@ -14,34 +14,24 @@ html {
 </style>
 
 <script setup>
-import MapContent from '@/components/MapContent.vue'
-import { ref, reactive, provide, readonly, watch } from 'vue'
+import { ref, reactive, watch, provide, readonly } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
 import mapAPI from '@/api/map.js'
-import MapList from '@/components/MapList.vue'
+import MapContent from '@/components/Map/MapContent.vue'
+import MapList from '@/components/Map/HouseDetail.vue'
 
 // Define data as `refs`
-const markerPositions1 = [
-  [33.452278, 126.567803],
-  [33.452671, 126.574792],
-  [33.451744, 126.572441]
-]
-const markerPositions2 = [
-  [37.499590490909185, 127.0263723554437],
-  [37.499427948430814, 127.02794423197847],
-  [37.498553760499505, 127.02882598822454],
-  [37.497625593121384, 127.02935713582038],
-  [37.49629291770947, 127.02587362608637],
-  [37.49754540521486, 127.02546694890695],
-  [37.49646391248451, 127.02675574250912]
-]
-
 // resources in Map View
+
 let map = reactive({})
 let markers = ref([])
 let infowindow = ref(null)
-const dealList = ref([])
+const router = useRouter()
+const dealVoList = ref([])
+const detailDealList = ref([])
+const selectedHouse = ref({})
 
-// 1. 지도를 생성하는 Code
+// 1. Main 지도를 생성하는 Code
 const initMap = () => {
   const container = document.getElementById('map')
   const options = {
@@ -92,29 +82,32 @@ const drawApts = () => {
     latFrom: map.getBounds().getSouthWest().getLat().toString(),
     latTo: map.getBounds().getNorthEast().getLat().toString()
   }
-  mapAPI.getDealList(
+  mapAPI.getHouseDealVoList(
     range,
     (response) => {
-      console.log(response.data)
-      dealList.value = response.data
-      console.log(dealList.value)
+      dealVoList.value = response.data
+      console.log('조건에 맞는 House의 대표값을 가져오는데 성공')
     },
     () => {
-      console.log('실거래가 정보를 불러오는 데 실패했습니다.')
+      console.log('조건에 맞는 실거래가 정보를 불러오는 데 실패했습니다.')
     }
   )
 }
 
 // 4. draw Overlay Marker
-const drawMarker = (dealList) => {
+const drawMarker = (dealVoList) => {
   let coords, marker
-  dealList.value.forEach((deal) => {
-    coords = new kakao.maps.LatLng(deal.lat, deal.lng)
+  dealVoList.value.forEach((dealVo) => {
+    coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
     marker = new kakao.maps.Marker({
       map: map,
       position: coords
     })
-    console.log(deal.lat, deal.lng, deal.apartment_name)
+    console.log(dealVo.lat, dealVo.lng, dealVo.apartment_name)
+    kakao.maps.event.addListener(marker, 'click', () => {
+      getHouseDealList(dealVo.house_code)
+      router.push(`/map/houseDetail/${dealVo.house_code}`)
+    })
   })
   // 인포윈도우로 장소에 대한 설명을 표시합니다
   infowindow = new kakao.maps.InfoWindow({
@@ -123,12 +116,57 @@ const drawMarker = (dealList) => {
   infowindow.open(map, marker)
 }
 
-// 4.1 drawList가 변하면, draw Overlay Marker 실행
-watch(dealList, () => {
-  drawMarker(dealList)
+// 4.1 drawList에 대한 Watch -> draw Overlay Marker 실행
+watch(dealVoList, () => {
+  drawMarker(dealVoList)
 })
 
-// 추후 개발
+// 5. Marker Click Event Function => Which will get detailDealList of that House Code
+const getHouseDealList = (house_code) => {
+  mapAPI.getHouseInfo(
+    house_code,
+    (response) => {
+      selectedHouse.value = response.data
+      console.log(response.data)
+    },
+    () => {
+      console.log(`해당 집의 기본 정보를 불러오지 못했어요.`)
+    }
+  ),
+    mapAPI.getHouseDealList(
+      house_code,
+      (response) => {
+        detailDealList.value = response.data
+        console.log(response.data)
+      },
+      () => {
+        console.error('해당 집의 거래내역을 불러오지 못했어요.')
+      }
+    )
+}
+
+// 6. Map House Detail Implementation Part -> 어쩌면 House Detail에서 전부 할 수도 있음.
+// 6.1 House Detail 창에서 close를 누르면, Map으로 돌아온다. ( 매개변수 조절을 통해, 다른 곳에서도 활용이 가능함 )
+const close = () => {
+  router.push('/map')
+}
+
+provide('res', {
+  map: readonly(map),
+  dealVoList: readonly(dealVoList),
+  detailDealList: readonly(detailDealList),
+  selectedHouse: readonly(selectedHouse)
+})
+
+provide('service', {
+  initMap,
+  changeSize,
+  close
+})
+</script>
+
+<!-- 추후 개발
+/*
 const displayMarker = (markerPositions) => {
   // Clear existing markers
   if (markers.value.length > 0) {
@@ -172,21 +210,4 @@ const displayInfoWindow = () => {
   })
   map.setCenter(iwPosition)
 }
-
-provide('res', {
-  map: readonly(map),
-  dealList: readonly(dealList),
-  infowindow: readonly(infowindow),
-  markers: readonly(markers),
-  markerPositions1,
-  markerPositions2
-})
-
-provide('service', {
-  // 등록 수정 삭제는 해당 Method를 통해 isReload값을 바꿀 것이다!!
-  initMap,
-  changeSize,
-  displayMarker,
-  displayInfoWindow
-})
-</script>
+*/ -->

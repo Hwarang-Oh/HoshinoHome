@@ -1,99 +1,99 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import { useRouter } from 'vue-router'
 
 const user = ref({
   user_name: '',
   user_address: '',
   user_favorite_place: '',
   user_type: ''
-});
+})
 
-const router = useRouter();
+const router = useRouter()
 
 const fetchUserInfo = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     const response = await axios.get('http://localhost:8080/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    });
-    user.value = response.data;
+    })
+    user.value = response.data
   } catch (error) {
     Swal.fire({
       icon: 'error',
       title: '사용자 정보를 불러오지 못했습니다.',
       text: error.message
-    });
+    })
   }
-};
+}
 
 const updateUserInfo = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     await axios.put('http://localhost:8080/auth/me', user.value, {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    });
+    })
     Swal.fire({
       icon: 'success',
       title: '사용자 정보가 성공적으로 업데이트되었습니다.',
       showConfirmButton: false,
       timer: 1500
     }).then(() => {
-      emit('close');
-    });
+      emit('close')
+    })
   } catch (error) {
     Swal.fire({
       icon: 'error',
       title: '사용자 정보 업데이트에 실패했습니다.',
       text: error.message
     }).then(() => {
-      emit('close');
-    });
+      emit('close')
+    })
   }
-};
+}
 
 const deleteUser = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     await axios.delete('http://localhost:8080/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    });
+    })
     Swal.fire({
       icon: 'success',
       title: '회원 탈퇴가 성공적으로 완료되었습니다.',
       showConfirmButton: false,
       timer: 1500
     }).then(() => {
-      localStorage.removeItem('token');
+      localStorage.removeItem('token')
       router.push('/').then(() => {
-        window.location.reload(); // 홈 화면으로 이동 후 새로고침
-      });
-      emit('close');
-    });
+        window.location.reload() // 홈 화면으로 이동 후 새로고침
+      })
+      emit('close')
+    })
   } catch (error) {
     Swal.fire({
       icon: 'error',
       title: '회원 탈퇴에 실패했습니다.',
       text: error.message
     }).then(() => {
-      router.push('/');
-      emit('close');
-    });
+      router.push('/')
+      emit('close')
+    })
   }
-};
+}
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close'])
 
 const showMyPageModal = async () => {
-  await fetchUserInfo();
+  await fetchUserInfo()
 
   Swal.fire({
     title: '내 정보',
@@ -110,11 +110,11 @@ const showMyPageModal = async () => {
     `,
     focusConfirm: false,
     preConfirm: () => {
-      user.value.user_address = document.getElementById('swal-input2').value;
-      user.value.user_favorite_place = document.getElementById('swal-input3').value;
-      user.value.user_type = document.getElementById('swal-input4').value;
+      user.value.user_address = document.getElementById('swal-input2').value
+      user.value.user_favorite_place = document.getElementById('swal-input3').value
+      user.value.user_type = document.getElementById('swal-input4').value
 
-      return updateUserInfo();
+      return updateUserInfo()
     },
     showCancelButton: true,
     confirmButtonText: '수정',
@@ -122,7 +122,7 @@ const showMyPageModal = async () => {
     showLoaderOnConfirm: true,
     allowOutsideClick: true,
     didOpen: () => {
-      const deleteBtn = Swal.getPopup().querySelector('#delete-btn');
+      const deleteBtn = Swal.getPopup().querySelector('#delete-btn')
       deleteBtn.addEventListener('click', async () => {
         const result = await Swal.fire({
           title: '회원 탈퇴',
@@ -133,21 +133,24 @@ const showMyPageModal = async () => {
           cancelButtonText: '취소'
         })
         if (result.isConfirmed) {
-          deleteUser();
+          deleteUser()
         }
-      });
+      })
     }
   }).then((result) => {
-    if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop) {
-      emit('close'); // 부모 컴포넌트에 close 이벤트 전송
+    if (
+      result.dismiss === Swal.DismissReason.cancel ||
+      result.dismiss === Swal.DismissReason.backdrop
+    ) {
+      emit('close') // 부모 컴포넌트에 close 이벤트 전송
     }
-  });
-};
+  })
+}
 
 // 컴포넌트가 마운트될 때 MyPage 모달을 표시합니다.
 onMounted(() => {
-  showMyPageModal();
-});
+  showMyPageModal()
+})
 </script>
 
 <template>

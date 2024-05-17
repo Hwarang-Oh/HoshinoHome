@@ -2,12 +2,12 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @font-face {
-    font-family: 'Exo';
-    src: url('@/assets/fonts/Exo-Regular.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  body {
-    font-family: 'Exo', sans-serif;
-  }
+  font-family: 'Exo';
+  src: url('@/assets/fonts/Exo-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Exo', sans-serif;
+}

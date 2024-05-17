@@ -1,11 +1,9 @@
-<script setup>
-  
-</script>
+<script setup></script>
 
 <template>
- <div class="about">
-    <img src="/Karina.gif"  class="gif-image">
- </div>
+  <div class="about">
+    <img src="/Karina.gif" class="gif-image" />
+  </div>
 </template>
 
 <style>
