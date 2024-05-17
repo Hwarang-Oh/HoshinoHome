@@ -61,13 +61,18 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: () => import('../components/User/Register.vue')
+    },
+    {
+      path: '/kakao',
+      name: 'kakao',
+      component: () => import('../components/User/Kakao.vue')
     }
   ]
 })
 
 // 네비게이션 가드 추가
 router.beforeEach(async (to, from, next) => {
-  const publicPages = ['/login', '/register', '/', '/about', '/notice', '/map']
+  const publicPages = ['/login', '/register', '/', '/about', '/notice', '/map', '/kakao']
   const isPublicPage = publicPages.some(
     (page) => to.path === page || to.path.startsWith(`${page}/`)
   )

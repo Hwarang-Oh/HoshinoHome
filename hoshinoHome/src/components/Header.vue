@@ -43,6 +43,10 @@ const toggleRegisterModal = () => {
 const toggleMyPageModal = () => {
   showMyPageModal.value = !showMyPageModal.value
 }
+
+const kakaoLogin = () => {
+  router.push('/kakao')
+}
 </script>
 
 <template>
@@ -63,6 +67,7 @@ const toggleMyPageModal = () => {
       <RouterLink to="/map" class="text-lg hover:text-gray-400 transition duration-300"
         >Map</RouterLink
       >
+      <button @click="kakaoLogin">카카오 로그인</button>
     </span>
 
     <nav class="space-x-4 flex text-lg">
