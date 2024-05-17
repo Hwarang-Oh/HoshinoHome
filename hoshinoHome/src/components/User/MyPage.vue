@@ -106,7 +106,6 @@ const showMyPageModal = async () => {
       <input id="swal-input3" class="swal2-input" value="${user.value.user_favorite_place}">
       <label for="swal-input4" class="block text-gray-700">관리자 코드:</label>
       <input id="swal-input4" class="swal2-input" value="${user.value.user_type}">
-      <button id="delete-btn" class="swal2-cancel swal2-styled" style="display: inline-block; background-color: red; margin-top: 10px;">삭제</button>
     `,
     focusConfirm: false,
     preConfirm: () => {
@@ -122,8 +121,12 @@ const showMyPageModal = async () => {
     showLoaderOnConfirm: true,
     allowOutsideClick: true,
     didOpen: () => {
-      const deleteBtn = Swal.getPopup().querySelector('#delete-btn');
-      deleteBtn.addEventListener('click', async () => {
+      const swalModal = Swal.getPopup();
+      const cancelButton = swalModal.querySelector('.swal2-cancel');
+      cancelButton.textContent = '탈퇴';
+      cancelButton.style.backgroundColor = '#d33';
+      cancelButton.addEventListener('click', async (event) => {
+        event.stopImmediatePropagation();
         const result = await Swal.fire({
           title: '회원 탈퇴',
           text: '정말로 탈퇴하시겠습니까?',
@@ -131,7 +134,7 @@ const showMyPageModal = async () => {
           showCancelButton: true,
           confirmButtonText: '탈퇴',
           cancelButtonText: '취소'
-        })
+        });
         if (result.isConfirmed) {
           deleteUser();
         }
