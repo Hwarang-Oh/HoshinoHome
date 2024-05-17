@@ -35,7 +35,7 @@ const selectSuggestion = (suggestion) => {
     <div>
       <!-- Hero Section -->
       <section class="relative">
-        <img src="/skyscraper.jpg" alt="Hero Background" class="w-full object-cover opacity-80" />
+        <img src="/skyscraper.jpg" alt="Hero Background" class="w-full object-cover opacity-80 bg" />
 
         <!-- 어두운 오버레이 추가 -->
         <div class="absolute inset-0 bg-black opacity-50"></div>
@@ -113,3 +113,9 @@ const selectSuggestion = (suggestion) => {
               검색
             </button>
 -->
+
+<style scoped>
+.bg{
+  height: calc(100vh - 180px);
+}
+</style>

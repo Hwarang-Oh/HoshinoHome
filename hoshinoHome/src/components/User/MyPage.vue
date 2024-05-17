@@ -99,13 +99,13 @@ const showMyPageModal = async () => {
     title: '내 정보',
     html: `
       <label for="swal-input1" class="block text-gray-700">아이디:</label>
-      <input id="swal-input1" class="swal2-input" style="width: 255px;" value="${user.value.user_name}" readonly>
-      <label for="swal-input2" class="block text-gray-700">주소:</label>
-      <input id="swal-input2" class="swal2-input" value="${user.value.user_address}">
-      <label for="swal-input3" class="block text-gray-700">관심 지역:</label>
-      <input id="swal-input3" class="swal2-input" value="${user.value.user_favorite_place}">
-      <label for="swal-input4" class="block text-gray-700">관리자 코드:</label>
-      <input id="swal-input4" class="swal2-input" value="${user.value.user_type}">
+      <input id="swal-input1" class="swal2-input" style="width: 255px;" value="${user.value.user_name ? user.value.user_name : 'Kakao ID'}" readonly>
+      <label for="swal-input2" class="block text-gray-700 mt-5">주소:</label>
+      <input id="swal-input2" class="swal2-input" value="${user.value.user_address ? user.value.user_address : 'Kakao Address'}">
+      <label for="swal-input3" class="block text-gray-700 mt-5">관심 지역:</label>
+      <input id="swal-input3" class="swal2-input" value="${user.value.user_favorite_place ? user.value.user_favorite_place : 'Kakao Place'}">
+      <label for="swal-input4" class="block text-gray-700 mt-5">관리자 코드:</label>
+      <input id="swal-input4" class="swal2-input" value="${user.value.user_type ? user.value.user_type : 'Kakao User'}">
     `,
     focusConfirm: false,
     preConfirm: () => {
