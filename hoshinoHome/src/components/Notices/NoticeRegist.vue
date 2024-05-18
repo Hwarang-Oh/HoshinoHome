@@ -6,7 +6,7 @@ import noticeAPI from '@/api/notice.js'
 const notice = reactive({
   title: '',
   content: '',
-  date: new Date().toISOString().slice(0, 10) // YYYY-MM-DD 형식으로 설정
+  date: new Date()
 })
 const router = useRouter()
 

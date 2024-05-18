@@ -14,7 +14,7 @@ export default {
     const fetchNotices = () => {
       noticeAPI.getNoticeList(
         (response) => {
-          notices.value = response.data
+          notices.value = response.data.sort((a, b) => new Date(b.date) - new Date(a.date))
         },
         (error) => {
           console.error('공지사항 데이터를 불러오는 데 실패했습니다.', error)
@@ -125,7 +125,7 @@ export default {
             @click="toNoticeDetail(notice.post_id)"
           >
             <td class="py-3 px-6 border-b border-gray-200">{{ notice.title }}</td>
-            <td class="py-3 px-4 border-b border-gray-200">{{ notice.date }}</td>
+            <td class="py-3 px-4 border-b border-gray-200">{{ new Date(notice.date).toLocaleDateString() }}</td>
           </tr>
         </tbody>
       </table>
