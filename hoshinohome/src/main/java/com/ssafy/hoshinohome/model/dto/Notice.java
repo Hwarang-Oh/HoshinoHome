@@ -16,7 +16,6 @@ public class Notice {
     private String title;
     private String content;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    private LocalDateTime date;
 
 }

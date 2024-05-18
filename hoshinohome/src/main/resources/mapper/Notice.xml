@@ -3,7 +3,7 @@
 
 <mapper namespace="com.ssafy.hoshinohome.model.dao.NoticeDao">
 	<insert id="insertNotice" parameterType="Notice"> insert into Notice(title,content,date)
-		values(#{title}, #{content}, #{date}) </insert>
+		values(#{title}, #{content}, NOW()) </insert>
 
 	<update id="updateNotice" parameterType="Notice"> update Notice set title = #{title}, content =
 		#{content}, date = #{date} where post_id = #{post_id} </update>
