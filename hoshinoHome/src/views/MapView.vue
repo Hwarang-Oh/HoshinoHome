@@ -18,7 +18,6 @@ import { ref, reactive, watch, provide, readonly } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import mapAPI from '@/api/map.js'
 import MapContent from '@/components/Map/MapContent.vue'
-import MapList from '@/components/Map/HouseDetail.vue'
 
 // Define data as `refs`
 // resources in Map View
@@ -80,12 +79,15 @@ const drawApts = () => {
     lngFrom: map.getBounds().getSouthWest().getLng().toString(),
     lngTo: map.getBounds().getNorthEast().getLng().toString(),
     latFrom: map.getBounds().getSouthWest().getLat().toString(),
-    latTo: map.getBounds().getNorthEast().getLat().toString()
+    latTo: map.getBounds().getNorthEast().getLat().toString(),
+    houseTypes: [1],
+    dealTypes: [2]
   }
-  mapAPI.getHouseDealVoList(
+  mapAPI.getHouseDealVoList2(
     range,
     (response) => {
       dealVoList.value = response.data
+      console.log(dealVoList.value)
       console.log('조건에 맞는 House의 대표값을 가져오는데 성공')
     },
     () => {

@@ -6,6 +6,10 @@ const getHouseDealVoList = (range, success, fail) => {
   mapAPI.post('api/map/list', range).then(success).catch(fail)
 }
 
+const getHouseDealVoList2 = (extendRange, success, fail) => {
+  mapAPI.post('api/map/list2', extendRange).then(success).catch(fail)
+}
+
 const getHouseDealList = (house_code, success, fail) => {
   mapAPI.get(`api/map/dealList/${house_code}`).then(success).catch(fail)
 }
@@ -18,4 +22,10 @@ const searchHouseInfoByQuery = (query, success, fail) => {
   mapAPI.get(`api/map/search`, { params: { query } }).then(success).catch(fail)
 }
 
-export default { getHouseDealVoList, getHouseDealList, getHouseInfo, searchHouseInfoByQuery }
+export default {
+  getHouseDealVoList,
+  getHouseDealVoList2,
+  getHouseDealList,
+  getHouseInfo,
+  searchHouseInfoByQuery
+}

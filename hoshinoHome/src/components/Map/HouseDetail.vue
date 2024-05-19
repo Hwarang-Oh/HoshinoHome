@@ -1,11 +1,12 @@
 <script setup>
-import { reactive, ref, inject, onMounted, watch } from 'vue'
-const { dealVoList, detailDealList, selectedHouse } = inject('res')
+import { ref, reactive, computed, onMounted, inject } from 'vue'
+import DealTypeChart from './DealTypeChart.vue'
+import DealAmountChart from './DealAmountChart.vue'
+const { detailDealList, selectedHouse } = inject('res')
 const { close } = inject('service')
 
 let miniMap = reactive({})
-
-// Initialize the mini-map
+// 1. Initialize the mini-map
 const initMiniMap = () => {
   const container = document.getElementById('mini-map')
   const options = {
@@ -32,8 +33,25 @@ onMounted(() => {
     document.head.appendChild(script)
   }
 })
-</script>
 
+// 2. Compute Chart Data for dealTypeCount
+const dealTypeCounts = computed(() => {
+  const counts = { 1: 0, 2: 0, 3: 0 }
+  detailDealList.value.forEach((deal) => {
+    if (counts[deal.deal_type] !== undefined) counts[deal.deal_type]++
+  })
+  return {
+    labels: Object.keys(counts).map((type) => `Type ${type}`),
+    counts: Object.values(counts)
+  }
+})
+
+const chartType = ref('dealAmount')
+
+function setChartType(type) {
+  chartType.value = type
+}
+</script>
 <template>
   <!-- Left Side (Property Detail) -->
   <div class="absolute top-0 left-0 w-1/5 h-full bg-white shadow-lg overflow-auto p-4 z-50">
@@ -113,7 +131,30 @@ onMounted(() => {
         </div>
         <!-- Graph Placeholder -->
         <div class="h-40 bg-gray-100 flex items-center justify-center">
-          <span class="text-gray-400">320 x 180</span>
+          <DealTypeChart v-if="detailDealList.length" :data="dealTypeCounts" />
+        </div>
+        <div class="toggle-buttons">
+          <button
+            @click="setChartType('dealAmount')"
+            :class="{ active: chartType === 'dealAmount' }"
+          >
+            Deal Amount
+          </button>
+          <button
+            @click="setChartType('depositAmount')"
+            :class="{ active: chartType === 'depositAmount' }"
+          >
+            Deposit Amount
+          </button>
+          <button
+            @click="setChartType('monthlyAmount')"
+            :class="{ active: chartType === 'monthlyAmount' }"
+          >
+            Deposit + Monthly Amount
+          </button>
+        </div>
+        <div class="h-40 bg-gray-100 flex items-center justify-center">
+          <DealAmountChart :dealData="detailDealList" :chartType="chartType" />
         </div>
       </div>
 
@@ -141,4 +182,23 @@ onMounted(() => {
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+.toggle-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+
+.toggle-buttons button {
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #ddd;
+  border-radius: 5px;
+}
+
+.toggle-buttons button.active {
+  background-color: #42a5f5;
+  color: white;
+}
+</style>
