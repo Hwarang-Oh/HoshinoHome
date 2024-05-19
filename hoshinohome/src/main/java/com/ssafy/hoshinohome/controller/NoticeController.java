@@ -1,6 +1,7 @@
 package com.ssafy.hoshinohome.controller;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,7 @@ public class NoticeController {
     @PostMapping
     protected ResponseEntity<?> registerNotice(@RequestBody Notice notice) throws Exception{
         boolean result = noticeService.addNotice(notice);
+        notice.setDate(LocalDateTime.now());
         if(result) {
             return ResponseEntity.created(URI.create("/api/notices/" + notice.getPost_id())).build();
         }else {
@@ -61,6 +63,7 @@ public class NoticeController {
     @Operation(summary = "공지 수정")
     @PutMapping("/{post_id}")
     protected ResponseEntity<?> modifyNotice(@RequestBody Notice notice) throws Exception{
+        notice.setDate(LocalDateTime.now());
         noticeService.modifyNotice(notice);
         return ResponseEntity.ok().build();
     }

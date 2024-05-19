@@ -2,27 +2,26 @@ package com.ssafy.hoshinohome.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 public class DongStory {
-    private int post_id;
-    private String user_id;
-    private String dong_code;
+    private int post_id; // PK
     private String title;
     private String content;
-    private String datetime;
+    private int user_id; // FK
+    private LocalDateTime date;
+    private String region; // 지역 구분
 
-    public DongStory() {
-    }
+    public DongStory() {}
 
-    public DongStory(int post_id, String user_id, String dong_code, String title, String content, String datetime) {
+    public DongStory(int post_id, String title, String content, int user_id, LocalDateTime date, String region) {
         this.post_id = post_id;
-        this.user_id = user_id;
-        this.dong_code = dong_code;
         this.title = title;
         this.content = content;
-        this.datetime = datetime;
+        this.user_id = user_id;
+        this.date = date;
+        this.region = region;
     }
-
 }

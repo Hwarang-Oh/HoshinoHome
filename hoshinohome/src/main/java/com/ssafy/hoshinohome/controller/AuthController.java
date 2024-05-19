@@ -23,6 +23,10 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserInfo user) {
+        UserInfo existingUser = userInfoService.getUserByUsername(user.getUser_name()); //중복아이디 있는지 확인
+        if (existingUser != null) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
         if (userInfoService.registerUser(user)) {
             return ResponseEntity.ok("User registered successfully");
         }

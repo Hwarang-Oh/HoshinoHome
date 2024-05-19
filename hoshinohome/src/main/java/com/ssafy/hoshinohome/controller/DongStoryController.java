@@ -1,24 +1,63 @@
 package com.ssafy.hoshinohome.controller;
 
+import com.ssafy.hoshinohome.model.dto.DongStory;
+import com.ssafy.hoshinohome.model.service.DongStoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-// /dept 로 시작하는 모든 요청들은 로그인해야만 사용할수 있도록 인터셉터 처리하자!!
-// 인터셉터에서는 로그인여부 체크해서 로그인 되었으면 계속해서 진행
-//								 안되어있으면 로그인화면으로...
-
-@RequestMapping("/DongStory")
 @RestController
+@RequestMapping("/api/dongstories")
 public class DongStoryController {
 
+    @Autowired
+    private DongStoryService dongStoryService;
+
+    @PostMapping
+    public ResponseEntity<?> addDongStory(@RequestBody DongStory dongStory) throws Exception {
+        dongStory.setDate(LocalDateTime.now());
+        if (dongStoryService.addDongStory(dongStory)) {
+            return ResponseEntity.ok("DongStory 생성 성공!!");
+        }
+        return ResponseEntity.badRequest().body("DongStory 생성 실패!!");
+    }
+
+    @PutMapping("/{post_id}")
+    public ResponseEntity<?> updateDongStory(@PathVariable int post_id, @RequestBody DongStory dongStory) throws Exception {
+        dongStory.setPost_id(post_id);
+        dongStory.setDate(LocalDateTime.now());
+        if (dongStoryService.modifyDongStory(dongStory)) {
+            return ResponseEntity.ok("DongStory 수정 성공!!");
+        }
+        return ResponseEntity.badRequest().body("DongStory 수정 실패!!");
+    }
+
+    @DeleteMapping("/{post_id}")
+    public ResponseEntity<?> deleteDongStory(@PathVariable int post_id) throws Exception {
+        if (dongStoryService.removeDongStory(post_id)) {
+            return ResponseEntity.ok("DongStory 삭제 성공!!");
+        }
+        return ResponseEntity.badRequest().body("DongStory 삭제 실패!!");
+    }
+
+    @GetMapping("/{post_id}")
+    public ResponseEntity<?> getDongStory(@PathVariable int post_id) throws Exception {
+        DongStory dongStory = dongStoryService.getDongStory(post_id);
+        if (dongStory != null) {
+            return ResponseEntity.ok(dongStory);
+        }
+        return ResponseEntity.badRequest().body("DongStory 찾을 수 없음!!");
+    }
+
+    @GetMapping("/region/{region}")
+    public ResponseEntity<?> getDongStoriesByRegion(@PathVariable String region) throws Exception {
+        List<DongStory> dongStories = dongStoryService.getDongStoriesByRegion(region);
+        if (dongStories != null) {
+            return ResponseEntity.ok(dongStories);
+        }
+        return ResponseEntity.badRequest().body("DongStory 찾을 수 없음!!");
+    }
 }
