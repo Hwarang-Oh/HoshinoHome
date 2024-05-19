@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.hoshinohome.model.dto.HouseDeal;
+import com.ssafy.hoshinohome.model.dto.HouseInfo;
 import com.ssafy.hoshinohome.model.service.MapService;
+import com.ssafy.hoshinohome.model.vo.ExtendedInputRangeVo;
 import com.ssafy.hoshinohome.model.vo.HouseDealVo;
 import com.ssafy.hoshinohome.model.vo.InputRangeVo;
+import org.springframework.web.bind.annotation.RequestParam;
 
 // /dept 로 시작하는 모든 요청들은 로그인해야만 사용할수 있도록 인터셉터 처리하자!!
 // 인터셉터에서는 로그인여부 체크해서 로그인 되었으면 계속해서 진행
@@ -44,13 +47,46 @@ public class MapController {
         }
     }
 
-    @GetMapping("/aptList{aptCode}")
-    public ResponseEntity<List<HouseDeal>> getAptList(@PathVariable("aptCode") String aptCode) throws Exception {
-        Long apt_code = Long.parseLong(aptCode);
-        List<HouseDeal> HouseDeaList = mapService.getHouseDealList(apt_code);
+    @PostMapping("/list2")
+    public ResponseEntity<List<HouseDealVo>> getHouseDealVoList2(@RequestBody ExtendedInputRangeVo inputRangeVo)
+            throws Exception {
+        List<HouseDealVo> houseDealVoList2 = mapService.getHouseDealVoList2(
+                inputRangeVo.getLngFrom(),
+                inputRangeVo.getLngTo(),
+                inputRangeVo.getLatFrom(),
+                inputRangeVo.getLatTo(),
+                inputRangeVo.getHouseTypes(),
+                inputRangeVo.getDealTypes());
+        if (houseDealVoList2 != null) {
+            return ResponseEntity.ok(houseDealVoList2);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    @GetMapping("/dealList/{houseCode}")
+    public ResponseEntity<List<HouseDeal>> getHouseDealList(@PathVariable("houseCode") String houseCode)
+            throws Exception {
+        Long house_code = Long.parseLong(houseCode);
+        List<HouseDeal> HouseDeaList = mapService.getHouseDealList(house_code);
         if (HouseDeaList != null) {
             return ResponseEntity.ok(HouseDeaList);
         } else
             return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/houseInfo/{houseCode}")
+    public ResponseEntity<?> getHouseInfo(@PathVariable("houseCode") String houseCode) throws Exception {
+        Long house_code = Long.parseLong(houseCode);
+        HouseInfo houseInfo = mapService.getHouseInfo(house_code);
+        if (houseInfo != null) {
+            return ResponseEntity.ok(houseInfo);
+        } else
+            return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public List<HouseInfo> searchHouseInfoListByQuery(@RequestParam String query) throws Exception {
+        return mapService.searchHouseInfoListByQuery(query);
     }
 }

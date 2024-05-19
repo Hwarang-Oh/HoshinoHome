@@ -9,10 +9,17 @@ import java.util.List;
 
 @Repository
 public interface HouseDealDao {
-    List<HouseDealVo> selectHouseDealVoList(@Param("lngFrom") String lngFrom,
-            @Param("lngTo") String lngTo,
-            @Param("latFrom") String latFrom,
-            @Param("latTo") String latTo);
+        List<HouseDealVo> selectHouseDealVoList(@Param("lngFrom") String lngFrom,
+                        @Param("lngTo") String lngTo,
+                        @Param("latFrom") String latFrom,
+                        @Param("latTo") String latTo);
 
-    List<HouseDeal> selectHouseDeals(@Param("aptCode") Long aptCode);
+        List<HouseDeal> selectHouseDealList(@Param("houseCode") Long houseCode);
+
+        List<HouseDealVo> selectHouseDealVoList2(@Param("lngFrom") String lngFrom,
+                        @Param("lngTo") String lngTo,
+                        @Param("latFrom") String latFrom,
+                        @Param("latTo") String latTo,
+                        @Param("houseTypes") List<Integer> houseTypes,
+                        @Param("dealTypes") List<Integer> dealTypes);
 }

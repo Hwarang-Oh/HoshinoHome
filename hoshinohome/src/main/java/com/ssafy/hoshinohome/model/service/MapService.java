@@ -10,8 +10,13 @@ public interface MapService {
         public List<HouseDealVo> getHouseDealVoList(String lngFrom, String lngTo, String latFrom, String latTo)
                         throws Exception;
 
-        public List<HouseInfo> getHouseInfoList(String lngFrom, String lngTo, String latFrom, String latTo)
-                        throws Exception;
+        public List<HouseDealVo> getHouseDealVoList2(String lngFrom, String lngTo, String latFrom, String latTo,
+                        List<Integer> houseTypes, List<Integer> dealTypes) throws Exception;
 
-        public List<HouseDeal> getHouseDealList(Long aptCode) throws Exception;
+        public List<HouseDeal> getHouseDealList(Long houseCode) throws Exception;
+
+        public HouseInfo getHouseInfo(Long houseCode) throws Exception;
+
+        public List<HouseInfo> searchHouseInfoListByQuery(String query) throws Exception;
+
 }

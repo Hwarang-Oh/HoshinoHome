@@ -23,6 +23,7 @@ public class MapServiceImpl implements MapService {
         this.houseInfoDao = houseInfoDao;
     }
 
+    // Map 기능 1 : HouseDealListVoList를 가져온다. -> 대표값이 지도에 MarkUp으로 나타난다.
     @Override
     public List<HouseDealVo> getHouseDealVoList(String lngFrom, String lngTo, String latFrom, String latTo)
             throws Exception {
@@ -30,13 +31,32 @@ public class MapServiceImpl implements MapService {
     }
 
     @Override
-    public List<HouseInfo> getHouseInfoList(String lngFrom, String lngTo, String latFrom, String latTo)
-            throws Exception {
-        return houseInfoDao.selectHouseInfos(lngFrom, lngTo, latFrom, latTo);
+    public List<HouseDealVo> getHouseDealVoList2(String lngFrom, String lngTo, String latFrom, String latTo,
+            List<Integer> houseTypes, List<Integer> dealTypes) throws Exception {
+
+        return houseDealDao.selectHouseDealVoList2(lngFrom, lngTo, latFrom, latTo, houseTypes, dealTypes);
     }
 
+    // Map 기능 2 : HouseDealListVo를 통해 나타난 지도의 MarkUp을 선택하면, 해당 HouseCode를 가진 이전
+    // 거래내역을
+    // 가져온다.
     @Override
-    public List<HouseDeal> getHouseDealList(Long aptCode) throws Exception {
-        return houseDealDao.selectHouseDeals(aptCode);
+    public List<HouseDeal> getHouseDealList(Long houseCode) throws Exception {
+        return houseDealDao.selectHouseDealList(houseCode);
     }
+
+    // Map 기능 3 : HouseDealListVo를 통해 나타난 지도의 MarkUp을 선택하면, 해당 HouseCode를
+    // 가진 House Info 대표 정보를 가져온다.
+    @Override
+    public HouseInfo getHouseInfo(Long houseCode) throws Exception {
+        return houseInfoDao.selectHouseInfo(houseCode);
+    }
+
+    // Map 기능 4 : 건물명 혹은 지역 / 주소로 사용자는 입력한다. 해당 사용자의 입력에 대한 자동완성 기능을 제공한다.
+
+    @Override
+    public List<HouseInfo> searchHouseInfoListByQuery(String query) throws Exception {
+        return houseInfoDao.selectHouseInfoListByQuery(query);
+    }
+
 }
