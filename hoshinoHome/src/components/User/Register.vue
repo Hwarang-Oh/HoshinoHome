@@ -27,10 +27,17 @@ const register = async () => {
       router.push('/')
     })
   } catch (error) {
+    let errorMessage = '모든 필드를 확인하세요.'
+    if (error.response && error.response.data === 'Username already exists') {
+      errorMessage = '이미 존재하는 아이디입니다.'
+    }
     Swal.fire({
       icon: 'error',
       title: '회원가입 실패!',
-      text: '모든 필드를 확인하세요.'
+      text: errorMessage
+    }).then(() => {
+      emit('close') // 부모 컴포넌트에 close 이벤트 전송
+      router.push('/')
     })
   }
 }

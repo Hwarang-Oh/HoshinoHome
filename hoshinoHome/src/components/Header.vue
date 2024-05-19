@@ -27,8 +27,11 @@ onMounted(() => {
 // 로그아웃 함수
 const logout = () => {
   localStorage.removeItem('token')
+  localStorage.removeItem('kakao_209b21c4ea1644f6b617f33542bc6dd8')
   isLoggedIn.value = false
-  router.push('/')
+  router.push('/').then(() => {
+        window.location.reload(); // 홈 화면으로 이동 후 새로고침
+      });
 }
 
 // 모달 토글 함수
@@ -44,17 +47,18 @@ const toggleMyPageModal = () => {
   showMyPageModal.value = !showMyPageModal.value
 }
 
-const kakaoLogin = () => {
-  router.push('/kakao')
-}
 </script>
 
 <template>
   <!-- Header Section -->
   <header
-    class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-opacity-70 text-white py-4 px-6 flex justify-between items-center shadow-lg backdrop-filter backdrop-blur-lg"
+    class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-opacity-70 text-white py-4 px-6 flex justify-between items-center shadow-lg backdrop-filter backdrop-blur-lg custom"
   >
-    <span class="flex space-x-5">
+    <div class="flex items-center space-x-5">
+      <!-- Home Icon -->
+      <RouterLink to="/">
+        <img src="/home-icon2.png" alt="Home" class="cursor-pointer" style="width: 130px; height: auto;"/>
+      </RouterLink>
       <RouterLink to="/" class="text-lg hover:text-gray-400 transition duration-300"
         >Home</RouterLink
       >
@@ -67,8 +71,7 @@ const kakaoLogin = () => {
       <RouterLink to="/map" class="text-lg hover:text-gray-400 transition duration-300"
         >Map</RouterLink
       >
-      <button @click="kakaoLogin">카카오 로그인</button>
-    </span>
+    </div>
 
     <nav class="space-x-4 flex text-lg">
       <!-- 로그인 하기 전 보일 부분 -->
