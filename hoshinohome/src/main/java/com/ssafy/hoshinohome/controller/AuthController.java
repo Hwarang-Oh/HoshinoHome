@@ -3,10 +3,17 @@ package com.ssafy.hoshinohome.controller;
 import com.ssafy.hoshinohome.model.dto.UserInfo;
 import com.ssafy.hoshinohome.model.service.UserInfoService;
 import com.ssafy.hoshinohome.util.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,6 +27,9 @@ public class AuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private final String kakaoClientId = "cb468ba340c66b67b05d3bf01aa83b7f";
+    private final String kakaoRedirectUri = "http://127.0.0.1:8080/auth/kakao/callback";
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserInfo user) {
@@ -85,5 +95,79 @@ public class AuthController {
             return ResponseEntity.ok("User deleted successfully");
         }
         return ResponseEntity.badRequest().body("Invalid token");
+    }
+
+    @GetMapping("/kakao/login")
+    public void kakaoLogin(HttpServletResponse response) throws IOException {
+        String redirectUrl = "https://kauth.kakao.com/oauth/authorize" +
+                "?client_id=" + kakaoClientId +
+                "&redirect_uri=" + kakaoRedirectUri +
+                "&response_type=code";
+        response.sendRedirect(redirectUrl);
+    }
+
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
+        // 1. 인가 코드를 이용하여 액세스 토큰 요청
+        String tokenUrl = "https://kauth.kakao.com/oauth/token";
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", kakaoClientId);
+        params.add("redirect_uri", kakaoRedirectUri);
+        params.add("code", code);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to get access token");
+        }
+
+        String accessToken = (String) response.getBody().get("access_token");
+
+        // 2. 액세스 토큰을 이용하여 사용자 정보 요청
+        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
+        HttpHeaders userInfoHeaders = new HttpHeaders();
+        userInfoHeaders.add("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<Void> userInfoRequest = new HttpEntity<>(userInfoHeaders);
+        ResponseEntity<Map> userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userInfoRequest, Map.class);
+
+        if (userInfoResponse.getStatusCode() != HttpStatus.OK) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to get user info");
+        }
+
+        Map<String, Object> userInfo = userInfoResponse.getBody();
+        System.out.println("UserInfo: " + userInfo);  // 응답 내용을 로그로 출력
+
+        if (userInfo == null || !userInfo.containsKey("kakao_account")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid kakao account");
+        }
+
+        Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
+        String email = (String) kakaoAccount.get("email");
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email not provided");
+        }
+
+        // 3. 사용자 정보 저장 또는 업데이트
+        UserInfo user = userInfoService.getUserByUsername(email);
+        if (user == null) {
+            user = new UserInfo();
+            user.setUser_name(email);
+            user.setUser_password(passwordEncoder.encode("kakao")); // 임의의 비밀번호 설정
+            user.setUser_address("");
+            user.setUser_favorite_place("");
+            user.setUser_type("user"); // 일반 사용자로 설정
+            userInfoService.registerUser(user);
+        }
+
+        // 4. JWT 발급
+        String jwtToken = jwtUtil.generateToken(user.getUser_name());
+        return ResponseEntity.ok(jwtToken);
     }
 }
