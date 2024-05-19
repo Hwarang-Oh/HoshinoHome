@@ -54,7 +54,11 @@ const toggleMyPageModal = () => {
   <header
     class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-opacity-70 text-white py-4 px-6 flex justify-between items-center shadow-lg backdrop-filter backdrop-blur-lg custom"
   >
-    <span class="flex space-x-5">
+    <div class="flex items-center space-x-5">
+      <!-- Home Icon -->
+      <RouterLink to="/">
+        <img src="/home-icon2.png" alt="Home" class="cursor-pointer" style="width: 130px; height: auto;"/>
+      </RouterLink>
       <RouterLink to="/" class="text-lg hover:text-gray-400 transition duration-300"
         >Home</RouterLink
       >
@@ -67,7 +71,7 @@ const toggleMyPageModal = () => {
       <RouterLink to="/map" class="text-lg hover:text-gray-400 transition duration-300"
         >Map</RouterLink
       >
-    </span>
+    </div>
 
     <nav class="space-x-4 flex text-lg">
       <!-- 로그인 하기 전 보일 부분 -->

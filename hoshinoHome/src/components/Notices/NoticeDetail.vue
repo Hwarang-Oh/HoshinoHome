@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import noticeAPI from '@/api/notice.js';
 import commentAPI from '@/api/comment.js';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const selectedNotice = ref({});
 const comments = ref([]);
@@ -64,6 +65,17 @@ const fetchComments = () => {
 };
 
 const addComment = () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    Swal.fire({
+      icon: 'error',
+      title: '로그인이 필요한 서비스입니다.',
+      showConfirmButton: true,
+      confirmButtonText: '확인'
+    });
+    return;
+  }
+
   const comment = {
     post_id: selectedNotice.value.post_id,
     board_type: 'notice',
