@@ -42,7 +42,8 @@
   </resultMap>
 
   <!-- Query for selectHouseDealLocations using resultMap -->
-  <select id="selectHouseDealVoList" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo AS (
+  <!-- <select id="selectHouseDealVoList" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo
+  AS (
     SELECT house_code, house_name, jibun_address, road_address, lng, lat FROM houseinfo WHERE lng
     BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ORDER BY house_code
     LIMIT 20) SELECT ranked.* FROM ( SELECT hd.house_code, hd.house_type, hd.deal_type,
@@ -50,10 +51,37 @@
     hi.road_address, hd.deal_year, hd.deal_month, hd.deal_day, hd.area, hd.floor, hi.lng, hi.lat,
     ROW_NUMBER() OVER (PARTITION BY hd.house_code ORDER BY hd.deal_code DESC) AS row_num FROM
     housedeal hd INNER JOIN filteredHouseInfo hi ON hd.house_code = hi.house_code ) ranked WHERE
-    ranked.row_num = 1; </select>
+    ranked.row_num = 1; </select> -->
 
-  <!-- Query for selectHouseDeals using resultMap -->
-  <!-- <select id="selectHouseDeals" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
-    apt_code = #{aptCode}; </select> -->
+  <select id="selectHouseDealVoList" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo AS (
+    SELECT house_code, house_name, jibun_address, road_address, lng, lat FROM houseinfo WHERE lng
+    BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ORDER BY house_code
+    LIMIT 20 ), rankedDeals AS ( SELECT hd.house_code, hd.house_type, hd.deal_type, hi.house_name,
+    hd.deal_amount, hd.deposit_amount, hd.monthly_amount, hi.jibun_address, hi.road_address,
+    hd.deal_year, hd.deal_month, hd.deal_day, hd.area, hd.floor, hi.lng, hi.lat, ROW_NUMBER() OVER
+    (PARTITION BY hd.house_code ORDER BY hd.deal_year DESC, hd.deal_month DESC, hd.deal_day DESC) AS
+    row_num FROM housedeal hd INNER JOIN filteredHouseInfo hi ON hd.house_code = hi.house_code )
+    SELECT * FROM rankedDeals WHERE row_num = 1; </select>
+
+  <select id="selectHouseDealVoList2" resultMap="HouseDealVoResultMap"> SELECT pd.house_code,
+    pd.house_type, pd.deal_type, pd.latest_deal_amount AS deal_amount, pd.latest_deposit_amount AS
+    deposit_amount, pd.latest_monthly_amount AS monthly_amount, pd.latest_deal_year AS deal_year,
+    pd.latest_deal_month AS deal_month, pd.latest_deal_day AS deal_day, hi.house_name,
+    hi.jibun_address, hi.road_address, hi.lng, hi.lat FROM pre_aggregated_deals pd INNER JOIN
+    houseinfo hi ON pd.house_code = hi.house_code WHERE pd.house_code IN ( SELECT house_code FROM
+    houseinfo WHERE lng BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ) <if
+      test="houseTypes != null and houseTypes.size() > 0"> AND pd.house_type IN <foreach item="type"
+        index="index" collection="houseTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+      <if
+      test="dealTypes != null and dealTypes.size() > 0"> AND pd.deal_type IN <foreach item="type"
+        index="index" collection="dealTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+    ORDER BY pd.latest_deal_year DESC, pd.latest_deal_month DESC, pd.latest_deal_day DESC LIMIT 20; </select>
+
+
+  <!-- Query for selectHouseDealList using resultMap -->
+  <select id="selectHouseDealList" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
+    house_code = #{houseCode}; </select>
 
 </mapper>

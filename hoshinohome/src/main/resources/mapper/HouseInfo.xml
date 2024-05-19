@@ -3,10 +3,10 @@
 
 <mapper namespace="com.ssafy.hoshinohome.model.dao.HouseInfoDao">
 
-  <select id="selectHouseInfos" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo"> SELECT
-    apt_code, build_year, road_name, road_name_bonbun, road_name_bubun, road_name_seq,
-    road_name_basement_code, road_name_code, dong, bonbun, bubun, si_gun_gu_code,
-    eub_myun_dong_code, dong_code, land_code, apartment_name, jibun, lng, lat FROM houseinfo WHERE
-    lng BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} </select>
+  <select id="selectHouseInfo" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo"> SELECT * FROM
+    houseinfo where house_code = #{houseCode};</select>
 
+  <select id="selectHouseInfoListByQuery" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo">
+    SELECT * FROM houseinfo WHERE house_name LIKE CONCAT('%', #{query}, '%') OR road_address LIKE
+    CONCAT('%', #{query}, '%') OR jibun_address LIKE CONCAT('%', #{query}, '%') LIMIT 10;</select>
 </mapper>
