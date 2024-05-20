@@ -63,21 +63,19 @@
     row_num FROM housedeal hd INNER JOIN filteredHouseInfo hi ON hd.house_code = hi.house_code )
     SELECT * FROM rankedDeals WHERE row_num = 1; </select>
 
-  <select id="selectHouseDealVoList2" resultMap="HouseDealVoResultMap"> SELECT pd.house_code,
-    pd.house_type, pd.deal_type, pd.latest_deal_amount AS deal_amount, pd.latest_deposit_amount AS
-    deposit_amount, pd.latest_monthly_amount AS monthly_amount, pd.latest_deal_year AS deal_year,
-    pd.latest_deal_month AS deal_month, pd.latest_deal_day AS deal_day, hi.house_name,
-    hi.jibun_address, hi.road_address, hi.lng, hi.lat FROM pre_aggregated_deals pd INNER JOIN
-    houseinfo hi ON pd.house_code = hi.house_code WHERE pd.house_code IN ( SELECT house_code FROM
-    houseinfo WHERE lng BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ) <if
-      test="houseTypes != null and houseTypes.size() > 0"> AND pd.house_type IN <foreach item="type"
-        index="index" collection="houseTypes" open="(" separator="," close=")"> #{type} </foreach>
+  <select id="selectHouseDealVoList2" resultMap="HouseDealVoResultMap"> SELECT r.house_code,
+    r.house_type, r.deal_type, r.deal_code, r.deal_amount, r.deposit_amount, r.monthly_amount,
+    r.jibun_address, r.road_address, r.deal_year, r.deal_month, r.deal_day, r.area, r.floor,
+    hi.house_name, hi.lng, hi.lat FROM recent_housedeal r INNER JOIN houseinfo hi ON r.house_code =
+    hi.house_code WHERE hi.lng BETWEEN #{lngFrom} AND #{lngTo} AND hi.lat BETWEEN #{latFrom} AND
+    #{latTo} <if test="houseTypes != null and houseTypes.size() > 0"> AND r.house_type IN <foreach
+        item="type" index="index" collection="houseTypes" open="(" separator="," close=")"> #{type} </foreach>
     </if>
-      <if
-      test="dealTypes != null and dealTypes.size() > 0"> AND pd.deal_type IN <foreach item="type"
+        <if
+      test="dealTypes != null and dealTypes.size() > 0"> AND r.deal_type IN <foreach item="type"
         index="index" collection="dealTypes" open="(" separator="," close=")"> #{type} </foreach>
     </if>
-    ORDER BY pd.latest_deal_year DESC, pd.latest_deal_month DESC, pd.latest_deal_day DESC LIMIT 20; </select>
+    ORDER BY r.deal_year DESC, r.deal_month DESC, r.deal_day DESC LIMIT 20; </select>
 
 
   <!-- Query for selectHouseDealList using resultMap -->
