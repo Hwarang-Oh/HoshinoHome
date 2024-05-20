@@ -71,6 +71,9 @@ const toggleMyPageModal = () => {
       <RouterLink to="/map" class="text-lg hover:text-gray-400 transition duration-300"
         >Map</RouterLink
       >
+      <RouterLink to="/dongStory" class="text-lg hover:text-gray-400 transition duration-300"
+        >Dong Story</RouterLink
+      >
     </div>
 
     <nav class="space-x-4 flex text-lg">

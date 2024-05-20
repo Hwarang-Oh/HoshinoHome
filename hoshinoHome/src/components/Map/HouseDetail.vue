@@ -1,5 +1,6 @@
 <script setup>
-import { ref, reactive, computed, onMounted, inject } from 'vue'
+import { ref, reactive, computed, onMounted, inject, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import DealTypeChart from './DealTypeChart.vue'
 import DealAmountChart from './DealAmountChart.vue'
 const { detailDealList, selectedHouse } = inject('res')
@@ -51,7 +52,17 @@ const chartType = ref('dealAmount')
 function setChartType(type) {
   chartType.value = type
 }
+
+const router = useRouter()
+const goToDongStory = () => {
+  if (selectedHouse.value.dong_name) {
+    router.push({ name: 'dongStory', query: { dongName: selectedHouse.value.dong_name } })
+  } else {
+    console.error('dong_name is not defined')
+  }
+}
 </script>
+
 <template>
   <!-- Left Side (Property Detail) -->
   <div class="absolute top-0 left-0 w-1/5 h-full bg-white shadow-lg overflow-auto p-4 z-50">
@@ -85,15 +96,9 @@ function setChartType(type) {
     <!-- Info Section -->
     <div class="mb-4">
       <div class="flex items-center mb-2">
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 mr-2"
-          >주변</span
-        >
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1"
-          >토지</span
-        >
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 ml-2"
-          >건물</span
-        >
+        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 mr-2">주변</span>
+        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1">토지</span>
+        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 ml-2">건물</span>
       </div>
       <p class="text-sm text-gray-700">분당선 압구정로데오역 도보 5분</p>
       <p class="text-sm text-gray-700">토지 52평 (172m²) · 건물 75평 (248m²)</p>
@@ -102,15 +107,9 @@ function setChartType(type) {
     <!-- Tabs Section -->
     <div class="border-b border-gray-200 mb-4">
       <nav class="flex space-x-4">
-        <button class="text-blue-600 border-b-2 border-blue-600 py-2" aria-current="page">
-          실거래
-        </button>
-        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600">
-          주변 정보
-        </button>
-        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600">
-          Dong Story
-        </button>
+        <button class="text-blue-600 border-b-2 border-blue-600 py-2" aria-current="page">실거래</button>
+        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600">주변 정보</button>
+        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600" @click="goToDongStory">Dong Story</button>
       </nav>
     </div>
 
@@ -134,24 +133,9 @@ function setChartType(type) {
           <DealTypeChart v-if="detailDealList.length" :data="dealTypeCounts" />
         </div>
         <div class="toggle-buttons">
-          <button
-            @click="setChartType('dealAmount')"
-            :class="{ active: chartType === 'dealAmount' }"
-          >
-            Deal Amount
-          </button>
-          <button
-            @click="setChartType('depositAmount')"
-            :class="{ active: chartType === 'depositAmount' }"
-          >
-            Deposit Amount
-          </button>
-          <button
-            @click="setChartType('monthlyAmount')"
-            :class="{ active: chartType === 'monthlyAmount' }"
-          >
-            Deposit + Monthly Amount
-          </button>
+          <button @click="setChartType('dealAmount')" :class="{ active: chartType === 'dealAmount' }">Deal Amount</button>
+          <button @click="setChartType('depositAmount')" :class="{ active: chartType === 'depositAmount' }">Deposit Amount</button>
+          <button @click="setChartType('monthlyAmount')" :class="{ active: chartType === 'monthlyAmount' }">Deposit + Monthly Amount</button>
         </div>
         <div class="h-40 bg-gray-100 flex items-center justify-center">
           <DealAmountChart :dealData="detailDealList" :chartType="chartType" />
@@ -182,6 +166,7 @@ function setChartType(type) {
     </div>
   </div>
 </template>
+
 <style scoped>
 .toggle-buttons {
   display: flex;

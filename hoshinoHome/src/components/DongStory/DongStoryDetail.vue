@@ -1,12 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import noticeAPI from '@/api/notice.js';
+import dongStoryAPI from '@/api/dongStory.js';
 import commentAPI from '@/api/comment.js';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const selectedNotice = ref({});
+const selectedDongStory = ref({});
 const comments = ref([]);
 const newComment = ref('');
 const isAdmin = ref(false);
@@ -18,22 +18,22 @@ const userName = ref('');
 const router = useRouter();
 const route = useRoute();
 
-const toNoticeModify = (id) => {
-  router.push({ name: 'noticeModify', params: { id } });
+const toDongStoryModify = (id) => {
+  router.push({ name: 'dongStoryModify', params: { id } });
 };
 
-const removeNotice = (id) => {
-  noticeAPI.removeNotice(id, 
+const removeDongStory = (id) => {
+  dongStoryAPI.removeDongStory(id, 
     () => {
-      router.push({ name: 'notice' });
+      router.push({ name: 'dongStory' });
     },
     (error) => {
-      console.error('공지사항 데이터를 삭제하는 데 실패했습니다.', error);
+      console.error('DongStory 데이터를 삭제하는 데 실패했습니다.', error);
     });
 };
 
-const toNoticeList = () => {
-  router.push({ name: 'notice' });
+const toDongStoryList = () => {
+  router.push({ name: 'dongStory' });
 };
 
 const checkAdmin = async () => {
@@ -53,8 +53,9 @@ const checkAdmin = async () => {
   }
 };
 
+
 const fetchComments = () => {
-  commentAPI.getCommentsByPostAndBoard(selectedNotice.value.post_id, 'notice',
+  commentAPI.getCommentsByPostAndBoard(selectedDongStory.value.post_id, 'dongstory',
     (response) => {
       comments.value = response.data;
     },
@@ -76,11 +77,12 @@ const addComment = () => {
   }
 
   const comment = {
-    post_id: selectedNotice.value.post_id,
-    board_type: 'notice',
+    post_id: selectedDongStory.value.post_id,
+    board_type: 'dongstory',
     user_id: userId.value,
     user_name: userName.value,
     content: newComment.value,
+    
   };
   commentAPI.addComment(comment, 
     () => {
@@ -123,58 +125,61 @@ const deleteComment = (commentId) => {
     });
 };
 
-const fetchSelectedNotice = (id) => {
-  noticeAPI.getNoticeDetail(id, 
+const fetchSelectedDongStory = (id) => {
+  dongStoryAPI.getDongStoryDetail(id, 
     (response) => {
-      selectedNotice.value = response.data;
+      selectedDongStory.value = response.data;
       fetchComments();
     },
     (error) => {
-      console.error('공지사항 데이터를 불러오는 데 실패했습니다.', error);
+      console.error('DongStory 데이터를 불러오는 데 실패했습니다.', error);
     });
 };
 
 onMounted(async () => {
   await checkAdmin();
-  const noticeId = route.params.id;
-  fetchSelectedNotice(noticeId);
+  const dongStoryId = route.params.id;
+  fetchSelectedDongStory(dongStoryId);
 });
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 py-8">
+  <div class="min-h-screen bg-blue-50 py-8">
     <div class="max-w-2xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
-      <h1 class="text-2xl font-bold text-green-600 text-center mb-6">공지사항 상세</h1>
-      <div v-if="selectedNotice.title" class="bg-green-100 text-green-700 py-2 px-4 rounded-md mb-4">
+      <h1 class="text-2xl font-bold text-blue-600 text-center mb-6">DongStory 상세</h1>
+      <div v-if="selectedDongStory.title" class="bg-blue-100 text-blue-700 py-2 px-4 rounded-md mb-4">
         <div class="flex justify-between">
           <span>제목</span>
           <span>등록일</span>
         </div>
         <div class="flex justify-between mt-2">
-          <span>{{ selectedNotice.title }}</span>
-          <span>{{ new Date(selectedNotice.date).toLocaleString() }}</span>
+          <span>{{ selectedDongStory.title }}</span>
+          <span>{{ new Date(selectedDongStory.date).toLocaleString() }}</span>
+        </div>
+        <div class="flex justify-between mt-2">
+          <span>작성자: {{ selectedDongStory.user_name }}</span>
         </div>
       </div>
       <div v-else class="text-center text-gray-500">로딩 중...</div>
-      <div class="mt-4" v-if="selectedNotice.content">
-        <p class="text-gray-700">{{ selectedNotice.content }}</p>
+      <div class="mt-4" v-if="selectedDongStory.content">
+        <p class="text-gray-700">{{ selectedDongStory.content }}</p>
       </div>
       <div class="mt-6 flex justify-end space-x-4">
         <button
-          @click="toNoticeList"
-          class="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+          @click="toDongStoryList"
+          class="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
         >
           목록
         </button>
-        <template v-if="isAdmin">
+        <template v-if="isAdmin || selectedDongStory.user_id === userId">
           <button
-            @click="toNoticeModify(selectedNotice.post_id)"
+            @click="toDongStoryModify(selectedDongStory.post_id)"
             class="bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
           >
             수정하기
           </button>
           <button
-            @click="removeNotice(selectedNotice.post_id)"
+            @click="removeDongStory(selectedDongStory.post_id)"
             class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-red-500 hover:to-orange-800 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
           >
             삭제하기
@@ -184,7 +189,7 @@ onMounted(async () => {
 
       <!-- Comment Section -->
       <div class="mt-8">
-        <h2 class="text-xl font-bold text-green-600 mb-4">댓글</h2>
+        <h2 class="text-xl font-bold text-blue-600 mb-4">댓글</h2>
         <div v-for="comment in comments" :key="comment.comment_id" class="mb-4 p-4 bg-gray-100 rounded-lg">
           <p class="font-bold">{{ comment.user_name }}</p>
           <p class="text-gray-700" v-if="editingCommentId !== comment.comment_id">{{ comment.content }}</p>
@@ -211,7 +216,7 @@ onMounted(async () => {
           <div class="flex justify-end space-x-4">
             <button
               @click="addComment"
-              class="mt-2 bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+              class="mt-2 bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
             >
               댓글 추가
             </button>

@@ -63,16 +63,33 @@ const router = createRouter({
       component: () => import('../components/User/Register.vue')
     },
     {
-      path: '/kakao',
-      name: 'kakao',
-      component: () => import('../components/User/Kakao.vue')
+      path: '/dongStory',
+      name: 'dongStory',
+      component: () => import('@/views/DongStoryView.vue')
+    },
+    {
+      path: '/dongStory/regist',
+      name: 'dongStoryRegist',
+      component: () => import('../components/DongStory/DongStoryRegist.vue')
+    },
+    {
+      path: '/dongStory/:id',
+      name: 'dongStoryDetail',
+      component: () => import('../components/DongStory/DongStoryDetail.vue'),
+      props: true
+    },
+    {
+      path: '/dongStory/modify/:id',
+      name: 'dongStoryModify',
+      component: () => import('../components/DongStory/DongStoryModify.vue'),
+      props: true,
     }
   ]
 })
 
 // 네비게이션 가드 추가
 router.beforeEach(async (to, from, next) => {
-  const publicPages = ['/login', '/register', '/', '/about', '/notice', '/map', '/kakao']
+  const publicPages = ['/login', '/register', '/', '/about', '/notice', '/map', '/dongstory']
   const isPublicPage = publicPages.some(
     (page) => to.path === page || to.path.startsWith(`${page}/`)
   )
