@@ -14,7 +14,7 @@ html {
 </style>
 
 <script setup>
-import { ref, reactive, watch, provide, readonly } from 'vue'
+import { ref, reactive, watch, onMounted, provide, readonly } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import mapAPI from '@/api/map.js'
 import MapContent from '@/components/Map/MapContent.vue'
@@ -23,10 +23,9 @@ import MapContent from '@/components/Map/MapContent.vue'
 // resources in Map View
 
 let map = reactive({})
-let markers = ref([])
-let infowindow = ref(null)
+let clusterer = ref(null)
 const router = useRouter()
-const dealVoList = ref([])
+const dealVoList = ref([]) // To store all fetched data
 const detailDealList = ref([])
 const selectedHouse = ref({})
 
@@ -47,11 +46,16 @@ const initMap = () => {
   map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
   map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
 
-  // const geocoder = new kakao.maps.services.Geocoder()
-  // let currentCodes = new Set()
+  clusterer.value = new kakao.maps.MarkerClusterer({
+    map: map,
+    averageCenter: true,
+    minLevel: 6
+  })
+  drawApts()
+  // Moving Map and get House Deal Data
   kakao.maps.event.addListener(map, 'bounds_changed', function () {
     if (isMoving) return // 지도 이동 중이라면 함수 실행 중지
-    drawApts() // 아파트 정보 그리기 함수 호출
+    drawApts() // Filter and display deals within the current bounds
   })
 
   let isMoving = false
@@ -106,25 +110,14 @@ const formatAmount = (amount) => {
 }
 
 const drawMarker = (dealVoList) => {
-  let coords, circle, customOverlay, content
+  let coords, marker, customOverlay, content
   const houseTypeMap = { 1: '아파트', 2: '연립/다세대', 3: '오피스텔' }
   const dealTypeMap = { 1: '매매', 2: '전세', 3: '월세' }
+  const markers = []
 
   dealVoList.value.forEach((dealVo) => {
     coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
     console.log(dealVo.lat, dealVo.lng, dealVo.apartment_name)
-
-    circle = new kakao.maps.Circle({
-      center: coords,
-      radius: 5, // Adjusted to be smaller to represent a dot point
-      strokeWeight: 2, // Stroke width
-      strokeColor: '#75B8FA', // Stroke color
-      strokeOpacity: 1, // Stroke opacity
-      strokeStyle: 'solid', // Stroke style
-      fillColor: '#00A0E9', // Fill color
-      fillOpacity: 1 // Fill opacity
-    })
-    circle.setMap(map)
 
     let price = ''
     if (dealVo.deal_type === 1) {
@@ -160,7 +153,9 @@ const drawMarker = (dealVoList) => {
       getHouseDealList(dealVo.house_code)
       router.push(`/map/houseDetail/${dealVo.house_code}`)
     })
+    markers.push(customOverlay)
   })
+  clusterer.value.addMarkers(markers)
 }
 
 // 4.1 Custom Overlay Style
@@ -257,51 +252,11 @@ provide('service', {
   changeSize,
   close
 })
+
+onMounted(() => {
+  const script = document.createElement('script')
+  script.src =
+    '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=4aa94d500c252274b8dc18944a4026f5&libraries=clusterer'
+  document.head.appendChild(script)
+})
 </script>
-
-<!-- 추후 개발
-/*
-const displayMarker = (markerPositions) => {
-  // Clear existing markers
-  if (markers.value.length > 0) {
-    markers.value.forEach((marker) => marker.setMap(null))
-  }
-  const positions = markerPositions.map((position) => new kakao.maps.LatLng(...position))
-  if (positions.length > 0) {
-    markers.value = positions.map(
-      (position) =>
-        new kakao.maps.Marker({
-          map: map,
-          position
-        })
-    )
-
-    const bounds = positions.reduce(
-      (bounds, latlng) => bounds.extend(latlng),
-      new kakao.maps.LatLngBounds()
-    )
-
-    map.setBounds(bounds)
-  }
-}
-
-const displayInfoWindow = () => {
-  if (infowindow.value && infowindow.value.getMap()) {
-    // Move the map to the position of the infowindow
-    map.setCenter(infowindow.value.getPosition())
-    return
-  }
-
-  const iwContent = '<div style="padding:5px;">Hello World!</div>' // Content for the infowindow
-  const iwPosition = new kakao.maps.LatLng(33.450701, 126.570667) // Position of the infowindow
-  const iwRemovable = true // Allow closing the infowindow
-
-  infowindow.value = new kakao.maps.InfoWindow({
-    map: map, // Associate the infowindow with the map
-    position: iwPosition,
-    content: iwContent,
-    removable: iwRemovable
-  })
-  map.setCenter(iwPosition)
-}
-*/ -->

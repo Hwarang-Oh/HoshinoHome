@@ -6,15 +6,14 @@ import DealAmountChart from './DealAmountChart.vue'
 const { detailDealList, selectedHouse } = inject('res')
 const { close } = inject('service')
 
-let miniMap = reactive({})
+let miniMap = reactive(null) // miniMap을 ref로 선언하여 null로 초기화
 // Function to initialize the mini-map
 const initMiniMap = () => {
   const container = document.getElementById('mini-map')
   const options = {
-    center: new kakao.maps.LatLng(selectedHouse.lat, selectedHouse.lng),
+    center: new kakao.maps.LatLng(selectedHouse.value.lat, selectedHouse.value.lng),
     level: 5
   }
-
   miniMap = new kakao.maps.Map(container, options)
 
   let mapTypeControl = new kakao.maps.MapTypeControl()
@@ -22,6 +21,16 @@ const initMiniMap = () => {
   miniMap.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
   miniMap.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
 }
+
+watch(
+  () => selectedHouse.value,
+  (newHouse) => {
+    if (newHouse && newHouse.lat && newHouse.lng) {
+      initMiniMap()
+    }
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   if (window.kakao && window.kakao.maps) {
@@ -96,9 +105,15 @@ const goToDongStory = () => {
     <!-- Info Section -->
     <div class="mb-4">
       <div class="flex items-center mb-2">
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 mr-2">주변</span>
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1">토지</span>
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 ml-2">건물</span>
+        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 mr-2"
+          >주변</span
+        >
+        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1"
+          >토지</span
+        >
+        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 ml-2"
+          >건물</span
+        >
       </div>
       <p class="text-sm text-gray-700">분당선 압구정로데오역 도보 5분</p>
       <p class="text-sm text-gray-700">토지 52평 (172m²) · 건물 75평 (248m²)</p>
@@ -107,9 +122,18 @@ const goToDongStory = () => {
     <!-- Tabs Section -->
     <div class="border-b border-gray-200 mb-4">
       <nav class="flex space-x-4">
-        <button class="text-blue-600 border-b-2 border-blue-600 py-2" aria-current="page">실거래</button>
-        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600">주변 정보</button>
-        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600" @click="goToDongStory">Dong Story</button>
+        <button class="text-blue-600 border-b-2 border-blue-600 py-2" aria-current="page">
+          실거래
+        </button>
+        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600">
+          주변 정보
+        </button>
+        <button
+          class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600"
+          @click="goToDongStory"
+        >
+          Dong Story
+        </button>
       </nav>
     </div>
 
@@ -133,9 +157,24 @@ const goToDongStory = () => {
           <DealTypeChart v-if="detailDealList.length" :data="dealTypeCounts" />
         </div>
         <div class="toggle-buttons">
-          <button @click="setChartType('dealAmount')" :class="{ active: chartType === 'dealAmount' }">Deal Amount</button>
-          <button @click="setChartType('depositAmount')" :class="{ active: chartType === 'depositAmount' }">Deposit Amount</button>
-          <button @click="setChartType('monthlyAmount')" :class="{ active: chartType === 'monthlyAmount' }">Deposit + Monthly Amount</button>
+          <button
+            @click="setChartType('dealAmount')"
+            :class="{ active: chartType === 'dealAmount' }"
+          >
+            Deal Amount
+          </button>
+          <button
+            @click="setChartType('depositAmount')"
+            :class="{ active: chartType === 'depositAmount' }"
+          >
+            Deposit Amount
+          </button>
+          <button
+            @click="setChartType('monthlyAmount')"
+            :class="{ active: chartType === 'monthlyAmount' }"
+          >
+            Deposit + Monthly Amount
+          </button>
         </div>
         <div class="h-40 bg-gray-100 flex items-center justify-center">
           <DealAmountChart :dealData="detailDealList" :chartType="chartType" />
