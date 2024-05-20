@@ -1,26 +1,32 @@
-import { Axios } from '@/utils/axios'
+// src/api/comment.js
 
-const commentAPI = Axios()
+import axios from 'axios'
 
-const getCommentsByPost = (noticeId, success, error) => {
-    commentAPI.get(`/api/comments/post/${noticeId}/board/notice`)
-      .then(success)
-      .catch(error);
-  }
-const addComment = (comment, success, error) => {
-    commentAPI.post(`/api/comments`, comment)
-      .then(success)
-      .catch(error);
-  }
-const updateComment = (commentId, comment, success, error) => {
-    commentAPI.put(`/api/comments/${commentId}`, comment)
-      .then(success)
-      .catch(error);
-  }
-const deleteComment = (commentId, success, error) => {
-    commentAPI.delete(`/api/comments/${commentId}`)
-      .then(success)
-      .catch(error);
-  }
+const API_URL = 'http://localhost:8080/api/comments'
 
-export default { getCommentsByPost, addComment, updateComment, deleteComment }
+export default {
+  getCommentsByPostAndBoard(postId, boardType, success, error) {
+    axios
+      .get(`${API_URL}/post/${postId}/board/${boardType}`)
+      .then(success)
+      .catch(error)
+  },
+  addComment(comment, success, error) {
+    axios
+      .post(API_URL, comment)
+      .then(success)
+      .catch(error)
+  },
+  updateComment(commentId, comment, success, error) {
+    axios
+      .put(`${API_URL}/${commentId}`, comment)
+      .then(success)
+      .catch(error)
+  },
+  deleteComment(commentId, success, error) {
+    axios
+      .delete(`${API_URL}/${commentId}`)
+      .then(success)
+      .catch(error)
+  }
+}
