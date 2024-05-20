@@ -58,5 +58,4 @@ public class MapServiceImpl implements MapService {
     public List<HouseInfo> searchHouseInfoListByQuery(String query) throws Exception {
         return houseInfoDao.selectHouseInfoListByQuery(query);
     }
-
 }

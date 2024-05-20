@@ -22,4 +22,5 @@ public interface HouseDealDao {
                         @Param("latTo") String latTo,
                         @Param("houseTypes") List<Integer> houseTypes,
                         @Param("dealTypes") List<Integer> dealTypes);
+
 }

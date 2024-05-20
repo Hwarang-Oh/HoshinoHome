@@ -77,7 +77,6 @@
     </if>
     ORDER BY r.deal_year DESC, r.deal_month DESC, r.deal_day DESC LIMIT 20; </select>
 
-
   <!-- Query for selectHouseDealList using resultMap -->
   <select id="selectHouseDealList" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
     house_code = #{houseCode}; </select>
