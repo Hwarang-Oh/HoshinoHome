@@ -81,7 +81,7 @@ const drawApts = () => {
     latFrom: map.getBounds().getSouthWest().getLat().toString(),
     latTo: map.getBounds().getNorthEast().getLat().toString(),
     houseTypes: [1],
-    dealTypes: [2]
+    dealTypes: [3]
   }
   mapAPI.getHouseDealVoList2(
     range,
@@ -96,29 +96,117 @@ const drawApts = () => {
   )
 }
 
-// 4. draw Overlay Marker
+// 4.0 draw Overlay Marker
+const formatAmount = (amount) => {
+  const num = parseInt(amount.replace(/,/g, ''))
+  if (num >= 10000) {
+    return (num / 10000).toFixed(1) + '억'
+  }
+  return amount
+}
+
 const drawMarker = (dealVoList) => {
-  let coords, marker
+  let coords, circle, customOverlay, content
+  const houseTypeMap = { 1: '아파트', 2: '연립/다세대', 3: '오피스텔' }
+  const dealTypeMap = { 1: '매매', 2: '전세', 3: '월세' }
+
   dealVoList.value.forEach((dealVo) => {
     coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
-    marker = new kakao.maps.Marker({
-      map: map,
-      position: coords
-    })
     console.log(dealVo.lat, dealVo.lng, dealVo.apartment_name)
-    kakao.maps.event.addListener(marker, 'click', () => {
+
+    circle = new kakao.maps.Circle({
+      center: coords,
+      radius: 5, // Adjusted to be smaller to represent a dot point
+      strokeWeight: 2, // Stroke width
+      strokeColor: '#75B8FA', // Stroke color
+      strokeOpacity: 1, // Stroke opacity
+      strokeStyle: 'solid', // Stroke style
+      fillColor: '#00A0E9', // Fill color
+      fillOpacity: 1 // Fill opacity
+    })
+    circle.setMap(map)
+
+    let price = ''
+    if (dealVo.deal_type === 1) {
+      price = `매매: ${formatAmount(dealVo.deal_amount)}`
+    } else if (dealVo.deal_type === 2) {
+      price = `전세: ${formatAmount(dealVo.deposit_amount)}`
+    } else if (dealVo.deal_type === 3) {
+      price = `월세: ${formatAmount(dealVo.deposit_amount)} / ${dealVo.monthly_amount}`
+    }
+
+    // Custom Overlay
+    content = document.createElement('div')
+    content.innerHTML = `
+      <div class="custom-overlay">
+        <div class="custom-overlay-top">
+          <div class="custom-overlay-title">${houseTypeMap[dealVo.house_type]}</div>
+          <div class="custom-overlay-price">${price}</div>
+        </div>
+        <div class="custom-overlay-bottom">
+          <div class="custom-overlay-year">${dealVo.deal_year}년 ${dealVo.deal_month}월</div>
+          <div class="custom-overlay-area">${dealVo.area} m²</div>
+        </div>
+      </div>`
+
+    customOverlay = new kakao.maps.CustomOverlay({
+      map: map,
+      position: coords,
+      content: content,
+      yAnchor: 1
+    })
+
+    content.addEventListener('click', () => {
       getHouseDealList(dealVo.house_code)
       router.push(`/map/houseDetail/${dealVo.house_code}`)
     })
   })
-  // 인포윈도우로 장소에 대한 설명을 표시합니다
-  infowindow = new kakao.maps.InfoWindow({
-    content: `<div style="width:150px;text-align:center;padding:6px 0;">범위 세대</div>`
-  })
-  infowindow.open(map, marker)
 }
 
-// 4.1 drawList에 대한 Watch -> draw Overlay Marker 실행
+// 4.1 Custom Overlay Style
+const style = document.createElement('style')
+style.innerHTML = `
+  .custom-overlay {
+    position: relative;
+    width: 70px; /* Adjusted width */
+    border-radius: 6px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-size: 10px; /* Smaller font size */
+    color: #000; /* Black text color */
+    white-space: nowrap;
+  }
+  .custom-overlay-top {
+    background: #00C853; /* Green background */
+    padding: 2px 0; /* Adjusted padding */
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom: 2px solid #00C853; /* Green bottom border */
+    color: white; /* White text for the top part */
+  }
+  .custom-overlay-title {
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+  .custom-overlay-price {
+    font-size: 12px; /* Smaller font size */
+  }
+  .custom-overlay-bottom {
+    background: #fff; /* White background */
+    padding: 2px 0; /* Adjusted padding */
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 2px solid #00C853; /* Green top border */
+    color: #000; /* Black text for the bottom part */
+  }
+  .custom-overlay-year,
+  .custom-overlay-area {
+    font-size: 8px; /* Smaller font size */
+  }
+`
+document.head.appendChild(style)
+
+// 4.2 drawList에 대한 Watch -> draw Overlay Marker 실행
 watch(dealVoList, () => {
   drawMarker(dealVoList)
 })
@@ -147,8 +235,12 @@ const getHouseDealList = (house_code) => {
     )
 }
 
-// 6. Map House Detail Implementation Part -> 어쩌면 House Detail에서 전부 할 수도 있음.
-// 6.1 House Detail 창에서 close를 누르면, Map으로 돌아온다. ( 매개변수 조절을 통해, 다른 곳에서도 활용이 가능함 )
+// 6. DealList Search Button Group
+
+// 7. DealList Search Input
+
+// 8. Map House Detail Implementation Part -> 어쩌면 House Detail에서 전부 할 수도 있음.
+// 8.1 House Detail 창에서 close를 누르면, Map으로 돌아온다. ( 매개변수 조절을 통해, 다른 곳에서도 활용이 가능함 )
 const close = () => {
   router.push('/map')
 }

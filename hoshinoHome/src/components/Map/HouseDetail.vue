@@ -6,11 +6,11 @@ const { detailDealList, selectedHouse } = inject('res')
 const { close } = inject('service')
 
 let miniMap = reactive({})
-// 1. Initialize the mini-map
+// Function to initialize the mini-map
 const initMiniMap = () => {
   const container = document.getElementById('mini-map')
   const options = {
-    center: new kakao.maps.LatLng(37.56813, 127.00213),
+    center: new kakao.maps.LatLng(selectedHouse.lat, selectedHouse.lng),
     level: 5
   }
 
