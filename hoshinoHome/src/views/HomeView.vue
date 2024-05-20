@@ -1,10 +1,12 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
 import mapAPI from '@/api/map.js'
-import { ref } from 'vue'
+import naverAPI from '@/api/naver.js'
+import { ref, onMounted } from 'vue'
+import DOMPurify from 'dompurify'
 
 const query = ref('')
 const suggestions = ref([])
+const newsPosts = ref([])
 
 const fetchSuggestions = () => {
   if (query.value.length > 0) {
@@ -28,6 +30,18 @@ const selectSuggestion = (suggestion) => {
   query.value = `${suggestion.house_name} (${suggestion.road_address})`
   suggestions.value = []
 }
+
+const fetchBlogPosts = () => {
+  naverAPI.searchNews().then(response => {
+    newsPosts.value = response.data.items
+  }).catch(error => {
+    console.error('뉴스 검색 실패!', error)
+  })
+}
+
+onMounted(() => {
+  fetchBlogPosts()
+})
 </script>
 
 <template>
@@ -61,7 +75,7 @@ const selectSuggestion = (suggestion) => {
             </button>
             <ul
               v-if="suggestions.length"
-              class="absolute left-0 right-0 bg-sky-500 border-gray-300 rounded mt-1 z-10"
+              class="absolute left-0 right-0 bg-white border border-gray-300 rounded mt-1 z-10"
             >
               <li
                 v-for="(suggestion, index) in suggestions"
@@ -76,46 +90,55 @@ const selectSuggestion = (suggestion) => {
         </div>
       </section>
 
-      <!-- Feature Cards Section -->
-      <section class="flex justify-center space-x-6 my-8 text-lg">
-        <!-- Card 1 -->
-        <div class="w-1/3 bg-white p-6 rounded-lg shadow-lg">
-          <h2 class="text-lg font-semibold mb-2">정기구독을 위한 특별한 혜택</h2>
-          <p>부동산 투자, 개발 및 재건축 검토</p>
+      <!-- News and Detailed News Section -->
+      <section class="flex flex-wrap justify-center space-x-6 my-8 text-lg">
+        <!-- News List Section -->
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full md:w-1/2 mb-6 md:mb-0">
+          <h2 class="text-2xl font-semibold mb-4">공지/뉴스</h2>
+          <ul>
+            <li 
+              v-for="(post, index) in newsPosts.slice(0, 5)" 
+              :key="index" 
+              class="mb-2"
+            >
+              <a 
+                :href="post.link" 
+                target="_blank" 
+                class="text-gray-800 hover:text-blue-700"
+                v-html="DOMPurify.sanitize(post.title)"
+              ></a>
+              <span class="text-gray-500 ml-2">{{ new Date(post.pubDate).toLocaleDateString() }}</span>
+            </li>
+          </ul>
         </div>
-        <!-- Card 2 -->
-        <div class="w-1/3 bg-white p-6 rounded-lg shadow-lg">
-          <h2 class="text-lg font-semibold mb-2">빌딩탐색 & 자산관리 전문관</h2>
-          <p>부동산 매매부터 관리까지</p>
-        </div>
-        <!-- Card 3 -->
-        <div class="w-1/3 bg-white p-6 rounded-lg shadow-lg">
-          <h2 class="text-lg font-semibold mb-2">부동산정보 앱도 다같이!</h2>
-          <p>손쉽게 찾아보는 부동산 정보</p>
+
+        <!-- Detailed News Section -->
+        <div 
+          v-if="newsPosts.length > 5" 
+          class="w-full md:w-2/5 bg-white p-6 rounded-lg shadow-lg"
+        >
+          <a 
+            :href="newsPosts[5].link" 
+            target="_blank" 
+            class="text-lg font-semibold mb-2 text-gray-800 hover:text-blue-700 block"
+            v-html="DOMPurify.sanitize(newsPosts[5].title)"
+          ></a>
+          <p v-html="DOMPurify.sanitize(newsPosts[5].description)"></p>
+          <div class="text-gray-500 text-right">{{ new Date(newsPosts[5].pubDate).toLocaleDateString() }}</div>
         </div>
       </section>
     </div>
   </main>
 </template>
 
-<!-- 원래 검색 디자인!!
-  <div class="flex">
-            <input
-              type="text"
-              v-model="query"
-              @input="fetchSuggestions"
-              placeholder="지역/주소, 건물명으로 검색하세요"
-              class="w-80 p-2 rounded-lg text-gray-700 border border-gray-300 h-12"
-            />
-            <button
-              class="bg-sky-500 text-white py-2 px-4 rounded-lg hover:bg-sky-700 text-lg ml-3 h-12"
-            >
-              검색
-            </button>
--->
-
 <style scoped>
-.bg{
+.bg {
   height: calc(100vh - 180px);
+}
+
+@media (min-width: 768px) {
+  .space-x-6 > :not(:last-child) {
+    margin-right: 1.5rem;
+  }
 }
 </style>
