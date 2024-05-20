@@ -6,7 +6,10 @@ import DealAmountChart from './DealAmountChart.vue'
 const { detailDealList, selectedHouse } = inject('res')
 const { close } = inject('service')
 
-let miniMap = reactive(null) // miniMap을 ref로 선언하여 null로 초기화
+let miniMap = reactive({}) // miniMap을 ref로 선언하여 null로 초기화
+const marker = ref(null)
+let roadView = reactive({})
+const isRoadViewVisible = ref(false)
 // Function to initialize the mini-map
 const initMiniMap = () => {
   const container = document.getElementById('mini-map')
@@ -14,12 +17,20 @@ const initMiniMap = () => {
     center: new kakao.maps.LatLng(selectedHouse.value.lat, selectedHouse.value.lng),
     level: 5
   }
-  miniMap = new kakao.maps.Map(container, options)
 
-  let mapTypeControl = new kakao.maps.MapTypeControl()
-  let zoomControl = new kakao.maps.ZoomControl()
-  miniMap.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
-  miniMap.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
+  miniMap = new kakao.maps.Map(container, options)
+  addMarker(options.center)
+}
+
+const addMarker = (position) => {
+  if (marker.value) {
+    marker.value.setMap(null)
+  }
+
+  marker.value = new kakao.maps.Marker({
+    position: position,
+    map: miniMap
+  })
 }
 
 watch(
@@ -76,7 +87,7 @@ const goToDongStory = () => {
   <!-- Left Side (Property Detail) -->
   <div class="absolute top-0 left-0 w-1/5 h-full bg-white shadow-lg overflow-auto p-4 z-50">
     <!-- Header Section -->
-    <div class="flex justify-between items-center mb-4">
+    <div class="header-section mb-4">
       <div>
         <h1 class="text-xl font-semibold">{{ selectedHouse.road_address }}</h1>
         <p class="text-sm text-gray-600">{{ selectedHouse.jibun_address }}</p>
@@ -100,56 +111,41 @@ const goToDongStory = () => {
     </div>
 
     <!-- SubMap Section -->
-    <div id="mini-map" class="w-full h-40 mb-4"></div>
+    <div id="mini-map" class="submap-section relative w-full h-40 mb-4"></div>
 
     <!-- Info Section -->
-    <div class="mb-4">
+    <div class="info-section mb-4">
       <div class="flex items-center mb-2">
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 mr-2"
-          >주변</span
-        >
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1"
-          >토지</span
-        >
-        <span class="text-xs font-medium bg-gray-200 text-gray-800 rounded-full px-2 py-1 ml-2"
-          >건물</span
-        >
+        <span class="info-tag">주변</span>
+        <span class="info-tag">토지</span>
+        <span class="info-tag ml-2">건물</span>
       </div>
       <p class="text-sm text-gray-700">분당선 압구정로데오역 도보 5분</p>
       <p class="text-sm text-gray-700">토지 52평 (172m²) · 건물 75평 (248m²)</p>
     </div>
 
     <!-- Tabs Section -->
-    <div class="border-b border-gray-200 mb-4">
+    <div class="tabs-section border-b border-gray-200 mb-4">
       <nav class="flex space-x-4">
-        <button class="text-blue-600 border-b-2 border-blue-600 py-2" aria-current="page">
-          실거래
-        </button>
-        <button class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600">
-          주변 정보
-        </button>
-        <button
-          class="text-gray-600 py-2 hover:text-blue-600 hover:border-blue-600"
-          @click="goToDongStory"
-        >
-          Dong Story
-        </button>
+        <button class="tab-button active" aria-current="page">실거래</button>
+        <button class="tab-button">주변 정보</button>
+        <button class="tab-button" @click="goToDongStory">Dong Story</button>
       </nav>
     </div>
 
     <!-- Content Section -->
-    <div class="space-y-4">
-      <div>
-        <h2 class="text-lg font-semibold mb-2">실거래정보</h2>
+    <div class="content-section space-y-4">
+      <div class="deal-info">
+        <h2 class="section-title">실거래정보</h2>
         <div class="flex justify-between items-center mb-4">
           <div>
             <p class="text-sm text-gray-700">최근 실거래 12.07</p>
             <p class="text-sm font-semibold text-gray-900">47억</p>
           </div>
           <div class="flex space-x-2">
-            <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded">5년</button>
-            <button class="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded">10년</button>
-            <button class="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded">20년</button>
+            <button class="year-button active">5년</button>
+            <button class="year-button">10년</button>
+            <button class="year-button">20년</button>
           </div>
         </div>
         <!-- Graph Placeholder -->
@@ -181,8 +177,9 @@ const goToDongStory = () => {
         </div>
       </div>
 
-      <div>
-        <h2 class="text-lg font-semibold mb-2">거래 정보</h2>
+      <!-- DealList Placeholder -->
+      <div class="transaction-info">
+        <h2 class="section-title">거래 정보</h2>
         <div class="space-y-2">
           <div class="flex justify-between items-center">
             <span class="text-sm text-gray-700">거래일</span>
@@ -207,6 +204,91 @@ const goToDongStory = () => {
 </template>
 
 <style scoped>
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.submap-section {
+  position: relative;
+  width: 100%;
+  height: 10rem;
+  margin-bottom: 1rem;
+}
+
+.info-section {
+  margin-bottom: 1rem;
+}
+
+.tabs-section {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.tab-button.active {
+  color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.deal-info {
+  margin-bottom: 1rem;
+}
+
+.transaction-info {
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.info-tag {
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #e5e7eb;
+  color: #374151;
+  border-radius: 9999px;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.year-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.year-button.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.year-button:hover {
+  background-color: #2563eb;
+  color: white;
+}
+
 .toggle-buttons {
   display: flex;
   justify-content: space-around;
