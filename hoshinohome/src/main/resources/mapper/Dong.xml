@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.hoshinohome.model.dao.DongDao">
+    <select id="selectAllDongs" resultType="com.ssafy.hoshinohome.model.dto.Dong">
+        SELECT * FROM dong
+        WHERE si_do_name = '서울특별시'
+    </select>
+</mapper>

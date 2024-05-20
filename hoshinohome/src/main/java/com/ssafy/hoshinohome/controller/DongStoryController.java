@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -18,7 +17,7 @@ public class DongStoryController {
 
     @PostMapping
     public ResponseEntity<?> addDongStory(@RequestBody DongStory dongStory) throws Exception {
-        dongStory.setDate(LocalDateTime.now());
+        dongStory.setDate(java.time.LocalDateTime.now());
         if (dongStoryService.addDongStory(dongStory)) {
             return ResponseEntity.ok("DongStory 생성 성공!!");
         }
@@ -28,7 +27,7 @@ public class DongStoryController {
     @PutMapping("/{post_id}")
     public ResponseEntity<?> updateDongStory(@PathVariable int post_id, @RequestBody DongStory dongStory) throws Exception {
         dongStory.setPost_id(post_id);
-        dongStory.setDate(LocalDateTime.now());
+        dongStory.setDate(java.time.LocalDateTime.now());
         if (dongStoryService.modifyDongStory(dongStory)) {
             return ResponseEntity.ok("DongStory 수정 성공!!");
         }
@@ -52,12 +51,21 @@ public class DongStoryController {
         return ResponseEntity.badRequest().body("DongStory 찾을 수 없음!!");
     }
 
-    @GetMapping("/region/{region}")
-    public ResponseEntity<?> getDongStoriesByRegion(@PathVariable String region) throws Exception {
-        List<DongStory> dongStories = dongStoryService.getDongStoriesByRegion(region);
+    @GetMapping("/dong/{dong_code}")
+    public ResponseEntity<?> getDongStoriesByDongCode(@PathVariable String dong_code) throws Exception {
+        List<DongStory> dongStories = dongStoryService.getDongStoriesByDongCode(dong_code);
         if (dongStories != null) {
             return ResponseEntity.ok(dongStories);
         }
         return ResponseEntity.badRequest().body("DongStory 찾을 수 없음!!");
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllDongStories() throws Exception {
+        List<DongStory> dongStories = dongStoryService.getAllDongStories();
+        if (dongStories != null && !dongStories.isEmpty()) {
+            return ResponseEntity.ok(dongStories);
+        }
+        return ResponseEntity.noContent().build();
     }
 }

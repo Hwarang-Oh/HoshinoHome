@@ -32,15 +32,18 @@ public class DongStoryServiceImpl implements DongStoryService {
         return dongStoryDao.deleteDongStory(post_id) > 0;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public DongStory getDongStory(int post_id) throws Exception {
         return dongStoryDao.selectDongStory(post_id);
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<DongStory> getDongStoriesByRegion(String region) throws Exception {
-        return dongStoryDao.selectDongStoriesByRegion(region);
+    public List<DongStory> getDongStoriesByDongCode(String dong_code) throws Exception {
+        return dongStoryDao.selectDongStoriesByDongCode(dong_code);
+    }
+
+    @Override
+    public List<DongStory> getAllDongStories() throws Exception {
+        return dongStoryDao.selectAllDongStories();
     }
 }
