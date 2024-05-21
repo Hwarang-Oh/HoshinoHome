@@ -1,0 +1,80 @@
+.custom-overlay {
+  position: relative;
+  width: 70px; /* Smaller width */
+  height: 70px; /* Smaller height */
+  border-radius: 6px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-size: 10px; /* Smaller font size */
+  color: black; /* Black text color */
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition:
+    width 0.3s,
+    height 0.3s,
+    font-size 0.3s; /* Smooth transition */
+}
+.custom-overlay.selected {
+  width: 100px; /* Larger width */
+  height: 100px; /* Larger height */
+  font-size: 12px; /* Larger font size */
+}
+.custom-overlay-top {
+  padding: 4px 0; /* Increased padding */
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  color: white; /* White text for the top part */
+}
+.custom-overlay-title {
+  font-weight: bold;
+  color: #ffd700; /* Yellow color */
+  font-size: 12px; /* Adjusted font size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.custom-overlay.selected .custom-overlay-title {
+  font-size: 14px; /* Larger font size when selected */
+}
+.custom-overlay-price {
+  font-size: 12px; /* Adjusted font size */
+}
+.custom-overlay.selected .custom-overlay-price {
+  font-size: 14px; /* Larger font size when selected */
+}
+.custom-overlay-bottom {
+  background: #fff; /* White background */
+  padding: 4px 0; /* Increased padding */
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  color: #000; /* Black text for the bottom part */
+}
+.custom-overlay-year {
+  font-size: 10px; /* Smaller font size */
+  font-weight: bold;
+}
+.custom-overlay.selected .custom-overlay-year {
+  font-size: 12px; /* Larger font size */
+}
+.custom-overlay-area {
+  font-size: 10px; /* Smaller font size */
+}
+.custom-overlay.selected .custom-overlay-area {
+  font-size: 12px; /* Larger font size */
+}
+.custom-overlay-type {
+  position: absolute;
+  bottom: -23px; /* Position it more towards the bottom corner */
+  right: -18px; /* Position it more towards the right */
+  background: white;
+  color: #1d4ed8; /* Blue text color */
+  border: 1px solid #1d4ed8;
+  border-radius: 12px; /* Rounded corners */
+  padding: 2px 4px;
+  font-size: 11px; /* Adjusted font size */
+  font-weight: bold; /* Bold text */
+  line-height: 1;
+  white-space: nowrap;
+}

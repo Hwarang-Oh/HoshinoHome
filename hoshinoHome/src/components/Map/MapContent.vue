@@ -1,7 +1,10 @@
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, defineProps } from 'vue'
 import MapSearch from './MapSearch.vue'
 const { initMap } = inject('service')
+const props = defineProps({
+  isHouseDetailOpen: Boolean
+})
 
 onMounted(() => {
   if (window.kakao && window.kakao.maps) {
@@ -18,7 +21,7 @@ onMounted(() => {
 
 <template>
   <div id="map" class="relative inset-0 z-0">
-    <MapSearch />
+    <MapSearch :isHouseDetailOpen="isHouseDetailOpen" />
   </div>
 </template>
 

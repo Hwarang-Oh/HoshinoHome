@@ -3,13 +3,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted, inject } from 'vue'
+import { ref, reactive, watch, onMounted, inject, nextTick } from 'vue'
 const { selectedHouse } = inject('res')
 let miniMap = reactive({})
 const marker = ref(null)
 
 const initMiniMap = () => {
   const container = document.getElementById('mini-map')
+  if (!container) return // Ensure the container is available
   const options = {
     center: new kakao.maps.LatLng(selectedHouse.value.lat, selectedHouse.value.lng),
     level: 5
@@ -30,15 +31,17 @@ const addMarker = (position) => {
 
 watch(
   () => selectedHouse.value,
-  (newHouse) => {
+  async (newHouse) => {
     if (newHouse && newHouse.lat && newHouse.lng) {
+      await nextTick() // Ensure the DOM is updated
       initMiniMap()
     }
   },
   { immediate: true }
 )
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick() // Ensure the DOM is updated
   if (window.kakao && window.kakao.maps) {
     initMiniMap()
   } else {
