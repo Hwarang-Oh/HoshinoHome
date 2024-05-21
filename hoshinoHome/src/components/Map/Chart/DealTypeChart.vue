@@ -7,17 +7,9 @@
 <script setup>
 import { ref, defineProps, watchEffect } from 'vue'
 import { Bar } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  Title
-} from 'chart.js'
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title)
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
 const props = defineProps({
   data: {
@@ -32,18 +24,38 @@ const chartData = ref({
   datasets: []
 })
 
+const cmykColors = {
+  c: 'rgba(0, 255, 255, 0.6)',
+  m: 'rgba(255, 0, 255, 0.6)',
+  y: 'rgba(255, 255, 0, 0.6)',
+  k: 'rgba(0, 0, 0, 0.6)'
+}
+
+const cmykBorderColors = {
+  c: 'rgba(0, 255, 255, 1)',
+  m: 'rgba(255, 0, 255, 1)',
+  y: 'rgba(255, 255, 0, 1)',
+  k: 'rgba(0, 0, 0, 1)'
+}
+
 // Function to set up chart data
 function setChartData(data) {
+  const labelMapping = {
+    1: '매매',
+    2: '전세',
+    3: '월세'
+  }
+
   chartData.value = {
-    labels: data.labels,
+    labels: data.labels.map((label) => labelMapping[label] || label),
     datasets: [
       {
-        label: 'Deal Type Count',
-        backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'],
-        borderColor: ['#1E88E5', '#43A047', '#FB8C00'],
+        label: '',
+        backgroundColor: [cmykColors.c, cmykColors.m, cmykColors.y],
+        borderColor: [cmykBorderColors.c, cmykBorderColors.m, cmykBorderColors.y],
         borderWidth: 1,
-        hoverBackgroundColor: ['#1E88E5', '#43A047', '#FB8C00'],
-        hoverBorderColor: ['#0D47A1', '#1B5E20', '#E65100'],
+        hoverBackgroundColor: [cmykBorderColors.c, cmykBorderColors.m, cmykBorderColors.y],
+        hoverBorderColor: [cmykBorderColors.c, cmykBorderColors.m, cmykBorderColors.y],
         data: data.counts
       }
     ]
@@ -62,26 +74,8 @@ const options = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: true,
-      labels: {
-        font: {
-          size: 14,
-          family: 'Arial',
-          weight: 'bold'
-        },
-        color: '#333'
-      }
+      display: false
     },
-    // title: {
-    //   display: true,
-    //   text: 'Deal Type Distribution',
-    //   font: {
-    //     size: 18,
-    //     family: 'Arial',
-    //     weight: 'bold'
-    //   },
-    //   color: '#333'
-    // },
     tooltip: {
       backgroundColor: 'rgba(0, 0, 0, 0.7)',
       titleFont: {
@@ -100,7 +94,7 @@ const options = {
         weight: 'normal'
       },
       callbacks: {
-        label: (context) => ` ${context.raw} deals`
+        label: (context) => ` ${context.raw} 건`
       }
     }
   },
@@ -125,7 +119,8 @@ const options = {
           family: 'Arial',
           weight: 'bold'
         },
-        color: '#333'
+        color: '#333',
+        callback: (value) => `${value} 건` // Add '건' to y-axis labels
       },
       grid: {
         color: 'rgba(200, 200, 200, 0.2)'

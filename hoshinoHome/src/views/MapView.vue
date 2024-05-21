@@ -21,13 +21,14 @@ import MapContent from '@/components/Map/MapContent.vue'
 
 // Define data as `refs`
 // resources in Map View
-
+const router = useRouter()
 let map = reactive({})
 let clusterer = ref(null)
-const router = useRouter()
 const dealVoList = ref([]) // To store all fetched data
 const detailDealList = ref([])
 const selectedHouse = ref({})
+const activeButtons = ref(['apartment', 'multiFamily', 'officetel', 'sale', 'lease', 'monthly'])
+const selectedDealVo = ref({}) // To store the selected dealVo
 
 // 1. Main 지도를 생성하는 Code
 const initMap = () => {
@@ -69,24 +70,28 @@ const initMap = () => {
   })
 }
 
-// 2. 지도 Hide & Show
-const changeSize = (size) => {
-  const container = document.getElementById('map')
-  container.style.width = `${size}px`
-  container.style.height = `${size}px`
-  map.value.relayout()
-}
-
-// 3. Get HouseDealList
+// 2. Get HouseDealList
 const drawApts = () => {
+  const houseTypes = []
+  const dealTypes = []
+
+  if (activeButtons.value.includes('apartment')) houseTypes.push(1)
+  if (activeButtons.value.includes('multiFamily')) houseTypes.push(2)
+  if (activeButtons.value.includes('officetel')) houseTypes.push(3)
+
+  if (activeButtons.value.includes('sale')) dealTypes.push(1)
+  if (activeButtons.value.includes('lease')) dealTypes.push(2)
+  if (activeButtons.value.includes('monthly')) dealTypes.push(3)
+
   let range = {
     lngFrom: map.getBounds().getSouthWest().getLng().toString(),
     lngTo: map.getBounds().getNorthEast().getLng().toString(),
     latFrom: map.getBounds().getSouthWest().getLat().toString(),
     latTo: map.getBounds().getNorthEast().getLat().toString(),
-    houseTypes: [1],
-    dealTypes: [3]
+    houseTypes: houseTypes,
+    dealTypes: dealTypes
   }
+
   mapAPI.getHouseDealVoList2(
     range,
     (response) => {
@@ -100,7 +105,7 @@ const drawApts = () => {
   )
 }
 
-// 4.0 draw Overlay Marker
+// 3 draw Overlay Marker
 const formatAmount = (amount) => {
   const num = parseInt(amount.replace(/,/g, ''))
   if (num >= 10000) {
@@ -108,12 +113,13 @@ const formatAmount = (amount) => {
   }
   return amount
 }
-
+let selectedOverlay = null
 const drawMarker = (dealVoList) => {
-  let coords, marker, customOverlay, content
+  let coords, customOverlay, content
   const houseTypeMap = { 1: '아파트', 2: '연립/다세대', 3: '오피스텔' }
-  const dealTypeMap = { 1: '매매', 2: '전세', 3: '월세' }
+  const houseTypeColors = { 1: '#2c3e50', 2: '#34495e', 3: '#3b5998' } // Adjusted colors with lower saturation
   const markers = []
+  let selectedOverlay = null
 
   dealVoList.value.forEach((dealVo) => {
     coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
@@ -121,25 +127,27 @@ const drawMarker = (dealVoList) => {
 
     let price = ''
     if (dealVo.deal_type === 1) {
-      price = `매매: ${formatAmount(dealVo.deal_amount)}`
+      price = `${formatAmount(dealVo.deal_amount)}`
     } else if (dealVo.deal_type === 2) {
-      price = `전세: ${formatAmount(dealVo.deposit_amount)}`
+      price = `${formatAmount(dealVo.deposit_amount)}`
     } else if (dealVo.deal_type === 3) {
-      price = `월세: ${formatAmount(dealVo.deposit_amount)} / ${dealVo.monthly_amount}`
+      price = `${formatAmount(dealVo.deposit_amount)} / ${dealVo.monthly_amount}`
     }
 
     // Custom Overlay
     content = document.createElement('div')
+    content.className = 'custom-overlay'
+    content.style.backgroundColor = houseTypeColors[dealVo.house_type]
     content.innerHTML = `
-      <div class="custom-overlay">
-        <div class="custom-overlay-top">
-          <div class="custom-overlay-title">${houseTypeMap[dealVo.house_type]}</div>
-          <div class="custom-overlay-price">${price}</div>
+      <div class="custom-overlay-top">
+        <div class="custom-overlay-title">
+          ${houseTypeMap[dealVo.house_type]}
         </div>
-        <div class="custom-overlay-bottom">
-          <div class="custom-overlay-year">${dealVo.deal_year}년 ${dealVo.deal_month}월</div>
-          <div class="custom-overlay-area">${dealVo.area} m²</div>
-        </div>
+        <div class="custom-overlay-price">${price}</div>
+      </div>
+      <div class="custom-overlay-bottom">
+        <div class="custom-overlay-year">${dealVo.deal_year} - ${dealVo.deal_month}</div>
+        <div class="custom-overlay-area">${dealVo.area} m²</div>
       </div>`
 
     customOverlay = new kakao.maps.CustomOverlay({
@@ -150,63 +158,105 @@ const drawMarker = (dealVoList) => {
     })
 
     content.addEventListener('click', () => {
+      handleOverlayClick(content)
       getHouseDealList(dealVo.house_code)
+      selectedDealVo.value = dealVo
       router.push(`/map/houseDetail/${dealVo.house_code}`)
     })
+
     markers.push(customOverlay)
   })
   clusterer.value.addMarkers(markers)
 }
 
-// 4.1 Custom Overlay Style
+const handleOverlayClick = (content) => {
+  if (selectedOverlay && selectedOverlay !== content) {
+    selectedOverlay.classList.remove('selected')
+  }
+  if (selectedOverlay === content) {
+    selectedOverlay.classList.remove('selected')
+    selectedOverlay = null
+  } else {
+    content.classList.add('selected')
+    selectedOverlay = content
+  }
+}
+
+// 3.1 Custom Overlay Style
 const style = document.createElement('style')
 style.innerHTML = `
   .custom-overlay {
     position: relative;
-    width: 70px; /* Adjusted width */
+    width: 70px; /* Smaller width */
+    height: 70px; /* Smaller height */
     border-radius: 6px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
     text-align: center;
     font-size: 10px; /* Smaller font size */
-    color: #000; /* Black text color */
+    color: black; /* Black text color */
     white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: width 0.3s, height 0.3s, font-size 0.3s; /* Smooth transition */
+  }
+  .custom-overlay.selected {
+    width: 100px; /* Larger width */
+    height: 100px; /* Larger height */
+    font-size: 12px; /* Larger font size */
   }
   .custom-overlay-top {
-    background: #00C853; /* Green background */
-    padding: 2px 0; /* Adjusted padding */
+    padding: 4px 0; /* Increased padding */
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
-    border-bottom: 2px solid #00C853; /* Green bottom border */
     color: white; /* White text for the top part */
   }
   .custom-overlay-title {
     font-weight: bold;
-    margin-bottom: 2px;
+    color: #FFD700; /* Yellow color */
+    font-size: 12px; /* Adjusted font size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .custom-overlay.selected .custom-overlay-title {
+    font-size: 14px; /* Larger font size when selected */
   }
   .custom-overlay-price {
-    font-size: 12px; /* Smaller font size */
+    font-size: 12px; /* Adjusted font size */
+  }
+  .custom-overlay.selected .custom-overlay-price {
+    font-size: 14px; /* Larger font size when selected */
   }
   .custom-overlay-bottom {
     background: #fff; /* White background */
-    padding: 2px 0; /* Adjusted padding */
+    padding: 4px 0; /* Increased padding */
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
-    border-top: 2px solid #00C853; /* Green top border */
     color: #000; /* Black text for the bottom part */
   }
-  .custom-overlay-year,
+  .custom-overlay-year {
+    font-size: 10px; /* Smaller font size */
+    font-weight: bold;
+  }
+  .custom-overlay.selected .custom-overlay-year {
+    font-size: 12px; /* Larger font size when selected */
+  }
   .custom-overlay-area {
-    font-size: 8px; /* Smaller font size */
+    font-size: 10px; /* Smaller font size */
+  }
+  .custom-overlay.selected .custom-overlay-area {
+    font-size: 12px; /* Larger font size when selected */
   }
 `
 document.head.appendChild(style)
 
-// 4.2 drawList에 대한 Watch -> draw Overlay Marker 실행
+// 3.2 drawList에 대한 Watch -> draw Overlay Marker 실행
 watch(dealVoList, () => {
   drawMarker(dealVoList)
 })
 
-// 5. Marker Click Event Function => Which will get detailDealList of that House Code
+// 4. Marker Click Event Function => Which will get detailDealList of that House Code
 const getHouseDealList = (house_code) => {
   mapAPI.getHouseInfo(
     house_code,
@@ -230,9 +280,9 @@ const getHouseDealList = (house_code) => {
     )
 }
 
-// 6. DealList Search Button Group
+// 5. DealList Search Button Group
 
-// 7. DealList Search Input
+// 6. DealList Search Input
 
 // 8. Map House Detail Implementation Part -> 어쩌면 House Detail에서 전부 할 수도 있음.
 // 8.1 House Detail 창에서 close를 누르면, Map으로 돌아온다. ( 매개변수 조절을 통해, 다른 곳에서도 활용이 가능함 )
@@ -242,14 +292,15 @@ const close = () => {
 
 provide('res', {
   map: readonly(map),
+  activeButtons: activeButtons,
   dealVoList: readonly(dealVoList),
   detailDealList: readonly(detailDealList),
-  selectedHouse: readonly(selectedHouse)
+  selectedHouse: readonly(selectedHouse),
+  selectedDealVo: readonly(selectedDealVo)
 })
 
 provide('service', {
   initMap,
-  changeSize,
   close
 })
 
