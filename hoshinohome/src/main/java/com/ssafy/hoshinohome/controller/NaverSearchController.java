@@ -24,7 +24,7 @@ public class NaverSearchController {
 
         String text = null;
         try {
-            text = URLEncoder.encode("카리나", "UTF-8");
+            text = URLEncoder.encode("부동산", "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("검색어 인코딩 실패",e);
         }
