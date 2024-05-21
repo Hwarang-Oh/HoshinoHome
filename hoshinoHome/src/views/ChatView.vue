@@ -25,8 +25,8 @@
           <img
             :src="
               message.from === 'bot'
-                ? 'https://cdn.icon-icons.com/icons2/1371/PNG/512/robot02_90810.png'
-                : 'https://i.pravatar.cc/100?img=7'
+                ? '/public/hoshinoJJang.ico'
+                : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCEaIJLCdflp435HarUZjRTQBQJcFFG_CMKw&usqp=CAU'
             "
             alt=""
             class="w-6 h-6 rounded-full"
@@ -52,7 +52,7 @@
           v-model="prompt"
           @keydown.enter="sendPrompt"
           type="text"
-          placeholder="Say something..."
+          placeholder="질문을 입력해주세요!!"
           autocomplete="off"
           autofocus="true"
           class="text-md w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-5 pr-16 bg-gray-100 border-2 border-gray-200 focus:border-blue-500 rounded-full py-2"

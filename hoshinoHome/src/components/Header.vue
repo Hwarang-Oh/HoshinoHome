@@ -84,11 +84,7 @@ const toggleMyPageModal = () => {
         class="text-lg hover:text-gray-400 transition duration-300"
         active-class="text-blue-400" exact-active-class="text-blue-400"
       >Dong Story</RouterLink>
-      <RouterLink 
-        to="/chatgpt" 
-        class="text-lg hover:text-gray-400 transition duration-300"
-        active-class="text-blue-400" exact-active-class="text-blue-400"
-      >챗봇</RouterLink>
+
     </div>
 
     <nav class="space-x-4 flex text-lg">

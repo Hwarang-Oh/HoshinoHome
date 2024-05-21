@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, inject, defineProps } from 'vue'
 import MapSearch from './MapSearch.vue'
-import ChatBot from '@/views/ChatView.vue' // ChatBot 컴포넌트를 임포트합니다
+import ChatBot from '@/views/ChatView.vue' 
 const { initMap } = inject('service')
 const props = defineProps({
   isHouseDetailOpen: Boolean
@@ -31,12 +31,17 @@ onMounted(() => {
     <MapSearch :isHouseDetailOpen="isHouseDetailOpen" />
 
     <button class="chatbot-button" @click="toggleChatBot">
-      <i class="fas fa-comments"></i> ChatBot
+      <img src="/chatboticon2.png" alt="ChatBot" class="w-full h-full object-cover" />
     </button>
 
     <!-- ChatBot Modal -->
     <div v-if="isChatBotOpen" class="chatbot-modal">
-      <button class="close-button" @click="toggleChatBot">X</button>
+      <div class="chatbot-header">
+        <span>ChatBot</span>
+        <button class="close-button" @click="toggleChatBot">
+          <i class="mdi mdi-close"></i>
+        </button>
+      </div>
       <div class="chatbot-content">
         <ChatBot />
       </div>
@@ -59,24 +64,22 @@ onMounted(() => {
   position: fixed; /* fixed로 변경하여 항상 화면에 고정 */
   bottom: 40px;
   right: 40px;
-  background-color: #007bff;
-  color: white;
-  border: none;
+  border: 1px solid #979797; 
+  background-color: #ffffff;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
   transition: background-color 0.3s;
-  z-index: 1000; /* 다른 요소 위에 표시되도록 z-index 추가 */
+  z-index: 1000; 
 }
 
 .chatbot-button:hover {
-  background-color: #0056b3;
+  background-color: #e7e7e7;
 }
 
 /* ChatBot Modal 스타일 */
@@ -95,13 +98,21 @@ onMounted(() => {
   flex-direction: column;
 }
 
+.chatbot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  font-size: 20px;
+  font-weight: bold;
+}
+
 .close-button {
-  align-self: flex-end;
   background: none;
   border: none;
   font-size: 20px;
   cursor: pointer;
-  margin: 5px;
 }
 
 .chatbot-content {
@@ -109,4 +120,9 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
 }
+</style>
+
+<style>
+@import url('https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css');
+@import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
 </style>
