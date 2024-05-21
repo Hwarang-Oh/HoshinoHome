@@ -1,6 +1,5 @@
 package com.ssafy.hoshinohome.controller;
 
-
 import com.ssafy.hoshinohome.model.dto.GPTRequest;
 import com.ssafy.hoshinohome.model.dto.GPTResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,22 +22,15 @@ public class GPTController {
     private String apiUrl;
     private final RestTemplate restTemplate;
 
-
     @GetMapping("/chat")
-    public String chat(@RequestParam("prompt") String prompt){
+    public String chat(@RequestParam("prompt") String prompt) {
 
         GPTRequest request = new GPTRequest(
-                model,prompt,1,256,1,2,2);
+                model, prompt, 1, 256, 1, 2, 2);
 
         GPTResponse gptResponse = restTemplate.postForObject(
-                apiUrl
-                , request
-                , GPTResponse.class
-        );
-
+                apiUrl, request, GPTResponse.class);
 
         return gptResponse.getChoices().get(0).getMessage().getContent();
-
-
     }
 }
