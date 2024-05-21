@@ -84,6 +84,13 @@ const router = createRouter({
       component: () => import('../components/DongStory/DongStoryModify.vue'),
       props: true,
     }
+    ,
+    {
+      path: '/chatgpt',
+      name: 'chatgpt',
+      component: () => import('@/views/ChatView.vue'),
+      
+    }
   ]
 })
 
