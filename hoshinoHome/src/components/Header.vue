@@ -1,11 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter, RouterLink, useRoute } from 'vue-router'
 import Login from '../components/User/Login.vue' // Login 컴포넌트 임포트
 import Register from '../components/User/Register.vue' // Register 컴포넌트 임포트
 import MyPage from '../components/User/MyPage.vue' // MyPage 컴포넌트 임포트
 
 const router = useRouter()
+const route = useRoute()
 
 // 로그인 상태를 저장할 ref
 const isLoggedIn = ref(false)
@@ -30,8 +31,8 @@ const logout = () => {
   localStorage.removeItem('kakao_209b21c4ea1644f6b617f33542bc6dd8')
   isLoggedIn.value = false
   router.push('/').then(() => {
-        window.location.reload(); // 홈 화면으로 이동 후 새로고침
-      });
+    window.location.reload() // 홈 화면으로 이동 후 새로고침
+  })
 }
 
 // 모달 토글 함수
@@ -46,7 +47,6 @@ const toggleRegisterModal = () => {
 const toggleMyPageModal = () => {
   showMyPageModal.value = !showMyPageModal.value
 }
-
 </script>
 
 <template>
@@ -59,21 +59,31 @@ const toggleMyPageModal = () => {
       <RouterLink to="/">
         <img src="/home-icon2.png" alt="Home" class="cursor-pointer" style="width: 130px; height: auto;"/>
       </RouterLink>
-      <RouterLink to="/" class="text-lg hover:text-gray-400 transition duration-300"
-        >Home</RouterLink
-      >
-      <RouterLink to="/about" class="text-lg hover:text-gray-400 transition duration-300"
-        >About</RouterLink
-      >
-      <RouterLink to="/notice" class="text-lg hover:text-gray-400 transition duration-300"
-        >Notice</RouterLink
-      >
-      <RouterLink to="/map" class="text-lg hover:text-gray-400 transition duration-300"
-        >Map</RouterLink
-      >
-      <RouterLink to="/dongStory" class="text-lg hover:text-gray-400 transition duration-300"
-        >Dong Story</RouterLink
-      >
+      <RouterLink 
+        to="/" 
+        class="text-lg hover:text-gray-400 transition duration-300"
+        active-class="text-blue-400" exact-active-class="text-blue-400"
+      >Home</RouterLink>
+      <RouterLink 
+        to="/about" 
+        class="text-lg hover:text-gray-400 transition duration-300"
+        active-class="text-blue-400" exact-active-class="text-blue-400"
+      >About</RouterLink>
+      <RouterLink 
+        to="/notice" 
+        class="text-lg hover:text-gray-400 transition duration-300"
+        active-class="text-blue-400" exact-active-class="text-blue-400"
+      >Notice</RouterLink>
+      <RouterLink 
+        to="/map" 
+        class="text-lg hover:text-gray-400 transition duration-300"
+        active-class="text-blue-400" exact-active-class="text-blue-400"
+      >Map</RouterLink>
+      <RouterLink 
+        to="/dongStory" 
+        class="text-lg hover:text-gray-400 transition duration-300"
+        active-class="text-blue-400" exact-active-class="text-blue-400"
+      >Dong Story</RouterLink>
     </div>
 
     <nav class="space-x-4 flex text-lg">
@@ -82,26 +92,22 @@ const toggleMyPageModal = () => {
         <span
           @click="toggleLoginModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-          >Login</span
-        >
+        >Login</span>
         <span
           @click="toggleRegisterModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-          >Register</span
-        >
+        >Register</span>
       </template>
       <!-- 로그인이 유지되는 중 보일 부분 -->
       <template v-else>
         <span
           @click="logout"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-          >Logout</span
-        >
+        >Logout</span>
         <span
           @click="toggleMyPageModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-          >MyPage</span
-        >
+        >MyPage</span>
       </template>
     </nav>
   </header>

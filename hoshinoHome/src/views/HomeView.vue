@@ -1,12 +1,37 @@
 <script setup>
 import mapAPI from '@/api/map.js'
 import naverAPI from '@/api/naver.js'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import DOMPurify from 'dompurify'
+
+// 이미지 파일 이름 배열
+const issueImages = [
+  'apartNews.jpg',
+  'issue1.jpg',
+  'issue3.jpg',
+  'issue5.jpg',
+  'winter.jpg',
+  'issue6.jpg',
+  'issue7.jpg',
+  'issue8.jpg',
+  'issue9.png',
+  'banpoXI.jpg',
+  'etherno.jpg',
+  'etherno2.jpg',
+  'hanriver.jpg',
+];
+
+const getRandomImage = () => {
+  const randomIndex = Math.floor(Math.random() * issueImages.length)
+  return issueImages[randomIndex]
+}
+
+const randomImage = ref(getRandomImage())
 
 const query = ref('')
 const suggestions = ref([])
 const newsPosts = ref([])
+const showSuggestions = ref(false)
 
 const fetchSuggestions = () => {
   if (query.value.length > 0) {
@@ -15,20 +40,24 @@ const fetchSuggestions = () => {
       (response) => {
         console.log(response)
         suggestions.value = response.data
+        showSuggestions.value = true
       },
       () => {
         console.error('자동완성 실패!!')
         suggestions.value = []
+        showSuggestions.value = false
       }
     )
   } else {
     suggestions.value = []
+    showSuggestions.value = false
   }
 }
 
 const selectSuggestion = (suggestion) => {
   query.value = `${suggestion.house_name} (${suggestion.road_address})`
   suggestions.value = []
+  showSuggestions.value = false
 }
 
 const fetchBlogPosts = () => {
@@ -39,9 +68,19 @@ const fetchBlogPosts = () => {
   })
 }
 
+const handleClickOutside = (event) => {
+  if (!event.target.closest('.suggestion-container')) {
+    showSuggestions.value = false
+  }
+}
+
 onMounted(() => {
   fetchBlogPosts()
+  document.addEventListener('click', handleClickOutside)
 })
+
+watch(query, fetchSuggestions)
+
 </script>
 
 <template>
@@ -57,43 +96,54 @@ onMounted(() => {
         <div
           class="absolute inset-0 flex flex-col justify-center items-center text-center text-white"
         >
-          <h1 class="text-4xl font-bold mb-4">오화랑 이찬민 취업열차 출발!</h1>
-          <p class="text-lg mb-4">어떻게든 완성해야 한다! 부릉부릉!</p>
+          <h1 class="text-4xl font-bold mb-4 animate-fade-slide-in">오화랑 이찬민 취업열차 출발!</h1>
+          <p class="text-lg mb-4 animate-fade-slide-in">어떻게든 완성해야 한다! 부릉부릉!</p>
 
-          <div class="relative w-80">
-            <input
-              type="text"
-              v-model="query"
-              @input="fetchSuggestions"
-              placeholder="지역/주소, 건물명으로 검색하세요"
-              class="w-full p-2 rounded-lg text-gray-700 border border-gray-300 h-12"
-            />
-            <button
-              class="absolute right-0 top-0 h-full bg-sky-500 text-white py-2 px-4 rounded-r-lg hover:bg-sky-700 text-lg"
-            >
-              검색
-            </button>
-            <ul
-              v-if="suggestions.length"
-              class="absolute left-0 right-0 bg-white border border-gray-300 rounded mt-1 z-10"
-            >
-              <li
-                v-for="(suggestion, index) in suggestions"
-                :key="index"
-                @mousedown.prevent="selectSuggestion(suggestion)"
-                class="p-2 cursor-pointer hover:bg-gray-200"
+          <div class="relative w-80 animate-fade-slide-in">
+            <div class="pt-2 relative mx-auto text-gray-600 suggestion-container">
+              <input
+                type="text"
+                v-model="query"
+                @input="fetchSuggestions"
+                placeholder="지역/주소, 건물명으로 검색하세요"
+                class="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none w-full"
+              />
+              <button
+                @click="fetchSuggestions"
+                class="absolute right-0 top-0 mt-2 mr-4"
               >
-                {{ suggestion.house_name }} ({{ suggestion.road_address }})
-              </li>
-            </ul>
+                <svg class="text-gray-600 h-4 w-4 fill-current mt-2.5" xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px"
+                  viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;" xml:space="preserve"
+                  width="512px" height="512px">
+                  <path
+                    d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z"
+                  />
+                </svg>
+              </button>
+              <ul
+                v-if="showSuggestions && suggestions.length"
+                class="absolute left-0 right-0 bg-white border border-gray-300 rounded mt-1 z-10"
+              >
+                <li
+                  v-for="(suggestion, index) in suggestions"
+                  :key="index"
+                  @mousedown.prevent="selectSuggestion(suggestion)"
+                  class="p-2 cursor-pointer hover:bg-gray-200"
+                >
+                  {{ suggestion.house_name }} ({{ suggestion.road_address }})
+                </li>
+              </ul>
+            </div>
+
           </div>
         </div>
       </section>
 
       <!-- News and Detailed News Section -->
-      <section class="flex flex-wrap justify-center space-x-6 my-8 text-lg">
+      <section class="flex flex-col md:flex-row justify-center space-y-6 md:space-y-0 md:space-x-6 my-8 text-lg">
         <!-- News List Section -->
-        <div class="bg-white p-6 rounded-lg shadow-lg w-full md:w-1/2 mb-6 md:mb-0">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full md:w-1/2 mb-6 md:mb-0 animate-fade-slide-in">
           <h2 class="text-2xl font-semibold mb-4">공지/뉴스</h2>
           <ul>
             <li 
@@ -113,18 +163,23 @@ onMounted(() => {
         </div>
 
         <!-- Detailed News Section -->
-        <div 
-          v-if="newsPosts.length > 5" 
-          class="w-full md:w-2/5 bg-white p-6 rounded-lg shadow-lg"
-        >
-          <a 
-            :href="newsPosts[5].link" 
-            target="_blank" 
-            class="text-lg font-semibold mb-2 text-gray-800 hover:text-blue-700 block"
-            v-html="DOMPurify.sanitize(newsPosts[5].title)"
-          ></a>
-          <p v-html="DOMPurify.sanitize(newsPosts[5].description)"></p>
-          <div class="text-gray-500 text-right">{{ new Date(newsPosts[5].pubDate).toLocaleDateString() }}</div>
+        <div v-if="newsPosts.length > 5" class="bg-white p-6 rounded-lg shadow-lg w-full md:w-1/2 animate-fade-slide-in">
+          <h2 class="text-2xl font-semibold mb-4">오늘의 이슈</h2>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-shrink-0 w-full h-48 md:h-auto md:w-48">
+              <img :src="`/issues/${randomImage}`" alt="News Image" class="w-full h-full object-cover rounded-md" />
+            </div>
+            <div class="flex flex-col flex-1">
+              <a 
+                :href="newsPosts[5].link" 
+                target="_blank" 
+                class="text-lg font-semibold text-gray-800 hover:text-blue-700 mb-2 block"
+                v-html="DOMPurify.sanitize(newsPosts[5].title)"
+              ></a>
+              <p class="text-gray-600 flex-1 mb-2" v-html="DOMPurify.sanitize(newsPosts[5].description)"></p>
+              <div class="text-gray-500 text-right">{{ new Date(newsPosts[5].pubDate).toLocaleDateString() }}</div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -132,6 +187,21 @@ onMounted(() => {
 </template>
 
 <style scoped>
+@keyframes fade-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fade-slide-in 1s ease-out;
+}
+
 .bg {
   height: calc(100vh - 180px);
 }

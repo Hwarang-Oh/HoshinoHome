@@ -103,17 +103,17 @@ export default {
 <template>
   <div class="min-h-screen bg-gray-100 py-8">
     <!-- Main Notice Content Section -->
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg animate-fade-slide-in">
       <h1 class="text-3xl font-bold text-center text-green-600 mb-8">공지사항</h1>
 
       <!-- Notice Table -->
-      <table class="w-full border-collapse table-fixed text-left mb-8">
+      <table class="w-full border-collapse table-fixed text-left mb-8 animate-fade-slide-in">
         <thead>
           <tr class="bg-green-100 text-green-700">
             <th class="w-3/4 py-3 px-4 border-b border-green-200 text-lg font-semibold pdLeft">
               제목
             </th>
-            <th class="w-1/4 py-3 px-4 border-b border-green-200 text-lg font-semibold">등록일</th>
+            <th class="w-1/4 py-3 px-4 border-b border-green-200 text-lg font-semibold pdLeft2">등록일</th>
           </tr>
         </thead>
         <tbody>
@@ -121,7 +121,7 @@ export default {
           <tr
             v-for="(notice, index) in paginatedNotices"
             :key="notice.post_id"
-            class="hover:bg-green-50 cursor-pointer"
+            class="hover:bg-green-50 cursor-pointer animate-fade-slide-in"
             @click="toNoticeDetail(notice.post_id)"
           >
             <td class="py-3 px-6 border-b border-gray-200">{{ notice.title }}</td>
@@ -131,7 +131,7 @@ export default {
       </table>
 
       <!-- Register Button -->
-      <div class="text-right mb-8" v-if="isAdmin">
+      <div class="text-right mb-8 animate-fade-slide-in" v-if="isAdmin">
         <button
           @click="toNoticeRegist"
           class="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
@@ -141,7 +141,7 @@ export default {
       </div>
 
       <!-- Pagination Controls -->
-      <nav class="flex justify-center space-x-2">
+      <nav class="flex justify-center space-x-2 animate-fade-slide-in">
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
@@ -175,6 +175,21 @@ export default {
 </template>
 
 <style scoped>
+@keyframes fade-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fade-slide-in 1s ease-out;
+}
+
 /* 테이블 헤더 스타일 */
 th {
   text-align: left;
@@ -188,5 +203,9 @@ td {
 
 .pdLeft {
   padding-left: 20px;
+}
+
+.pdLeft2 {
+  padding-left: 35px;
 }
 </style>

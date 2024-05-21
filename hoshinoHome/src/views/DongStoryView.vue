@@ -1,31 +1,58 @@
 <template>
-  <div class="min-h-screen bg-blue-50 py-8">
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-      <h1 class="text-3xl font-bold text-center text-blue-600 mb-8">Dong Story</h1>
+  <div class="min-h-screen bg-blue-50 py-8 animate-fade-slide-in">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg animate-fade-slide-in">
+      <h1 class="text-3xl font-bold text-center text-blue-600 mb-8 animate-fade-slide-in">Dong Story</h1>
       
-      <!-- 지역 선택 드롭다운 메뉴 -->
-      <div class="mb-4">
+      <!-- 지역 선택 드롭다운 및 검색창 -->
+      <div class="mb-4 relative w-2/5 animate-fade-slide-in">
         <label for="dongFilter" class="block text-lg font-semibold mb-1 ms-3 text-blue-700">지역 선택</label>
-        <select id="dongFilter" v-model="selectedDong" @change="filterDongStories" class="w-1/10 p-3 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition duration-200">
-          <option value="">전체</option>
-          <option v-for="dong in dongNames" :key="dong.dong_code" :value="dong.dong_name">{{ dong.dong_name }}</option>
-        </select>
+        <div class="flex items-center">
+          <input 
+            v-if="isSearchMode"
+            id="dongFilter"
+            v-model="searchQuery"
+            @input="filterDongNames"
+            @keydown.down.prevent="moveDown"
+            @keydown.up.prevent="moveUp"
+            @keydown.enter.prevent="selectActiveDong"
+            class="w-full p-3 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition duration-200"
+            placeholder="지역 이름을 입력하세요..."
+          />
+          <select v-else id="dongFilter" v-model="selectedDong" @change="filterDongStories" class="w-full p-3 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition duration-200">
+            <option value="">전체</option>
+            <option v-for="dong in dongNames" :key="dong.dong_code" :value="dong.dong_name">{{ dong.dong_name }}</option>
+          </select>
+          <button @click="toggleSearchMode" class="ml-2 p-3 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition duration-200 bg-white hover:bg-blue-100">
+            🔍
+          </button>
+        </div>
+        <ul v-if="isSearchMode && filteredDongNames.length > 0" class="absolute z-10 w-full bg-white border border-blue-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+          <li 
+            v-for="(dong, index) in filteredDongNames" 
+            :key="dong.dong_code" 
+            @click="selectDong(dong.dong_name)" 
+            :class="{'bg-blue-100': index === activeIndex}"
+            class="px-4 py-2 cursor-pointer hover:bg-blue-50"
+          >
+            {{ dong.dong_name }}
+          </li>
+        </ul>
       </div>
 
-      <table class="w-full border-collapse table-fixed text-left mb-8">
+      <table class="w-full border-collapse table-fixed text-left mb-8 animate-fade-slide-in">
         <thead>
           <tr class="bg-blue-100 text-blue-700">
             <th class="w-1/6 py-3 px-4 border-b border-blue-200 text-lg font-semibold">지역 이름</th>
             <th class="w-1/3 py-3 px-4 border-b border-blue-200 text-lg font-semibold">제목</th>
             <th class="w-1/6 py-3 px-4 border-b border-blue-200 text-lg font-semibold">작성자</th>
-            <th class="w-1/6 py-3 px-4 border-b border-blue-200 text-lg font-semibold">등록일</th>
+            <th class="w-1/6 py-3 px-4 border-b border-blue-200 text-lg font-semibold pdLeft">등록일</th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="(story, index) in paginatedDongStories"
             :key="story.post_id"
-            class="hover:bg-blue-50 cursor-pointer"
+            class="hover:bg-blue-50 cursor-pointer animate-fade-slide-in"
             @click="toDongStoryDetail(story.post_id)"
           >
             <td class="py-3 px-4 border-b border-gray-200">{{ story.dong_name }}</td>
@@ -37,7 +64,7 @@
       </table>
 
       <!-- Pagination Controls -->
-      <nav class="flex justify-center space-x-2 mb-8">
+      <nav class="flex justify-center space-x-2 mb-8 animate-fade-slide-in">
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
@@ -63,7 +90,7 @@
         </button>
       </nav>
 
-      <div class="text-right mb-8">
+      <div class="text-right mb-8 animate-fade-slide-in">
         <button
           @click="toDongStoryRegist"
           class="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
@@ -76,7 +103,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import dongStoryAPI from '@/api/dongStory.js' // DongStory API 임포트
 import dongAPI from '@/api/dong.js' // Dong API 임포트
 import { useRouter, useRoute } from 'vue-router'
@@ -87,6 +114,10 @@ export default {
     const dongStories = ref([])
     const dongNames = ref([])
     const selectedDong = ref('')
+    const searchQuery = ref('')
+    const filteredDongNames = ref([])
+    const activeIndex = ref(-1)
+    const isSearchMode = ref(false)
     const router = useRouter()
     const route = useRoute()
 
@@ -134,6 +165,17 @@ export default {
       return dongStories.value
     }
 
+    const filterDongNames = () => {
+      if (searchQuery.value) {
+        filteredDongNames.value = dongNames.value.filter(dong =>
+          dong.dong_name.toLowerCase().includes(searchQuery.value.toLowerCase())
+        )
+        activeIndex.value = -1 // 검색어가 변경될 때마다 activeIndex를 초기화
+      } else {
+        filteredDongNames.value = []
+      }
+    }
+
     const filteredDongStories = computed(() => filterDongStories())
 
     const paginatedDongStories = computed(() => {
@@ -155,6 +197,39 @@ export default {
       if (page >= 1 && page <= totalPages.value) currentPage.value = page
     }
 
+    const toggleSearchMode = () => {
+      isSearchMode.value = !isSearchMode.value
+      if (!isSearchMode.value) {
+        searchQuery.value = ''
+        filteredDongNames.value = []
+      }
+    }
+
+    const selectDong = (dongName) => {
+      selectedDong.value = dongName
+      searchQuery.value = dongName
+      filteredDongNames.value = []
+      isSearchMode.value = false
+    }
+
+    const moveDown = () => {
+      if (activeIndex.value < filteredDongNames.value.length - 1) {
+        activeIndex.value++
+      }
+    }
+
+    const moveUp = () => {
+      if (activeIndex.value > 0) {
+        activeIndex.value--
+      }
+    }
+
+    const selectActiveDong = () => {
+      if (activeIndex.value >= 0 && activeIndex.value < filteredDongNames.value.length) {
+        selectDong(filteredDongNames.value[activeIndex.value].dong_name)
+      }
+    }
+
     onMounted(() => {
       fetchDongStories()
       fetchDongNames()
@@ -164,10 +239,14 @@ export default {
       }
     })
 
+    watch(searchQuery, filterDongNames)
+
     return {
       dongStories,
       dongNames,
       selectedDong,
+      searchQuery,
+      filteredDongNames,
       filteredDongStories,
       paginatedDongStories,
       currentPage,
@@ -176,13 +255,35 @@ export default {
       nextPage,
       goToPage,
       toDongStoryRegist,
-      toDongStoryDetail
+      toDongStoryDetail,
+      isSearchMode,
+      toggleSearchMode,
+      selectDong,
+      activeIndex,
+      moveDown,
+      moveUp,
+      selectActiveDong
     }
   }
 }
 </script>
 
 <style scoped>
+@keyframes fade-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fade-slide-in 1s ease-out;
+}
+
 th {
   text-align: left;
 }
@@ -190,5 +291,13 @@ th {
 td {
   text-align: left;
   padding-left: 20px;
+}
+
+.pdLeft {
+  padding-left: 20px;
+}
+
+.bg-blue-100 {
+  background-color: #ebf8ff;
 }
 </style>
