@@ -9,4 +9,7 @@
   <select id="selectHouseInfoListByQuery" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo">
     SELECT * FROM houseinfo WHERE house_name LIKE CONCAT('%', #{query}, '%') OR road_address LIKE
     CONCAT('%', #{query}, '%') OR jibun_address LIKE CONCAT('%', #{query}, '%') LIMIT 10;</select>
+
+  <select id="selectHouseInfoByAddress" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo">
+    SELECT * FROM houseinfo where road_address LIKE #{roadAddress}; </select>
 </mapper>

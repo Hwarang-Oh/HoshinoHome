@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssafy.hoshinohome.model.dto.HouseDeal;
 import com.ssafy.hoshinohome.model.dto.HouseInfo;
 import com.ssafy.hoshinohome.model.service.MapService;
+import com.ssafy.hoshinohome.model.vo.EachInputDealVo;
 import com.ssafy.hoshinohome.model.vo.ExtendedInputRangeVo;
 import com.ssafy.hoshinohome.model.vo.HouseDealVo;
 import com.ssafy.hoshinohome.model.vo.InputRangeVo;
@@ -30,6 +31,20 @@ public class MapController {
 
     public MapController(MapService mapService) {
         this.mapService = mapService;
+    }
+
+    @PostMapping("/searchedHouseDealVo")
+    public ResponseEntity<HouseDealVo> getEachHouseDealVo(@RequestBody EachInputDealVo EachInputDealVo)
+            throws Exception {
+        HouseDealVo houseDealVo = mapService.getEachHouseDealVo(
+                EachInputDealVo.getHouseCode(),
+                EachInputDealVo.getHouseTypes(),
+                EachInputDealVo.getDealTypes());
+        if (houseDealVo != null) {
+            return ResponseEntity.ok(houseDealVo);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 
     @PostMapping("/list")
@@ -89,4 +104,16 @@ public class MapController {
     public List<HouseInfo> searchHouseInfoListByQuery(@RequestParam String query) throws Exception {
         return mapService.searchHouseInfoListByQuery(query);
     }
+
+    @GetMapping("/search/{roadAddress}")
+    public ResponseEntity<?> searchHouseInfoByAddress(@PathVariable("roadAddress") String roadAddress)
+            throws Exception {
+        HouseInfo houseInfo = mapService.searchHouseInfoByAddress(roadAddress);
+        System.out.println(houseInfo);
+        if (houseInfo != null) {
+            return ResponseEntity.ok(houseInfo);
+        } else
+            return ResponseEntity.noContent().build();
+    }
+
 }

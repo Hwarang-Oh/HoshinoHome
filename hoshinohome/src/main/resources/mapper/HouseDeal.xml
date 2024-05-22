@@ -63,6 +63,20 @@
     row_num FROM housedeal hd INNER JOIN filteredHouseInfo hi ON hd.house_code = hi.house_code )
     SELECT * FROM rankedDeals WHERE row_num = 1; </select>
 
+  <select id="selectEachHouseDealVo" resultMap="HouseDealVoResultMap"> SELECT r.house_code,
+    r.house_type, r.deal_type, r.deal_code, r.deal_amount, r.deposit_amount, r.monthly_amount,
+    r.jibun_address, r.road_address, r.deal_year, r.deal_month, r.deal_day, r.area, r.floor,
+    hi.house_name, hi.lng, hi.lat FROM recent_housedeal r INNER JOIN houseinfo hi ON r.house_code =
+    hi.house_code WHERE r.house_code = #{houseCode} <if
+      test="houseTypes != null and houseTypes.size() > 0"> AND r.house_type IN <foreach item="type"
+        index="index" collection="houseTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+      <if
+      test="dealTypes != null and dealTypes.size() > 0"> AND r.deal_type IN <foreach item="type"
+        index="index" collection="dealTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+    ORDER BY r.deal_year DESC, r.deal_month DESC, r.deal_day DESC LIMIT 1; </select>
+
   <select id="selectHouseDealVoList2" resultMap="HouseDealVoResultMap"> SELECT r.house_code,
     r.house_type, r.deal_type, r.deal_code, r.deal_amount, r.deposit_amount, r.monthly_amount,
     r.jibun_address, r.road_address, r.deal_year, r.deal_month, r.deal_day, r.area, r.floor,

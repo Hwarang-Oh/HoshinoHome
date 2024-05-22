@@ -14,7 +14,9 @@ public interface HouseDealDao {
                         @Param("latFrom") String latFrom,
                         @Param("latTo") String latTo);
 
-        List<HouseDeal> selectHouseDealList(@Param("houseCode") Long houseCode);
+        HouseDealVo selectEachHouseDealVo(@Param("houseCode") Long houseCode,
+                        @Param("houseTypes") List<Integer> houseTypes,
+                        @Param("dealTypes") List<Integer> dealTypes);
 
         List<HouseDealVo> selectHouseDealVoList2(@Param("lngFrom") String lngFrom,
                         @Param("lngTo") String lngTo,
@@ -23,4 +25,5 @@ public interface HouseDealDao {
                         @Param("houseTypes") List<Integer> houseTypes,
                         @Param("dealTypes") List<Integer> dealTypes);
 
+        List<HouseDeal> selectHouseDealList(@Param("houseCode") Long houseCode);
 }

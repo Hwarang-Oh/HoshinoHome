@@ -12,4 +12,6 @@ public interface HouseInfoDao {
     HouseInfo selectHouseInfo(@Param("houseCode") Long houseCode);
 
     List<HouseInfo> selectHouseInfoListByQuery(@Param("query") String query);
+
+    HouseInfo selectHouseInfoByAddress(@Param("roadAddress") String roadAddress);
 }
