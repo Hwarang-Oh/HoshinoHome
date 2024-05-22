@@ -30,6 +30,6 @@ export const useUserInfoStore = defineStore('userInfo', {
   persist: {
     key: 'user-info-store',
     storage: sessionStorage, // 세션 스토리지에 저장
-    paths: ['userLocation', 'selectedHouseDealVo', `isHouseDetailOpen`] // 저장할 상태의 경로
+    paths: ['userLocation', 'selectedHouseDealVo', 'isHouseDetailOpen'] // 저장할 상태의 경로
   }
 })

@@ -59,7 +59,6 @@ function setChartData(data) {
 watchEffect(() => {
   if (props.data && props.data.labels && props.data.counts) {
     setChartData(props.data)
-    console.log('chartData updated:', chartData.value)
   }
 })
 

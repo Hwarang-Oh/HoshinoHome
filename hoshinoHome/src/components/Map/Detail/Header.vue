@@ -1,21 +1,11 @@
 <script setup>
 import { ref, inject, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import mapAPI from '@/api/map.js'
 import Swal from 'sweetalert2'
 
 const selectedHouse = inject('selectedHouse')
-const { selectedHouse, dealVoList, favoritePlaces } = inject('res')
-const {
-  close,
-  drawApts,
-  drawMarker,
-  handleOverlayClick,
-  getHouseDealList,
-  selectedOverlay,
-  createdMarkers
-} = inject('service')
-const router = useRouter()
+const { favoritePlaces, selectedOverlay, createdMarkers } = inject('res')
+const { close } = inject('service')
 
 const isFavorite = ref(false)
 

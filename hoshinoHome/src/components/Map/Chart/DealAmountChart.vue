@@ -7,9 +7,11 @@
       <Line :data="depositChartData" :options="options" />
     </div>
     <div v-else>
+      <h3 class="sub-chart-title">보증금</h3>
       <div class="sub-chart-container shadow rounded">
         <Line :data="monthly_depositChartData" :options="options" />
       </div>
+      <h3 class="sub-chart-title">월세</h3>
       <div class="sub-chart-container shadow rounded">
         <Line :data="monthly_monthlyChartData" :options="options" />
       </div>
@@ -18,7 +20,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, reactive, onMounted } from 'vue'
+import { ref, defineProps, watch } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -27,10 +29,11 @@ import {
   CategoryScale,
   LinearScale,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from 'chart.js'
 
-ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend)
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, Filler)
 
 const props = defineProps({
   dealData: {
@@ -311,6 +314,12 @@ const options = {
   height: 50%; /* 차트의 높이를 조정 */
   margin-bottom: 20px; /* 차트 간 간격 추가 */
   padding: 10px; /* 내부 패딩 추가 */
-  background-color: #fff; /* 배경색을 흰색으로 설정 */
+}
+.sub-chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  margin-bottom: 10px;
+  color: #1f2937;
 }
 </style>

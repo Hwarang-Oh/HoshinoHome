@@ -8,13 +8,15 @@ import TransactionInfo from '@/components/Map/Detail/TransactionInfo.vue'
 
 import mapAPI from '@/api/map.js'
 import { useUserInfoStore } from '@/stores/UserInfoStore'
-import { ref, onMounted, provide, watch } from 'vue'
+import { ref, onMounted, provide, watch, inject } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
+const { createdMarkers } = inject('res')
 const userInfoStore = useUserInfoStore()
 const selectedHouse = ref({})
 const detailDealList = ref([])
 const selectedDealVo = ref({})
+const activeTab = ref('realTransaction')
 
 const loadHouseDetail = async (house_code) => {
   try {
@@ -32,6 +34,7 @@ const loadHouseDetail = async (house_code) => {
       },
       () => {}
     )
+    createdMarkers.find
     selectedDealVo.value = userInfoStore.selectedHouseDealVo
   } catch (error) {
     console.error('Failed to load house detail:', error)
@@ -41,6 +44,7 @@ const loadHouseDetail = async (house_code) => {
 provide('selectedHouse', selectedHouse)
 provide('detailDealList', detailDealList)
 provide('selectedDealVo', selectedDealVo)
+provide('activeTab', activeTab)
 
 onMounted(() => {
   const house_code = route.params.house_code
@@ -77,11 +81,14 @@ watch(
     <!-- Info_Tab Section -->
     <Info_Tab />
 
-    <!-- DealInfo Section-->
-    <DealInfo />
-
-    <!-- Content Section -->
-    <ChartSection />
+    <!-- Conditional Rendering -->
+    <div v-if="activeTab === 'realTransaction'">
+      <DealInfo />
+      <ChartSection />
+    </div>
+    <div v-else-if="activeTab === 'transactionHistory'">
+      <TransactionInfo />
+    </div>
   </div>
 </template>
 

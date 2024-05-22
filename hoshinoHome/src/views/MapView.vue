@@ -26,8 +26,6 @@ const userInfoStore = useUserInfoStore()
 let map = reactive({})
 const dealVoList = ref([]) // To store all fetched data
 const activeButtons = ref(['apartment', 'multiFamily', 'officetel', 'sale', 'lease', 'monthly'])
-const selectedDealVo = ref({}) // To store the selected dealVo
-const isHouseDetailOpen = ref(false) // 상태를 추가하여 House Detail 창이 열렸는지 여부를 관리
 const createdMarkers = new Map() // Set에서 Map으로 변경하여 house_code와 overlay를 매핑
 const favoritePlaces = ref(new Set()) // 관심 주거지 목록
 const selectedOverlay = ref(null) // 선택된 오버레이
@@ -229,34 +227,6 @@ watch(dealVoList, () => {
   drawMarker(dealVoList)
 })
 
-const getHouseDealList = (house_code) => {
-  return new Promise((resolve, reject) => {
-    mapAPI.getHouseInfo(
-      house_code,
-      (response) => {
-        selectedHouse.value = response.data
-        console.log(response.data)
-      },
-      () => {
-        console.log(`해당 집의 기본 정보를 불러오지 못했어요.`)
-        reject('Failed to fetch house info')
-      }
-    ),
-      mapAPI.getHouseDealList(
-        house_code,
-        (response) => {
-          detailDealList.value = response.data
-          console.log(response.data)
-          resolve('Fetched data successfully')
-        },
-        () => {
-          console.error('해당 집의 거래내역을 불러오지 못했어요.')
-          reject('Failed to fetch deal list')
-        }
-      )
-  })
-}
-
 const close = () => {
   if (selectedOverlay.value) {
     const selectedContent = selectedOverlay.value.getContent()
@@ -271,11 +241,9 @@ provide('res', {
   map: readonly(map),
   activeButtons: activeButtons,
   dealVoList: readonly(dealVoList),
-  detailDealList: readonly(detailDealList),
-  selectedHouse: readonly(selectedHouse),
-  selectedDealVo: readonly(selectedDealVo),
-  isHouseDetailOpen: readonly(isHouseDetailOpen),
-  favoritePlaces: readonly(favoritePlaces) // favoritePlaces 제공
+  favoritePlaces: readonly(favoritePlaces), // favoritePlaces 제공
+  selectedOverlay, // selectedOverlay 제공
+  createdMarkers // createdMarkers 제공
 })
 
 provide('service', {
@@ -283,10 +251,7 @@ provide('service', {
   close,
   drawApts,
   drawMarker,
-  handleOverlayClick,
-  getHouseDealList,
-  selectedOverlay, // selectedOverlay 제공
-  createdMarkers // createdMarkers 제공
+  handleOverlayClick
 })
 
 onMounted(() => {
@@ -294,7 +259,6 @@ onMounted(() => {
   script.src =
     '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=4aa94d500c252274b8dc18944a4026f5&libraries=clusterer'
   document.head.appendChild(script)
-
   fetchFavoritePlaces()
 })
 </script>

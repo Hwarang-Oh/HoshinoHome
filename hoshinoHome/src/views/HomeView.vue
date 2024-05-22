@@ -126,7 +126,7 @@ const fetchHouseDetailAndNavigate = async () => {
             lng: searchedHouse.value.lng
           })
           userInfoStore.setSearchedHouseInfo(searchedHouse.value)
-          router.push(`/map/houseDetail/${searchedHouse.house_code}`)
+          router.push(`/map/houseDetail/${searchedHouse.value.house_code}`)
         } else {
           console.log('해당하는 검색 결과가없습니다.')
         }
