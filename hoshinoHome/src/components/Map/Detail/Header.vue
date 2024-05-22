@@ -1,10 +1,22 @@
 <script setup>
 import { ref, inject, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import mapAPI from '@/api/map.js'
 import Swal from 'sweetalert2'
 
 const selectedHouse = inject('selectedHouse')
-const { close } = inject('service')
+const { selectedHouse, dealVoList, favoritePlaces } = inject('res')
+const {
+  close,
+  drawApts,
+  drawMarker,
+  handleOverlayClick,
+  getHouseDealList,
+  selectedOverlay,
+  createdMarkers
+} = inject('service')
+const router = useRouter()
+
 const isFavorite = ref(false)
 
 const logFavoritePlaces = (response) => {
@@ -22,12 +34,41 @@ const checkFavoriteStatus = () => {
   )
 }
 
+const findAndSetOverlay = (houseCode) => {
+  if (createdMarkers.has(houseCode)) {
+    selectedOverlay.value = createdMarkers.get(houseCode)
+  }
+}
+
+const updateOverlay = (houseCode) => {
+  findAndSetOverlay(houseCode)
+  if (selectedOverlay.value) {
+    const overlayContent = selectedOverlay.value.getContent()
+    const favoriteIcon = overlayContent.querySelector('.favorite-icon')
+    if (favoriteIcon) {
+      if (isFavorite.value) {
+        favoriteIcon.classList.add('fas', 'fa-heart')
+      } else {
+        favoriteIcon.classList.remove('fas', 'fa-heart')
+      }
+    } else if (isFavorite.value) {
+      const newIcon = document.createElement('i')
+      newIcon.classList.add('fas', 'fa-heart', 'favorite-icon')
+      overlayContent.querySelector('.custom-overlay-top').appendChild(newIcon)
+    }
+  }
+}
+
 const toggleFavorite = () => {
+  console.log(selectedHouse.value.house_code + ' 선택된 하우스코드')
+
   mapAPI.toggleFavoritePlace(
     selectedHouse.value.house_code,
     (response) => {
       isFavorite.value = !isFavorite.value
       logFavoritePlaces(response)
+      favoritePlaces.value = new Set(response.data) // 업데이트된 favoritePlaces를 반영
+      updateOverlay(selectedHouse.value.house_code) // 오버레이 업데이트
     },
     (error) => {
       if (error.response && error.response.data === 'Unable to toggle favorite place') {
