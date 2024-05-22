@@ -7,11 +7,23 @@ import { useRouter } from 'vue-router'
 const user = ref({
   user_name: '',
   user_address: '',
-  user_favorite_place: '',
+  user_favorite_place: [],
   user_type: ''
 })
 
+const favoritePlacesDetails = ref([]) // 관심 지역 상세 정보 저장
+
 const router = useRouter()
+
+const fetchHouseInfo = async (houseCode) => {
+  try {
+    const response = await axios.get(`http://localhost:8080/api/map/houseInfo/${houseCode}`)
+    return response.data
+  } catch (error) {
+    console.error('Failed to fetch house info:', error)
+    return null
+  }
+}
 
 const fetchUserInfo = async () => {
   try {
@@ -22,6 +34,19 @@ const fetchUserInfo = async () => {
       }
     })
     user.value = response.data
+    // user_favorite_place가 문자열인 경우 이를 배열로 변환합니다.
+    if (typeof user.value.user_favorite_place === 'string') {
+      user.value.user_favorite_place = JSON.parse(user.value.user_favorite_place)
+    }
+    
+    // 관심 지역 정보 가져오기
+    const favoritePlaces = await Promise.all(
+      user.value.user_favorite_place.map(async (houseCode) => {
+        const houseInfo = await fetchHouseInfo(houseCode)
+        return houseInfo ? `${houseInfo.dong_name} ${houseInfo.house_name}` : `Unknown House (${houseCode})`
+      })
+    )
+    favoritePlacesDetails.value = favoritePlaces
   } catch (error) {
     Swal.fire({
       icon: 'error',
@@ -34,6 +59,8 @@ const fetchUserInfo = async () => {
 const updateUserInfo = async () => {
   try {
     const token = localStorage.getItem('token')
+    // user_favorite_place를 JSON 문자열로 변환하여 서버에 전달
+    user.value.user_favorite_place = JSON.stringify(user.value.user_favorite_place)
     await axios.put('http://localhost:8080/auth/me', user.value, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -98,19 +125,22 @@ const showMyPageModal = async () => {
   Swal.fire({
     title: '내 정보',
     html: `
-      <label for="swal-input1" class="block text-gray-700">아이디:</label>
-      <input id="swal-input1" class="swal2-input" style="width: 255px;" value="${user.value.user_name ? user.value.user_name : 'Kakao ID'}" readonly>
-      <label for="swal-input2" class="block text-gray-700 mt-5">주소:</label>
-      <input id="swal-input2" class="swal2-input" value="${user.value.user_address ? user.value.user_address : 'Kakao Address'}">
-      <label for="swal-input3" class="block text-gray-700 mt-5">관심 지역:</label>
-      <input id="swal-input3" class="swal2-input" value="${user.value.user_favorite_place ? user.value.user_favorite_place : 'Kakao Place'}">
-      <label for="swal-input4" class="block text-gray-700 mt-5">관리자 코드:</label>
-      <input id="swal-input4" class="swal2-input" value="${user.value.user_type ? user.value.user_type : 'Kakao User'}">
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <label for="swal-input1" class="block text-gray-700">아이디:</label>
+        <input id="swal-input1" class="swal2-input" style="width: 300px;" value="${user.value.user_name ? user.value.user_name : 'Kakao ID'}" readonly>
+        <label for="swal-input2" class="block text-gray-700 mt-5">주소:</label>
+        <input id="swal-input2" class="swal2-input" style="width: 300px;" value="${user.value.user_address ? user.value.user_address : 'Kakao Address'}">
+        <label for="swal-input3" class="block text-gray-700 mt-5">관심 지역:</label>
+        <div style="display: flex; flex-direction: column; align-items: center; width: 300px;">
+          ${favoritePlacesDetails.value.map(place => `<input class="swal2-input" style="width: 300px; margin-bottom: 5px;" value="${place}" readonly>`).join('')}
+        </div>
+        <label for="swal-input4" class="block text-gray-700 mt-5">관리자 코드:</label>
+        <input id="swal-input4" class="swal2-input" style="width: 300px;" value="${user.value.user_type ? user.value.user_type : 'Kakao User'}">
+      </div>
     `,
     focusConfirm: false,
     preConfirm: () => {
       user.value.user_address = document.getElementById('swal-input2').value
-      user.value.user_favorite_place = document.getElementById('swal-input3').value
       user.value.user_type = document.getElementById('swal-input4').value
 
       return updateUserInfo()
@@ -139,6 +169,9 @@ const showMyPageModal = async () => {
           deleteUser()
         }
       })
+    },
+    willClose: () => {
+      emit('close') // 창이 닫힐 때 close 이벤트를 전송합니다.
     }
   }).then((result) => {
     if (

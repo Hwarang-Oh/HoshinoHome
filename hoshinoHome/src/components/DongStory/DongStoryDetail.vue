@@ -153,8 +153,8 @@ onMounted(async () => {
           <span>등록일</span>
         </div>
         <div class="flex justify-between mt-2">
-          <span>{{ selectedDongStory.title }}</span>
-          <span>{{ new Date(selectedDongStory.date).toLocaleString() }}</span>
+          <span class="font-bold">{{ selectedDongStory.title }}</span>
+          <span class="font-bold">{{ new Date(selectedDongStory.date).toLocaleString() }}</span>
         </div>
         <div class="flex justify-between mt-2">
           <span>작성자: {{ selectedDongStory.user_name }}</span>

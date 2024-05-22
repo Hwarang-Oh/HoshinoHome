@@ -187,7 +187,7 @@ export default {
 }
 
 .animate-fade-slide-in {
-  animation: fade-slide-in 1s ease-out;
+  animation: fade-slide-in 0.5s ease-out;
 }
 
 /* 테이블 헤더 스타일 */

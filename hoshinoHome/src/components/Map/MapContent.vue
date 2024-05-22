@@ -72,7 +72,7 @@ onMounted(() => {
   position: fixed; /* fixed로 변경하여 항상 화면에 고정 */
   bottom: 40px;
   right: 40px;
-  border: 1px solid #979797;
+  border: 1px solid #979797; 
   background-color: #ffffff;
   border-radius: 50%;
   width: 60px;
@@ -81,9 +81,9 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
   transition: background-color 0.3s;
-  z-index: 1000;
+  z-index: 1000; 
 }
 
 .chatbot-button:hover {

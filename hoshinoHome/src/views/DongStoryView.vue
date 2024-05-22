@@ -281,7 +281,7 @@ export default {
 }
 
 .animate-fade-slide-in {
-  animation: fade-slide-in 1s ease-out;
+  animation: fade-slide-in 0.5s ease-out;
 }
 
 th {

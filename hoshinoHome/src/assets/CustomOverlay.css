@@ -75,9 +75,15 @@
   line-height: 1;
   white-space: nowrap;
 }
+.custom-overlay.selected .custom-overlay-type{
+  bottom: -7px; /* Position it more towards the bottom corner */
+  right: -13px; /* Position it more towards the right */
+}
 .fas.fa-heart.favorite-icon {
   color: #ff0000;
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: -4px;
+  right: -5px;
+  font-size: 15px;
+  
 }
