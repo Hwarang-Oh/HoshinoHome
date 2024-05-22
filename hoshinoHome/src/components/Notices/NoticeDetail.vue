@@ -151,8 +151,8 @@ onMounted(async () => {
           <span>등록일</span>
         </div>
         <div class="flex justify-between mt-2">
-          <span>{{ selectedNotice.title }}</span>
-          <span>{{ new Date(selectedNotice.date).toLocaleString() }}</span>
+          <span class="font-bold">{{ selectedNotice.title }}</span>
+          <span class="font-bold">{{ new Date(selectedNotice.date).toLocaleString() }}</span>
         </div>
       </div>
       <div v-else class="text-center text-gray-500">로딩 중...</div>

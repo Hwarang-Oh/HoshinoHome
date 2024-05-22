@@ -356,7 +356,7 @@ onMounted(() => {
 }
 
 .animate-fade-slide-in {
-  animation: fade-slide-in 1s ease-out;
+  animation: fade-slide-in 1.5s ease-out;
 }
 
 .bg {

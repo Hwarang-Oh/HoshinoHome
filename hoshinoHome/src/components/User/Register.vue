@@ -10,7 +10,6 @@ const user = ref({
   user_name: '',
   user_password: '',
   user_address: '',
-  user_favorite_place: '',
   user_type: ''
 })
 
@@ -28,6 +27,7 @@ const register = async () => {
     })
   } catch (error) {
     let errorMessage = '모든 필드를 확인하세요.'
+    console.log(error+"  에러입니다")
     if (error.response && error.response.data === 'Username already exists') {
       errorMessage = '이미 존재하는 아이디입니다.'
     }
@@ -51,18 +51,16 @@ const showRegisterModal = () => {
       <input id="swal-input1" class="swal2-input" placeholder="Id">
       <input id="swal-input2" type="password" class="swal2-input" placeholder="Password">
       <input id="swal-input3" class="swal2-input" placeholder="주소">
-      <input id="swal-input4" class="swal2-input" placeholder="관심 지역">
-      <input id="swal-input5" class="swal2-input" placeholder="관리자 코드">
+      <input id="swal-input4" class="swal2-input" placeholder="관리자 코드">
     `,
     focusConfirm: false,
     preConfirm: () => {
       const user_name = document.getElementById('swal-input1').value
       const user_password = document.getElementById('swal-input2').value
       const user_address = document.getElementById('swal-input3').value
-      const user_favorite_place = document.getElementById('swal-input4').value
-      const user_type = document.getElementById('swal-input5').value
+      const user_type = document.getElementById('swal-input4').value
 
-      if (!user_name || !user_password || !user_address || !user_favorite_place || !user_type) {
+      if (!user_name || !user_password || !user_address || !user_type) {
         Swal.showValidationMessage('모든 필드를 입력하세요.')
         return false
       }
@@ -70,10 +68,12 @@ const showRegisterModal = () => {
       user.value.user_name = user_name
       user.value.user_password = user_password
       user.value.user_address = user_address
-      user.value.user_favorite_place = user_favorite_place
       user.value.user_type = user_type
 
       return register()
+    },
+    willClose: () => {
+      emit('close') // 창이 닫힐 때 close 이벤트를 전송합니다.
     },
     showCancelButton: true,
     confirmButtonText: '회원가입',

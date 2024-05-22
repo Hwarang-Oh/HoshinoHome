@@ -28,10 +28,13 @@ const login = async () => {
     })
   } catch (error) {
     Swal.fire({
-      icon: 'error',
+        icon: 'error',
       title: '로그인 실패!',
-      text: '아이디 또는 비밀번호를 확인하세요.'
-    }).then(() => {
+      text: '아이디 또는 비밀번호를 확인하세요.',
+      
+    },
+    
+    ).then(() => {
       emit('close')
     })
   }
@@ -80,6 +83,9 @@ const showLoginModal = () => {
           Swal.clickConfirm()
         }
       })
+    },
+    willClose: () => {
+      emit('close') // 창이 닫힐 때 close 이벤트를 전송합니다.
     }
   }).then((result) => {
     if (
