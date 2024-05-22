@@ -16,12 +16,14 @@ html {
 <script setup>
 import { ref, reactive, watch, onMounted, provide, readonly } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
+import { useUserInfoStore } from '@/stores/UserInfoStore.js'
 import mapAPI from '@/api/map.js'
 import MapContent from '@/components/Map/MapContent.vue'
 import '@/assets/CustomOverlay.css' // Import the external CSS file
 
 // Define data as `refs`
 // resources in Map View
+const userInfoStore = useUserInfoStore()
 const router = useRouter()
 let map = reactive({})
 const dealVoList = ref([]) // To store all fetched data
@@ -30,14 +32,15 @@ const selectedHouse = ref({})
 const activeButtons = ref(['apartment', 'multiFamily', 'officetel', 'sale', 'lease', 'monthly'])
 const selectedDealVo = ref({}) // To store the selected dealVo
 const isHouseDetailOpen = ref(false) // 상태를 추가하여 House Detail 창이 열렸는지 여부를 관리
+const createdMarkers = new Set()
 
 // 1. Main 지도를 생성하는 Code
 const initMap = () => {
   const container = document.getElementById('map')
   const options = {
     // center Location
-    center: new kakao.maps.LatLng(37.56813, 127.00213),
-    level: 6
+    center: new kakao.maps.LatLng(userInfoStore.userLocation.lat, userInfoStore.userLocation.lng),
+    level: 4
   }
   // 지도 타입 변경 Control 요소 정의
   let mapTypeControl = new kakao.maps.MapTypeControl()
@@ -92,6 +95,40 @@ const drawApts = () => {
     range,
     (response) => {
       dealVoList.value = response.data
+      // 검색된 HouseInfo가 있는 경우, dealVoList에 추가
+      if (userInfoStore.searchedHouseInfo) {
+        const existing = dealVoList.value.find(
+          (dealVo) => dealVo.house_code === userInfoStore.searchedHouseInfo.house_code
+        )
+        if (!existing) {
+          let searchedHouse = {
+            houseCode: userInfoStore.searchedHouseInfo.house_code,
+            houseTypes: houseTypes,
+            dealTypes: dealTypes
+          }
+          mapAPI.getEachHouseDealVo(
+            searchedHouse,
+            (response) => {
+              dealVoList.value.push(response.data)
+              drawMarker(dealVoList)
+              selectedHouse.value = userInfoStore.searchedHouseInfo
+              selectedDealVo.value = response.data
+              getHouseDealList(response.data.house_code)
+                .then(() => {
+                  selectedDealVo.value = response.data
+                  isHouseDetailOpen.value = true
+                })
+                .catch((error) => {
+                  console.error(error)
+                })
+              userInfoStore.searchedHouseInfo = null
+            },
+            () => {
+              console.log('검색된 House의 실거래가 정보를 불러오는 데 실패했습니다.')
+            }
+          )
+        }
+      }
       console.log('조건에 맞는 House의 대표값을 가져오는데 성공')
     },
     () => {
@@ -120,6 +157,9 @@ const drawMarker = (dealVoList) => {
   const dealTypeMap = { 1: '매매', 2: '전세', 3: '월세' }
 
   dealVoList.value.forEach((dealVo) => {
+    // 마커가 이미 생성되었는지 확인
+    if (createdMarkers.has(dealVo.house_code)) return
+
     coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
     console.log(dealVo.lat, dealVo.lng, dealVo.apartment_name)
 
@@ -159,21 +199,32 @@ const drawMarker = (dealVoList) => {
       yAnchor: 1
     })
 
+    if (
+      userInfoStore.searchedHouseInfo &&
+      userInfoStore.searchedHouseInfo.house_code === dealVo.house_code
+    ) {
+      content.classList.add('selected')
+      selectedOverlay = customOverlay
+    }
+
     content.addEventListener('click', () => {
       handleOverlayClick(customOverlay)
-      console.log(customOverlay)
       getHouseDealList(dealVo.house_code)
         .then(() => {
           selectedDealVo.value = dealVo
-          isHouseDetailOpen.value = true // House Detail 창이 열릴 때 상태를 true로 설정
+          isHouseDetailOpen.value = true
           router.push(`/map/houseDetail/${dealVo.house_code}`)
         })
         .catch((error) => {
           console.error(error)
         })
     })
+
+    // 마커 생성 후 set에 추가
+    createdMarkers.add(dealVo.house_code)
   })
 }
+
 let selectedOverlay = null
 const handleOverlayClick = (overlay) => {
   if (selectedOverlay && selectedOverlay !== overlay) {

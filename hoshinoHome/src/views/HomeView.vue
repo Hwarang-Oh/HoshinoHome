@@ -3,7 +3,9 @@ import mapAPI from '@/api/map.js'
 import naverAPI from '@/api/naver.js'
 import { debounce } from 'lodash'
 import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserInfoStore } from '@/stores/UserInfoStore.js'
+import axios from 'axios'
 import DOMPurify from 'dompurify'
 
 // 이미지 파일 이름 배열
@@ -28,12 +30,17 @@ const getRandomImage = () => {
   return issueImages[randomIndex]
 }
 
+const router = useRouter()
+const userInfoStore = useUserInfoStore()
 const randomImage = ref(getRandomImage())
 const query = ref('')
 const suggestions = ref([])
 const newsPosts = ref([])
 const showSuggestions = ref(false)
-const userInfoStore = useUserInfoStore()
+const selectedSuggestionIndex = ref(-1)
+const searchedHouse = ref('')
+const isSuggestionSelected = ref(false)
+
 const userLocation = ref({ lat: null, lng: null })
 const locationError = ref(null)
 
@@ -79,7 +86,6 @@ const fetchSuggestionsDebounced = debounce(() => {
     mapAPI.searchHouseInfoByQuery(
       query.value,
       (response) => {
-        console.log(response)
         suggestions.value = response.data
         showSuggestions.value = true
       },
@@ -93,17 +99,89 @@ const fetchSuggestionsDebounced = debounce(() => {
     suggestions.value = []
     showSuggestions.value = false
   }
-}, 300) // 300ms의 지연시간을 설정합니다.
+}, 100) // 100ms의 지연시간을 설정합니다.
 
-const fetchSuggestions = () => {
+const fetchSuggestions = (event) => {
   query.value = event.target.value
+  isSuggestionSelected.value = false
   fetchSuggestionsDebounced()
 }
 
 const selectSuggestion = (suggestion) => {
   query.value = `${suggestion.house_name} (${suggestion.road_address})`
+  isSuggestionSelected.value = true
   suggestions.value = []
   showSuggestions.value = false
+}
+
+const fetchHouseDetailAndNavigate = async () => {
+  if (isSuggestionSelected.value) {
+    const roadAddressMatch = query.value.match(/\(([^)]+)\)/)
+    const roadAddress = roadAddressMatch ? roadAddressMatch[1] : query.value
+    mapAPI.searchHouseInfoByRoadAddress(
+      roadAddress,
+      (response) => {
+        if (response.data) {
+          searchedHouse.value = response.data
+          userInfoStore.setUserLocation({
+            lat: searchedHouse.value.lat,
+            lng: searchedHouse.value.lng
+          })
+          userInfoStore.setSearchedHouseInfo(searchedHouse.value)
+          router.push(`/map/houseDetail/${searchedHouse.house_code}`)
+        } else {
+          console.log('검색 결과가 비어있습니다.')
+        }
+      },
+      () => {
+        console.log('실패')
+      }
+    )
+  } else {
+    const kakaoApiKey = '826ff6e6031401a7fc4aba8410ea5565' // 여기에 Kakao REST API 키를 입력하세요.
+    const kakaoApiUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${query.value}`
+
+    try {
+      const response = await axios.get(kakaoApiUrl, {
+        headers: { Authorization: `KakaoAK ${kakaoApiKey}` }
+      })
+      if (response.data.documents.length > 0) {
+        const location = response.data.documents[0]
+        console.log('Kakao 검색 결과:', location)
+        userInfoStore.setUserLocation({ lat: location.y, lng: location.x })
+        router.push('/map')
+      } else {
+        console.log('Kakao 검색 결과가 비어있습니다.')
+        suggestions.value = [{ house_name: '검색 결과가 없습니다', road_address: '' }]
+        showSuggestions.value = true
+      }
+    } catch (error) {
+      console.error('Kakao 검색 실패:', error)
+      suggestions.value = [{ house_name: '검색 결과가 없습니다', road_address: '' }]
+      showSuggestions.value = true
+    }
+  }
+}
+
+const handleKeydown = async (event) => {
+  if (event.key === 'Enter') {
+    await fetchHouseDetailAndNavigate()
+  } else if (event.key === 'ArrowDown') {
+    if (selectedSuggestionIndex.value < suggestions.value.length - 1) {
+      selectedSuggestionIndex.value++
+    }
+  } else if (event.key === 'ArrowUp') {
+    if (selectedSuggestionIndex.value > 0) {
+      selectedSuggestionIndex.value--
+    }
+  } else if (event.key === 'Tab') {
+    if (
+      selectedSuggestionIndex.value >= 0 &&
+      selectedSuggestionIndex.value < suggestions.value.length
+    ) {
+      selectSuggestion(suggestions.value[selectedSuggestionIndex.value])
+    }
+  }
 }
 
 const fetchBlogPosts = () => {
@@ -128,8 +206,6 @@ onMounted(() => {
   getLocation()
   document.addEventListener('click', handleClickOutside)
 })
-
-watch(query, fetchSuggestions)
 </script>
 
 <template>
@@ -158,12 +234,13 @@ watch(query, fetchSuggestions)
             <div class="pt-2 relative mx-auto text-gray-600 suggestion-container">
               <input
                 type="text"
-                :value="query"
+                v-model="query"
                 @input="fetchSuggestions"
+                @keydown="handleKeydown"
                 placeholder="지역/주소, 건물명으로 검색하세요"
                 class="border-2 border-gray-300 bg-white h-12 px-5 pr-16 rounded-lg text-lg focus:outline-none w-full"
               />
-              <button @click="fetchSuggestions" class="absolute right-0 top-0 mt-2 mr-4">
+              <button @click="fetchHouseDetailAndNavigate" class="absolute right-0 top-0 mt-2 mr-4">
                 <svg
                   class="text-gray-600 h-4 w-4 fill-current mt-3.5"
                   xmlns="http://www.w3.org/2000/svg"
@@ -192,8 +269,13 @@ watch(query, fetchSuggestions)
                   :key="index"
                   @mousedown.prevent="selectSuggestion(suggestion)"
                   class="p-2 cursor-pointer hover:bg-gray-200"
+                  :class="{
+                    'bg-blue-100': index === selectedSuggestionIndex,
+                    'text-red-500 font-bold': suggestion.house_name === '검색 결과가 없습니다'
+                  }"
                 >
-                  {{ suggestion.house_name }} ({{ suggestion.road_address }})
+                  {{ suggestion.house_name }}
+                  <span v-if="suggestion.road_address">({{ suggestion.road_address }})</span>
                 </li>
               </ul>
             </div>

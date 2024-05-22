@@ -2,6 +2,10 @@ import { Axios } from '@/utils/axios'
 
 const mapAPI = Axios()
 
+const getEachHouseDealVo = (searchedHouse, success, fail) => {
+  mapAPI.post('api/map/searchedHouseDealVo', searchedHouse).then(success).catch(fail)
+}
+
 const getHouseDealVoList = (range, success, fail) => {
   mapAPI.post('api/map/list', range).then(success).catch(fail)
 }
@@ -26,11 +30,17 @@ const searchHouseInfoByQuery = (query, success, fail) => {
   mapAPI.get(`api/map/search`, { params: { query } }).then(success).catch(fail)
 }
 
+const searchHouseInfoByRoadAddress = (road_address, success, fail) => {
+  mapAPI.get(`api/map/search/${road_address}`).then(success).catch(fail)
+}
+
 export default {
+  getEachHouseDealVo,
   getHouseDealVoList,
   getHouseDealVoList2,
   getFilteredHouseDeals,
   getHouseDealList,
   getHouseInfo,
-  searchHouseInfoByQuery
+  searchHouseInfoByQuery,
+  searchHouseInfoByRoadAddress
 }
