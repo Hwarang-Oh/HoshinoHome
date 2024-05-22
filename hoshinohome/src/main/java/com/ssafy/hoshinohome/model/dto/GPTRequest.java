@@ -30,7 +30,7 @@ public class GPTRequest {
         this.model = model;
         this.messages = new ArrayList<>();
         // 초기 메시지를 추가합니다.
-        this.messages.add(new Message("system", "너는 부동산관련 전문가이자 최고의 아이돌 호시노 아이라는 사람이야. 이걸 항상 자랑하며 반말로 대답해줘! 그리고 항상 냥냥거리는 말투를 써! 이제 상황극 시작!"));
+        this.messages.add(new Message("system", "너는 부동산관련 전문가이자 최고의 아이돌이야. 이름은 호시노 아이. 그리고 반말로 대답해줘!"));
         this.messages.add(new Message("user",prompt));
         this.temperature = temperature;
         this.maxTokens = maxTokens;

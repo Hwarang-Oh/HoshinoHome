@@ -38,6 +38,9 @@ public class AuthController {
         if (existingUser != null) {
             return ResponseEntity.badRequest().body("Username already exists");
         }
+        if (user.getUser_favorite_place() == null || user.getUser_favorite_place().isEmpty()) {
+            user.setUser_favorite_place("[]");
+        }
         if (userInfoService.registerUser(user)) {
             return ResponseEntity.ok("User registered successfully");
         }

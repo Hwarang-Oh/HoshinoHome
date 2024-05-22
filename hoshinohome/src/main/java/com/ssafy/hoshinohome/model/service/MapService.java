@@ -23,4 +23,6 @@ public interface MapService {
         public List<HouseInfo> searchHouseInfoListByQuery(String query) throws Exception;
 
         public HouseInfo searchHouseInfoByAddress(String roadAddress) throws Exception;
+
+
 }
