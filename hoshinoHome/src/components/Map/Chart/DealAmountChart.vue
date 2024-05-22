@@ -1,6 +1,16 @@
 <template>
   <div class="chart-container">
-    <Line :data="chartData" :options="options" />
+    <div v-if="chartType === 'monthlyAmount'">
+      <div class="sub-chart-container">
+        <Line :data="depositChartData" :options="options" />
+      </div>
+      <div class="sub-chart-container">
+        <Line :data="monthlyChartData" :options="options" />
+      </div>
+    </div>
+    <div v-else>
+      <Line :data="chartData" :options="options" />
+    </div>
   </div>
 </template>
 
@@ -14,11 +24,10 @@ import {
   CategoryScale,
   LinearScale,
   Tooltip,
-  Legend,
-  Title
+  Legend
 } from 'chart.js'
 
-ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend, Title)
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend)
 
 const props = defineProps({
   dealData: {
@@ -36,6 +45,16 @@ const chartData = ref({
   datasets: []
 })
 
+const depositChartData = ref({
+  labels: [],
+  datasets: []
+})
+
+const monthlyChartData = ref({
+  labels: [],
+  datasets: []
+})
+
 function processDealData(data, type) {
   const monthlyData = {}
 
@@ -49,7 +68,7 @@ function processDealData(data, type) {
       deposit = parseFloat(deal_amount.replace(/,/g, ''))
     } else if (type === 'depositAmount' && deposit_amount) {
       deposit = parseFloat(deposit_amount.replace(/,/g, '') || 0)
-    } else if (type === 'monthlyAmount') {
+    } else if (type === 'monthlyRentAmount') {
       deposit = parseFloat(deposit_amount?.replace(/,/g, '') || 0)
       monthly = parseFloat(monthly_amount?.replace(/,/g, '') || 0)
     }
@@ -63,7 +82,6 @@ function processDealData(data, type) {
     monthlyData[key].count += 1
   })
 
-  // Sort keys to ensure chronological order
   const sortedKeys = Object.keys(monthlyData).sort((a, b) => new Date(a) - new Date(b))
 
   const labels = []
@@ -80,8 +98,8 @@ function processDealData(data, type) {
     }
   })
 
-  if (type === 'monthlyAmount') {
-    chartData.value = {
+  if (type === 'monthlyRentAmount') {
+    depositChartData.value = {
       labels,
       datasets: [
         {
@@ -90,19 +108,22 @@ function processDealData(data, type) {
           borderColor: 'rgba(66, 165, 245, 1)',
           data: depositAmounts,
           fill: true,
-          pointRadius: 0, // Remove vertices
-          pointHoverRadius: 0, // Remove hover effect on vertices
-          yAxisID: 'y-axis-deposit'
-        },
+          pointRadius: 0,
+          pointHoverRadius: 0
+        }
+      ]
+    }
+    monthlyChartData.value = {
+      labels,
+      datasets: [
         {
           label: '평균 월세 금액',
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
           borderColor: 'rgba(255, 99, 132, 1)',
           data: monthlyAmounts,
           fill: true,
-          pointRadius: 0, // Remove vertices
-          pointHoverRadius: 0, // Remove hover effect on vertices
-          yAxisID: 'y-axis-monthly'
+          pointRadius: 0,
+          pointHoverRadius: 0
         }
       ]
     }
@@ -116,8 +137,8 @@ function processDealData(data, type) {
           borderColor: 'rgba(66, 165, 245, 1)',
           data: depositAmounts,
           fill: true,
-          pointRadius: 0, // Remove vertices
-          pointHoverRadius: 0 // Remove hover effect on vertices
+          pointRadius: 0,
+          pointHoverRadius: 0
         }
       ]
     }
@@ -145,15 +166,7 @@ const options = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: true,
-      labels: {
-        font: {
-          size: 14,
-          family: 'Arial',
-          weight: 'bold'
-        },
-        color: '#333'
-      }
+      display: false // 범례 숨김
     },
     tooltip: {
       backgroundColor: 'rgba(0, 0, 0, 0.7)',
@@ -163,12 +176,12 @@ const options = {
         weight: 'bold'
       },
       bodyFont: {
-        size: 14,
+        size: 12,
         family: 'Arial',
         weight: 'normal'
       },
       footerFont: {
-        size: 12,
+        size: 10,
         family: 'Arial',
         weight: 'normal'
       },
@@ -187,7 +200,7 @@ const options = {
     x: {
       ticks: {
         font: {
-          size: 12,
+          size: 10,
           family: 'Arial',
           weight: 'bold'
         },
@@ -197,12 +210,10 @@ const options = {
         display: false
       }
     },
-    'y-axis-deposit': {
-      type: 'linear',
-      position: 'left',
+    y: {
       ticks: {
         font: {
-          size: 12,
+          size: 10,
           family: 'Arial',
           weight: 'bold'
         },
@@ -217,27 +228,6 @@ const options = {
       grid: {
         color: 'rgba(200, 200, 200, 0.2)'
       }
-    },
-    'y-axis-monthly': {
-      type: 'linear',
-      position: 'right',
-      ticks: {
-        font: {
-          size: 12,
-          family: 'Arial',
-          weight: 'bold'
-        },
-        color: '#333',
-        callback: (value) => {
-          if (value >= 10000) {
-            return `${(value / 10000).toFixed(1)} 억`
-          }
-          return `${value} 만`
-        }
-      },
-      grid: {
-        display: false
-      }
     }
   }
 }
@@ -246,6 +236,12 @@ const options = {
 <style scoped>
 .chart-container {
   position: relative;
-  height: 300px; /* Adjust the height as needed */
+  height: 100%; /* 차트의 높이를 조정 */
+}
+
+.sub-chart-container {
+  position: relative;
+  height: 50%; /* 차트의 높이를 조정 */
+  margin-bottom: 10px; /* 차트 간 간격 추가 */
 }
 </style>

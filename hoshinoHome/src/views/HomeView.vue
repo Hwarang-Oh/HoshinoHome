@@ -84,7 +84,7 @@ const getLocation = () => {
 const fetchSuggestionsDebounced = debounce(() => {
   if (query.value.length > 0) {
     mapAPI.searchHouseInfoByQuery(
-      query.value,
+      query.value.trim(),
       (response) => {
         suggestions.value = response.data
         showSuggestions.value = true

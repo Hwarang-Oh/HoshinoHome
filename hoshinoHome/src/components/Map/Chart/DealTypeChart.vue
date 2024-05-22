@@ -47,7 +47,7 @@ function setChartData(data) {
   }
 
   chartData.value = {
-    labels: data.labels.map((label) => labelMapping[label] || label),
+    labels: ['매매', '전세', '월세'],
     datasets: [
       {
         label: '',
@@ -123,7 +123,7 @@ const options = {
         callback: (value) => `${value} 건` // Add '건' to y-axis labels
       },
       grid: {
-        color: 'rgba(200, 200, 200, 0.2)'
+        display: false
       }
     }
   }
