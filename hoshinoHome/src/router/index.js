@@ -82,14 +82,12 @@ const router = createRouter({
       path: '/dongStory/modify/:id',
       name: 'dongStoryModify',
       component: () => import('../components/DongStory/DongStoryModify.vue'),
-      props: true,
-    }
-    ,
+      props: true
+    },
     {
       path: '/chatgpt',
       name: 'chatgpt',
-      component: () => import('@/views/ChatView.vue'),
-      
+      component: () => import('@/views/ChatView.vue')
     }
   ]
 })

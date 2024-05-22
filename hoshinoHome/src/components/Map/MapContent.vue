@@ -1,24 +1,12 @@
 <script setup>
-import { ref, onMounted, inject, defineProps } from 'vue'
+import { ref, onMounted, inject, defineProps, watch } from 'vue'
 import MapSearch from './MapSearch.vue'
 import ChatBot from '@/views/ChatView.vue'
 const { initMap } = inject('service')
-const props = defineProps({
-  isHouseDetailOpen: Boolean
-})
 
 const isChatBotOpen = ref(false)
-
 const toggleChatBot = () => {
   isChatBotOpen.value = !isChatBotOpen.value
-  if (isChatBotOpen.value) {
-    setTimeout(() => {
-      const chatBotInstance = document.querySelector('ChatBot')
-      if (chatBotInstance && chatBotInstance.addInitialBotMessage) {
-        chatBotInstance.addInitialBotMessage()
-      }
-    }, 100)
-  }
 }
 
 onMounted(() => {
@@ -36,7 +24,7 @@ onMounted(() => {
 
 <template>
   <div id="map" class="relative inset-0 z-0">
-    <MapSearch :isHouseDetailOpen="isHouseDetailOpen" />
+    <MapSearch />
 
     <button class="chatbot-button" @click="toggleChatBot">
       <img src="/chatboticon2.png" alt="ChatBot" class="w-full h-full object-cover" />
@@ -60,19 +48,19 @@ onMounted(() => {
 <style scoped>
 #map {
   width: 100%;
-  height: 100%; /* Full height of the container */
+  height: 100%;
 }
 .map-content {
-  position: relative;
+  position: absolute;
   height: 100%;
 }
 
 /* ChatBot Button 스타일 */
 .chatbot-button {
-  position: fixed; /* fixed로 변경하여 항상 화면에 고정 */
+  position: fixed;
   bottom: 40px;
   right: 40px;
-  border: 1px solid #979797; 
+  border: 1px solid #979797;
   background-color: #ffffff;
   border-radius: 50%;
   width: 60px;
@@ -81,9 +69,9 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s;
-  z-index: 1000; 
+  z-index: 1000;
 }
 
 .chatbot-button:hover {
@@ -92,16 +80,16 @@ onMounted(() => {
 
 /* ChatBot Modal 스타일 */
 .chatbot-modal {
-  position: fixed; /* fixed로 변경하여 항상 화면에 고정 */
+  position: fixed;
   bottom: 80px;
   right: 20px;
   width: 350px;
-  height: 510px;
+  height: 500px;
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* 다른 요소 위에 표시되도록 z-index 추가 */
+  z-index: 1000;
   display: flex;
   flex-direction: column;
 }

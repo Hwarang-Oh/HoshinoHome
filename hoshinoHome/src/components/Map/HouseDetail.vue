@@ -5,11 +5,73 @@ import Info_Tab from '@/components/Map/Detail/Info_Tab.vue'
 import DealInfo from '@/components/Map/Detail/DealInfo.vue'
 import ChartSection from '@/components/Map/Detail/ChartSection.vue'
 import TransactionInfo from '@/components/Map/Detail/TransactionInfo.vue'
+
+import mapAPI from '@/api/map.js'
+import { useUserInfoStore } from '@/stores/UserInfoStore'
+import { ref, onMounted, provide, watch, inject } from 'vue'
+import { useRoute } from 'vue-router'
+const route = useRoute()
+const { createdMarkers } = inject('res')
+const userInfoStore = useUserInfoStore()
+const selectedHouse = ref({})
+const detailDealList = ref([])
+const selectedDealVo = ref({})
+const activeTab = ref('realTransaction')
+
+const loadHouseDetail = async (house_code) => {
+  try {
+    mapAPI.getHouseInfo(
+      house_code,
+      (response) => {
+        selectedHouse.value = response.data
+      },
+      () => {}
+    )
+    mapAPI.getHouseDealList(
+      house_code,
+      (response) => {
+        detailDealList.value = response.data
+      },
+      () => {}
+    )
+    createdMarkers.find
+    selectedDealVo.value = userInfoStore.selectedHouseDealVo
+  } catch (error) {
+    console.error('Failed to load house detail:', error)
+  }
+}
+
+provide('selectedHouse', selectedHouse)
+provide('detailDealList', detailDealList)
+provide('selectedDealVo', selectedDealVo)
+provide('activeTab', activeTab)
+
+onMounted(() => {
+  const house_code = route.params.house_code
+  if (house_code) {
+    loadHouseDetail(house_code)
+  }
+})
+
+watch(
+  () => route.params.house_code,
+  (newHouseCode) => {
+    if (newHouseCode) {
+      loadHouseDetail(newHouseCode)
+    }
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 
 <template>
   <!-- Left Side (Property Detail) -->
-  <div class="absolute top-0 left-0 w-1/5 h-full bg-white shadow-lg overflow-auto p-4 z-50">
+  <div
+    id="houseDetail"
+    class="absolute top-0 left-0 h-full bg-white shadow-lg overflow-auto p-4 z-50"
+  >
     <!-- Header Section -->
     <Header />
     <hr class="contour mb-4" />
@@ -19,17 +81,21 @@ import TransactionInfo from '@/components/Map/Detail/TransactionInfo.vue'
     <!-- Info_Tab Section -->
     <Info_Tab />
 
-    <!-- DealInfo Section-->
-    <DealInfo />
-
-    <!-- Content Section -->
-    <ChartSection />
-
-    <TransactionInfo />
+    <!-- Conditional Rendering -->
+    <div v-if="activeTab === 'realTransaction'">
+      <DealInfo />
+      <ChartSection />
+    </div>
+    <div v-else-if="activeTab === 'transactionHistory'">
+      <TransactionInfo />
+    </div>
   </div>
 </template>
 
 <style scoped>
+#houseDetail {
+  width: 23%;
+}
 .contour {
   border: 0;
   height: 1px;

@@ -1,6 +1,6 @@
 <template>
   <div class="relative h-screen">
-    <MapContent :isHouseDetailOpen="isHouseDetailOpen" />
+    <MapContent />
     <router-view />
   </div>
 </template>
@@ -15,48 +15,38 @@ html {
 
 <script setup>
 import { ref, reactive, watch, onMounted, provide, readonly } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useUserInfoStore } from '@/stores/UserInfoStore.js'
 import mapAPI from '@/api/map.js'
 import MapContent from '@/components/Map/MapContent.vue'
 import '@/assets/CustomOverlay.css' // Import the external CSS file
 
-// Define data as `refs`
-// resources in Map View
 const router = useRouter()
 const userInfoStore = useUserInfoStore()
 let map = reactive({})
 const dealVoList = ref([]) // To store all fetched data
-const detailDealList = ref([])
-const selectedHouse = ref({})
 const activeButtons = ref(['apartment', 'multiFamily', 'officetel', 'sale', 'lease', 'monthly'])
-const selectedDealVo = ref({}) // To store the selected dealVo
-const isHouseDetailOpen = ref(false) // 상태를 추가하여 House Detail 창이 열렸는지 여부를 관리
-const createdMarkers = new Set()
+const createdMarkers = new Map() // Set에서 Map으로 변경하여 house_code와 overlay를 매핑
 const favoritePlaces = ref(new Set()) // 관심 주거지 목록
+const selectedOverlay = ref(null) // 선택된 오버레이
 
-// 1. Main 지도를 생성하는 Code
 const initMap = () => {
   const container = document.getElementById('map')
   const options = {
-    // center Location
     center: new kakao.maps.LatLng(userInfoStore.userLocation.lat, userInfoStore.userLocation.lng),
     level: 4
   }
-  // 지도 타입 변경 Control 요소 정의
   let mapTypeControl = new kakao.maps.MapTypeControl()
   let zoomControl = new kakao.maps.ZoomControl()
 
-  // Initialize the map
   map = new kakao.maps.Map(container, options)
   map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
   map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
 
   drawApts()
-  // Moving Map and get House Deal Data
   kakao.maps.event.addListener(map, 'bounds_changed', function () {
-    if (isMoving) return // 지도 이동 중이라면 함수 실행 중지
-    drawApts() // Filter and display deals within the current bounds
+    if (isMoving) return
+    drawApts()
   })
 
   let isMoving = false
@@ -70,7 +60,6 @@ const initMap = () => {
   })
 }
 
-// 2. Get HouseDealList
 const drawApts = () => {
   const houseTypes = []
   const dealTypes = []
@@ -91,12 +80,10 @@ const drawApts = () => {
     houseTypes: houseTypes,
     dealTypes: dealTypes
   }
-
   mapAPI.getHouseDealVoList2(
     range,
     (response) => {
       dealVoList.value = response.data
-      // 검색된 HouseInfo가 있는 경우, dealVoList에 추가
       if (userInfoStore.searchedHouseInfo) {
         const existing = dealVoList.value.find(
           (dealVo) => dealVo.house_code === userInfoStore.searchedHouseInfo.house_code
@@ -110,27 +97,18 @@ const drawApts = () => {
           mapAPI.getEachHouseDealVo(
             searchedHouse,
             (response) => {
+              userInfoStore.setSelectedHouseDealVo(response.data)
               dealVoList.value.push(response.data)
               drawMarker(dealVoList)
-              selectedHouse.value = userInfoStore.searchedHouseInfo
-              selectedDealVo.value = response.data
-              getHouseDealList(response.data.house_code)
-                .then(() => {
-                  selectedDealVo.value = response.data
-                  isHouseDetailOpen.value = true
-                })
-                .catch((error) => {
-                  console.error(error)
-                })
               userInfoStore.searchedHouseInfo = null
             },
             () => {
-              console.log('검색된 House의 실거래가 정보를 불러오는 데 실패했습니다.')
+              console.log('검색한 House의 실거래가 정보를 불러오는 데 실패했습니다.')
             }
           )
         }
       }
-      console.log('조건에 맞는 House의 대표값을 가져오는데 성공')
+      console.log('조건에 맞는 House의 최근 거래를 가져오는데 성공했습니다')
     },
     () => {
       console.log('조건에 맞는 실거래가 정보를 불러오는 데 실패했습니다.')
@@ -138,7 +116,6 @@ const drawApts = () => {
   )
 }
 
-// 3. Fetch Favorite Places
 const fetchFavoritePlaces = () => {
   mapAPI.getFavoritePlaces(
     (response) => {
@@ -150,13 +127,12 @@ const fetchFavoritePlaces = () => {
   )
 }
 
-// 4. Draw Custom Overlay Marker
 const formatAmount = (amount) => {
   const num = parseInt(amount.replace(/,/g, ''))
   if (num >= 10000) {
     return (num / 10000).toFixed(1) + '억'
   }
-  return num.toLocaleString() // Use locale string for better formatting
+  return num.toLocaleString()
 }
 
 const formatArea = (area) => {
@@ -170,12 +146,9 @@ const drawMarker = (dealVoList) => {
   const dealTypeMap = { 1: '매매', 2: '전세', 3: '월세' }
 
   dealVoList.value.forEach((dealVo) => {
-    // 마커가 이미 생성되었는지 확인
     if (createdMarkers.has(dealVo.house_code)) return
 
     coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
-
-    console.log('house_code 값입니다~' + dealVo.house_code)
 
     let price = ''
     let dealTypeText = ''
@@ -219,45 +192,37 @@ const drawMarker = (dealVoList) => {
       userInfoStore.searchedHouseInfo.house_code === dealVo.house_code
     ) {
       content.classList.add('selected')
-      selectedOverlay = customOverlay
+      selectedOverlay.value = customOverlay
     }
 
     content.addEventListener('click', () => {
       handleOverlayClick(customOverlay)
-      getHouseDealList(dealVo.house_code)
-        .then(() => {
-          selectedDealVo.value = dealVo
-          isHouseDetailOpen.value = true
-          router.push(`/map/houseDetail/${dealVo.house_code}`)
-        })
-        .catch((error) => {
-          console.error(error)
-        })
+      userInfoStore.setSelectedHouseDealVo(dealVo)
+      router.push(`/map/houseDetail/${dealVo.house_code}`)
     })
 
     // 마커 생성 후 set에 추가
-    createdMarkers.add(dealVo.house_code)
+    createdMarkers.set(dealVo.house_code, customOverlay)
   })
 }
 
-let selectedOverlay = null
+// 4.1 Marker Click Event Functions
 const handleOverlayClick = (overlay) => {
-  if (selectedOverlay && selectedOverlay !== overlay) {
-    const selectedContent = selectedOverlay.getContent()
+  if (selectedOverlay.value && selectedOverlay.value !== overlay) {
+    const selectedContent = selectedOverlay.value.getContent()
     selectedContent.classList.remove('selected')
   }
-  if (selectedOverlay === overlay) {
-    const selectedContent = selectedOverlay.getContent()
+  if (selectedOverlay.value === overlay) {
+    const selectedContent = selectedOverlay.value.getContent()
     selectedContent.classList.remove('selected')
-    selectedOverlay = null
+    selectedOverlay.value = null
   } else {
     const overlayContent = overlay.getContent()
     overlayContent.classList.add('selected')
-    selectedOverlay = overlay
+    selectedOverlay.value = overlay
   }
 }
 
-// 3.1 drawList에 대한 Watch -> draw Overlay Marker 실행
 watch(dealVoList, () => {
   drawMarker(dealVoList)
 })
@@ -266,43 +231,13 @@ watch(activeButtons, () => {
   drawApts()
 })
 
-// 4. Marker Click Event Function => Which will get detailDealList of that House Code
-const getHouseDealList = (house_code) => {
-  return new Promise((resolve, reject) => {
-    mapAPI.getHouseInfo(
-      house_code,
-      (response) => {
-        selectedHouse.value = response.data
-        console.log(response.data)
-      },
-      () => {
-        console.log(`해당 집의 기본 정보를 불러오지 못했어요.`)
-        reject('Failed to fetch house info')
-      }
-    ),
-      mapAPI.getHouseDealList(
-        house_code,
-        (response) => {
-          detailDealList.value = response.data
-          console.log(response.data)
-          resolve('Fetched data successfully')
-        },
-        () => {
-          console.error('해당 집의 거래내역을 불러오지 못했어요.')
-          reject('Failed to fetch deal list')
-        }
-      )
-  })
-}
-
-// 6. Map House Detail Implementation Part -> 어쩌면 House Detail에서 전부 할 수도 있음.
-// 8.1 House Detail 창에서 close를 누르면, Map으로 돌아온다. ( 매개변수 조절을 통해, 다른 곳에서도 활용이 가능함 )
 const close = () => {
-  if (selectedOverlay) {
-    const selectedContent = selectedOverlay.getContent()
+  if (selectedOverlay.value) {
+    const selectedContent = selectedOverlay.value.getContent()
     selectedContent.classList.remove('selected')
-    selectedOverlay = null
+    selectedOverlay.value = null
   }
+  userInfoStore.closeHouseDetail()
   router.push('/map')
 }
 
@@ -310,15 +245,17 @@ provide('res', {
   map: readonly(map),
   activeButtons: activeButtons,
   dealVoList: readonly(dealVoList),
-  detailDealList: readonly(detailDealList),
-  selectedHouse: readonly(selectedHouse),
-  selectedDealVo: readonly(selectedDealVo),
-  isHouseDetailOpen: readonly(isHouseDetailOpen)
+  favoritePlaces: readonly(favoritePlaces), // favoritePlaces 제공
+  selectedOverlay, // selectedOverlay 제공
+  createdMarkers // createdMarkers 제공
 })
 
 provide('service', {
   initMap,
-  close
+  close,
+  drawApts,
+  drawMarker,
+  handleOverlayClick
 })
 
 onMounted(() => {
@@ -326,8 +263,6 @@ onMounted(() => {
   script.src =
     '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=4aa94d500c252274b8dc18944a4026f5&libraries=clusterer'
   document.head.appendChild(script)
-
-  // Fetch favorite places when the component is mounted
   fetchFavoritePlaces()
 })
 </script>

@@ -40,12 +40,6 @@ const cmykBorderColors = {
 
 // Function to set up chart data
 function setChartData(data) {
-  const labelMapping = {
-    1: '매매',
-    2: '전세',
-    3: '월세'
-  }
-
   chartData.value = {
     labels: ['매매', '전세', '월세'],
     datasets: [
@@ -65,7 +59,6 @@ function setChartData(data) {
 watchEffect(() => {
   if (props.data && props.data.labels && props.data.counts) {
     setChartData(props.data)
-    console.log('chartData updated:', chartData.value)
   }
 })
 

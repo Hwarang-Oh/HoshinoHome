@@ -1,8 +1,26 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, watchEffect } from 'vue'
+import { useUserInfoStore } from '@/stores/UserInfoStore'
 const { activeButtons } = inject('res')
 const { initMap } = inject('service')
+const userInfoStore = useUserInfoStore()
 const dropdownVisible = ref(false)
+
+const searchPositionStyle = ref({})
+
+watchEffect(() => {
+  if (userInfoStore.isHouseDetailOpen) {
+    searchPositionStyle.value = {
+      transform: `translateX(23vw)`,
+      transition: 'transform 0.3s ease-in-out'
+    }
+  } else {
+    searchPositionStyle.value = {
+      transform: 'translateX(0)',
+      transition: 'transform 0.3s ease-in-out'
+    }
+  }
+})
 
 const toggleDropdown = () => {
   dropdownVisible.value = !dropdownVisible.value
@@ -23,7 +41,6 @@ const toggleActive = (buttonName) => {
 
   const index = activeButtons.value.indexOf(buttonName)
   if (index > -1) {
-    // Prevent removal if it's the last remaining button in its category
     if (
       (isPropertyType && activePropertyTypes.length === 1) ||
       (isDealType && activeDealTypes.length === 1)
@@ -36,7 +53,7 @@ const toggleActive = (buttonName) => {
   }
 
   ensureMinimumSelection()
-  initMap() // Fetch house deals when button state changes
+  initMap()
 }
 
 const ensureMinimumSelection = () => {
@@ -47,11 +64,11 @@ const ensureMinimumSelection = () => {
   const hasDealType = dealTypes.some((type) => activeButtons.value.includes(type))
 
   if (!hasPropertyType) {
-    activeButtons.value.push(propertyTypes[0]) // Default to 'apartment'
+    activeButtons.value.push(propertyTypes[0])
   }
 
   if (!hasDealType) {
-    activeButtons.value.push(dealTypes[0]) // Default to 'sale'
+    activeButtons.value.push(dealTypes[0])
   }
 }
 
@@ -62,13 +79,15 @@ onMounted(() => {
 
 <template>
   <head>
-    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
   </head>
-  <div class="absolute top-4 left-4 z-10 p-4 bg-white bg-opacity-90 rounded shadow w-80">
+  <div
+    :class="['absolute z-10 p-4 top-4 left-4 bg-white bg-opacity-90 rounded shadow w-80']"
+    :style="searchPositionStyle"
+  >
     <div class="relative w-full flex items-center mb-2">
       <input
         type="text"
@@ -84,7 +103,6 @@ onMounted(() => {
       </svg>
     </div>
 
-    <!-- 상세조건 버튼 -->
     <div class="relative">
       <button
         class="w-full px-3 py-2 mb-2 rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
@@ -93,12 +111,10 @@ onMounted(() => {
         상세조건
       </button>
 
-      <!-- 드롭다운 메뉴 -->
       <div
         v-if="dropdownVisible"
         class="absolute left-0 w-full bg-white border border-gray-300 rounded shadow-md mt-1 p-4 z-20"
       >
-        <!-- 매물 유형 -->
         <div class="mb-4">
           <div class="font-semibold mb-2">매물 유형</div>
           <div class="flex flex-wrap justify-between -mx-1">
@@ -126,7 +142,6 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 거래 유형 -->
         <div>
           <div class="font-semibold mb-2">거래 유형</div>
           <div class="flex flex-wrap justify-between -mx-1">
@@ -163,13 +178,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 130px; /* 최소 너비를 설정하여 균일한 크기를 유지 */
-  height: 50px; /* 높이를 동일하게 설정 */
-  font-size: 12px; /* 폰트 크기를 동일하게 설정 */
+  min-width: 130px;
+  height: 50px;
+  font-size: 12px;
 }
 
 button.active {
-  background-color: #1876d6; /* Active button color */
+  background-color: #1876d6;
   color: white;
 }
 </style>
