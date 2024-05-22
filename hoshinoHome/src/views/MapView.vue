@@ -21,7 +21,6 @@ import MapContent from '@/components/Map/MapContent.vue'
 import '@/assets/CustomOverlay.css' // Import the external CSS file
 
 // Define data as `refs`
-// resources in Map View
 const router = useRouter()
 let map = reactive({})
 const dealVoList = ref([]) // To store all fetched data
@@ -30,6 +29,7 @@ const selectedHouse = ref({})
 const activeButtons = ref(['apartment', 'multiFamily', 'officetel', 'sale', 'lease', 'monthly'])
 const selectedDealVo = ref({}) // To store the selected dealVo
 const isHouseDetailOpen = ref(false) // 상태를 추가하여 House Detail 창이 열렸는지 여부를 관리
+const favoritePlaces = ref(new Set()) // 관심 주거지 목록
 
 // 1. Main 지도를 생성하는 Code
 const initMap = () => {
@@ -100,7 +100,19 @@ const drawApts = () => {
   )
 }
 
-// 3 draw Custom Overlay Marker
+// 3. Fetch Favorite Places
+const fetchFavoritePlaces = () => {
+  mapAPI.getFavoritePlaces(
+    (response) => {
+      favoritePlaces.value = new Set(response.data)
+    },
+    (error) => {
+      console.error('Failed to fetch favorite places:', error)
+    }
+  )
+}
+
+// 4. Draw Custom Overlay Marker
 const formatAmount = (amount) => {
   const num = parseInt(amount.replace(/,/g, ''))
   if (num >= 10000) {
@@ -121,7 +133,8 @@ const drawMarker = (dealVoList) => {
 
   dealVoList.value.forEach((dealVo) => {
     coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
-    console.log(dealVo.lat, dealVo.lng, dealVo.apartment_name)
+    
+    console.log("house_code 값입니다~" + dealVo.house_code)
 
     let price = ''
     let dealTypeText = ''
@@ -145,6 +158,7 @@ const drawMarker = (dealVoList) => {
           ${houseTypeMap[dealVo.house_type]}
         </div>
         <div class="custom-overlay-price">${price}</div>
+        ${favoritePlaces.value.has(dealVo.house_code) ? '<i class="fas fa-heart favorite-icon"></i>' : ''}
       </div>
       <div class="custom-overlay-bottom">
         <div class="custom-overlay-year">${dealVo.deal_year} - ${dealVo.deal_month}</div>
@@ -256,5 +270,8 @@ onMounted(() => {
   script.src =
     '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=4aa94d500c252274b8dc18944a4026f5&libraries=clusterer'
   document.head.appendChild(script)
+
+  // Fetch favorite places when the component is mounted
+  fetchFavoritePlaces()
 })
 </script>

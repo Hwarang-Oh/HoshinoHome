@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { inject } from 'vue'
+import { inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 const { selectedHouse, selectedDealVo } = inject('res')
 const router = useRouter()
@@ -33,6 +33,11 @@ const goToDongStory = () => {
     console.error('dong_name is not defined')
   }
 }
+
+// Watch for changes in selectedHouse to perform any required action
+watch(() => selectedHouse.value, () => {
+  // Perform any required action when selectedHouse changes
+})
 </script>
 
 <style scoped>

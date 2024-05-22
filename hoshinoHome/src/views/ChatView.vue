@@ -122,7 +122,17 @@ export default {
         messagesContainer.scrollTop =
           messagesContainer.scrollHeight - messagesContainer.clientHeight
       }, 100)
+    },
+    addInitialBotMessage() {
+      const initialMessage = {
+        from: 'bot',
+        text: '어서와! 궁금한 게 있니?'
+      }
+      this.messages.push(initialMessage)
     }
+  },
+  mounted() {
+    this.addInitialBotMessage()
   }
 }
 </script>
