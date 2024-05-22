@@ -24,7 +24,7 @@
 
 <script setup>
 import { inject } from 'vue'
-const { selectedDealVo } = inject('res')
+const detailDealList = inject('detailDealList')
 </script>
 
 <style scoped>

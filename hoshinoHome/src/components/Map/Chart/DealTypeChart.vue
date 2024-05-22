@@ -40,12 +40,6 @@ const cmykBorderColors = {
 
 // Function to set up chart data
 function setChartData(data) {
-  const labelMapping = {
-    1: '매매',
-    2: '전세',
-    3: '월세'
-  }
-
   chartData.value = {
     labels: ['매매', '전세', '월세'],
     datasets: [

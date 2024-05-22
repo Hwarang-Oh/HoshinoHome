@@ -40,13 +40,11 @@ const showSuggestions = ref(false)
 const selectedSuggestionIndex = ref(-1)
 const searchedHouse = ref('')
 const isSuggestionSelected = ref(false)
-
 const userLocation = ref({ lat: null, lng: null })
 const locationError = ref(null)
 
 const getLocation = () => {
   if (navigator.geolocation) {
-    console.log('pinia location : ', userInfoStore.userLocation)
     navigator.geolocation.getCurrentPosition(
       (position) => {
         userLocation.value = {
@@ -90,7 +88,7 @@ const fetchSuggestionsDebounced = debounce(() => {
         showSuggestions.value = true
       },
       () => {
-        console.error('자동완성 실패!!')
+        console.error('자동완성 결과를 가져오지 못했습니다.')
         suggestions.value = []
         showSuggestions.value = false
       }
@@ -130,7 +128,7 @@ const fetchHouseDetailAndNavigate = async () => {
           userInfoStore.setSearchedHouseInfo(searchedHouse.value)
           router.push(`/map/houseDetail/${searchedHouse.house_code}`)
         } else {
-          console.log('검색 결과가 비어있습니다.')
+          console.log('해당하는 검색 결과가없습니다.')
         }
       },
       () => {

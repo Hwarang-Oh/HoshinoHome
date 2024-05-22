@@ -2,19 +2,21 @@
   <div class="info-section mb-4">
     <div class="flex items-center mb-2">
       <span class="info-tag">토지</span>
-      <p class="text-sm text-gray-700 ml-2">{{ selectedDealVo.area }}</p>
+      <p class="text-sm text-gray-700 ml-2">
+        {{ selectedDealVo.area }} m² ({{ convertToPyeong(selectedDealVo.area) }} 평)
+      </p>
     </div>
     <div class="flex items-center mb-2">
       <span class="info-tag">건물</span>
       <p class="text-sm text-gray-700 ml-2">
-        {{ selectedHouse.house_name + ' (' + selectedHouse.build_year + ')' }}
+        {{ selectedHouse.house_name + ' (' + selectedHouse.build_year + '년도 건설)' }}
       </p>
     </div>
   </div>
   <div class="tabs-section border-b border-gray-200 mb-4">
     <nav class="flex space-x-4">
       <button class="tab-button active" aria-current="page">실거래</button>
-      <button class="tab-button">주변 정보</button>
+      <button class="tab-button">거래 내역</button>
       <button class="tab-button" @click="goToDongStory">Dong Story</button>
     </nav>
   </div>
@@ -23,7 +25,9 @@
 <script setup>
 import { inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
-const { selectedHouse, selectedDealVo } = inject('res')
+// const { selectedHouse, selectedDealVo } = inject('res')
+const selectedHouse = inject('selectedHouse')
+const selectedDealVo = inject('selectedDealVo')
 const router = useRouter()
 
 const goToDongStory = () => {
@@ -34,10 +38,17 @@ const goToDongStory = () => {
   }
 }
 
+const convertToPyeong = (squareMeters) => {
+  return (squareMeters / 3.3058).toFixed(2) // 1평 = 3.3058 제곱미터
+}
+
 // Watch for changes in selectedHouse to perform any required action
-watch(() => selectedHouse.value, () => {
-  // Perform any required action when selectedHouse changes
-})
+watch(
+  () => selectedHouse.value,
+  () => {
+    // Perform any required action when selectedHouse changes
+  }
+)
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <div class="relative h-screen">
-    <MapContent :isHouseDetailOpen="isHouseDetailOpen" />
+    <MapContent />
     <router-view />
   </div>
 </template>
@@ -27,11 +27,7 @@ const router = useRouter()
 const userInfoStore = useUserInfoStore()
 let map = reactive({})
 const dealVoList = ref([]) // To store all fetched data
-const detailDealList = ref([])
-const selectedHouse = ref({})
 const activeButtons = ref(['apartment', 'multiFamily', 'officetel', 'sale', 'lease', 'monthly'])
-const selectedDealVo = ref({}) // To store the selected dealVo
-const isHouseDetailOpen = ref(false) // 상태를 추가하여 House Detail 창이 열렸는지 여부를 관리
 const createdMarkers = new Set()
 const favoritePlaces = ref(new Set()) // 관심 주거지 목록
 
@@ -70,7 +66,7 @@ const initMap = () => {
   })
 }
 
-// 2. Get HouseDealList
+// 2. Get HouseDealVoList
 const drawApts = () => {
   const houseTypes = []
   const dealTypes = []
@@ -91,7 +87,6 @@ const drawApts = () => {
     houseTypes: houseTypes,
     dealTypes: dealTypes
   }
-
   mapAPI.getHouseDealVoList2(
     range,
     (response) => {
@@ -110,27 +105,18 @@ const drawApts = () => {
           mapAPI.getEachHouseDealVo(
             searchedHouse,
             (response) => {
+              userInfoStore.setSelectedHouseDealVo(response.data)
               dealVoList.value.push(response.data)
               drawMarker(dealVoList)
-              selectedHouse.value = userInfoStore.searchedHouseInfo
-              selectedDealVo.value = response.data
-              getHouseDealList(response.data.house_code)
-                .then(() => {
-                  selectedDealVo.value = response.data
-                  isHouseDetailOpen.value = true
-                })
-                .catch((error) => {
-                  console.error(error)
-                })
               userInfoStore.searchedHouseInfo = null
             },
             () => {
-              console.log('검색된 House의 실거래가 정보를 불러오는 데 실패했습니다.')
+              console.log('검색한 House의 실거래가 정보를 불러오는 데 실패했습니다.')
             }
           )
         }
       }
-      console.log('조건에 맞는 House의 대표값을 가져오는데 성공')
+      console.log('조건에 맞는 House의 최근 거래를 가져오는데 성공했습니다')
     },
     () => {
       console.log('조건에 맞는 실거래가 정보를 불러오는 데 실패했습니다.')
@@ -151,6 +137,10 @@ const fetchFavoritePlaces = () => {
 }
 
 // 4. Draw Custom Overlay Marker
+watch(dealVoList, () => {
+  drawMarker(dealVoList)
+})
+
 const formatAmount = (amount) => {
   const num = parseInt(amount.replace(/,/g, ''))
   if (num >= 10000) {
@@ -174,8 +164,6 @@ const drawMarker = (dealVoList) => {
     if (createdMarkers.has(dealVo.house_code)) return
 
     coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
-
-    console.log('house_code 값입니다~' + dealVo.house_code)
 
     let price = ''
     let dealTypeText = ''
@@ -224,22 +212,15 @@ const drawMarker = (dealVoList) => {
 
     content.addEventListener('click', () => {
       handleOverlayClick(customOverlay)
-      getHouseDealList(dealVo.house_code)
-        .then(() => {
-          selectedDealVo.value = dealVo
-          isHouseDetailOpen.value = true
-          router.push(`/map/houseDetail/${dealVo.house_code}`)
-        })
-        .catch((error) => {
-          console.error(error)
-        })
+      userInfoStore.setSelectedHouseDealVo(dealVo)
+      router.push(`/map/houseDetail/${dealVo.house_code}`)
     })
-
     // 마커 생성 후 set에 추가
     createdMarkers.add(dealVo.house_code)
   })
 }
 
+// 4.1 Marker Click Event Functions
 let selectedOverlay = null
 const handleOverlayClick = (overlay) => {
   if (selectedOverlay && selectedOverlay !== overlay) {
@@ -257,59 +238,22 @@ const handleOverlayClick = (overlay) => {
   }
 }
 
-// 3.1 drawList에 대한 Watch -> draw Overlay Marker 실행
-watch(dealVoList, () => {
-  drawMarker(dealVoList)
-})
-
-// 4. Marker Click Event Function => Which will get detailDealList of that House Code
-const getHouseDealList = (house_code) => {
-  return new Promise((resolve, reject) => {
-    mapAPI.getHouseInfo(
-      house_code,
-      (response) => {
-        selectedHouse.value = response.data
-        console.log(response.data)
-      },
-      () => {
-        console.log(`해당 집의 기본 정보를 불러오지 못했어요.`)
-        reject('Failed to fetch house info')
-      }
-    ),
-      mapAPI.getHouseDealList(
-        house_code,
-        (response) => {
-          detailDealList.value = response.data
-          console.log(response.data)
-          resolve('Fetched data successfully')
-        },
-        () => {
-          console.error('해당 집의 거래내역을 불러오지 못했어요.')
-          reject('Failed to fetch deal list')
-        }
-      )
-  })
-}
-
-// 6. Map House Detail Implementation Part -> 어쩌면 House Detail에서 전부 할 수도 있음.
-// 8.1 House Detail 창에서 close를 누르면, Map으로 돌아온다. ( 매개변수 조절을 통해, 다른 곳에서도 활용이 가능함 )
+// 5. Map House Detail Implementation Part -> 어쩌면 House Detail에서 전부 할 수도 있음.
+// 5.1 House Detail 창에서 close를 누르면, Map으로 돌아온다. ( 매개변수 조절을 통해, 다른 곳에서도 활용이 가능함 )
 const close = () => {
   if (selectedOverlay) {
     const selectedContent = selectedOverlay.getContent()
     selectedContent.classList.remove('selected')
     selectedOverlay = null
   }
+  userInfoStore.closeHouseDetail()
   router.push('/map')
 }
 
 provide('res', {
   map: readonly(map),
   activeButtons: activeButtons,
-  dealVoList: readonly(dealVoList),
-  detailDealList: readonly(detailDealList),
-  selectedHouse: readonly(selectedHouse),
-  selectedDealVo: readonly(selectedDealVo),
-  isHouseDetailOpen: readonly(isHouseDetailOpen)
+  dealVoList: readonly(dealVoList)
 })
 
 provide('service', {

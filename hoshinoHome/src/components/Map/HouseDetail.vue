@@ -5,11 +5,69 @@ import Info_Tab from '@/components/Map/Detail/Info_Tab.vue'
 import DealInfo from '@/components/Map/Detail/DealInfo.vue'
 import ChartSection from '@/components/Map/Detail/ChartSection.vue'
 import TransactionInfo from '@/components/Map/Detail/TransactionInfo.vue'
+
+import mapAPI from '@/api/map.js'
+import { useUserInfoStore } from '@/stores/UserInfoStore'
+import { ref, onMounted, provide, watch } from 'vue'
+import { useRoute } from 'vue-router'
+const route = useRoute()
+const userInfoStore = useUserInfoStore()
+const selectedHouse = ref({})
+const detailDealList = ref([])
+const selectedDealVo = ref({})
+
+const loadHouseDetail = async (house_code) => {
+  try {
+    mapAPI.getHouseInfo(
+      house_code,
+      (response) => {
+        selectedHouse.value = response.data
+      },
+      () => {}
+    )
+    mapAPI.getHouseDealList(
+      house_code,
+      (response) => {
+        detailDealList.value = response.data
+      },
+      () => {}
+    )
+    selectedDealVo.value = userInfoStore.selectedHouseDealVo
+  } catch (error) {
+    console.error('Failed to load house detail:', error)
+  }
+}
+
+provide('selectedHouse', selectedHouse)
+provide('detailDealList', detailDealList)
+provide('selectedDealVo', selectedDealVo)
+
+onMounted(() => {
+  const house_code = route.params.house_code
+  if (house_code) {
+    loadHouseDetail(house_code)
+  }
+})
+
+watch(
+  () => route.params.house_code,
+  (newHouseCode) => {
+    if (newHouseCode) {
+      loadHouseDetail(newHouseCode)
+    }
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 
 <template>
   <!-- Left Side (Property Detail) -->
-  <div class="absolute top-0 left-0 w-1/5 h-full bg-white shadow-lg overflow-auto p-4 z-50">
+  <div
+    id="houseDetail"
+    class="absolute top-0 left-0 h-full bg-white shadow-lg overflow-auto p-4 z-50"
+  >
     <!-- Header Section -->
     <Header />
     <hr class="contour mb-4" />
@@ -24,12 +82,13 @@ import TransactionInfo from '@/components/Map/Detail/TransactionInfo.vue'
 
     <!-- Content Section -->
     <ChartSection />
-
-    <TransactionInfo />
   </div>
 </template>
 
 <style scoped>
+#houseDetail {
+  width: 23%;
+}
 .contour {
   border: 0;
   height: 1px;

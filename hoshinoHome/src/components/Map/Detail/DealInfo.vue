@@ -22,7 +22,8 @@
 
 <script setup>
 import { inject, computed } from 'vue'
-const { selectedDealVo } = inject('res')
+const selectedDealVo = inject('selectedDealVo')
+// const { selectedDealVo } = inject('res')
 
 const houseTypeMap = { 1: '아파트', 2: '연립/다세대', 3: '오피스텔' }
 const formatAmount = (amount) => {

@@ -4,7 +4,7 @@
 
 <script setup>
 import { ref, reactive, watch, onMounted, inject, nextTick } from 'vue'
-const { selectedHouse } = inject('res')
+const selectedHouse = inject('selectedHouse')
 let miniMap = reactive({})
 const marker = ref(null)
 

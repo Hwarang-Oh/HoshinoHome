@@ -1,21 +1,24 @@
 <template>
   <div class="chart-container">
-    <div v-if="chartType === 'monthlyAmount'">
-      <div class="sub-chart-container">
-        <Line :data="depositChartData" :options="options" />
-      </div>
-      <div class="sub-chart-container">
-        <Line :data="monthlyChartData" :options="options" />
-      </div>
+    <div v-if="chartType === 'dealAmount'">
+      <Line :data="dealChartData" :options="options" />
+    </div>
+    <div v-else-if="chartType === 'depositAmount'">
+      <Line :data="depositChartData" :options="options" />
     </div>
     <div v-else>
-      <Line :data="chartData" :options="options" />
+      <div class="sub-chart-container shadow rounded">
+        <Line :data="monthly_depositChartData" :options="options" />
+      </div>
+      <div class="sub-chart-container shadow rounded">
+        <Line :data="monthly_monthlyChartData" :options="options" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineProps, watch } from 'vue'
+import { ref, defineProps, watch, reactive, onMounted } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -40,7 +43,7 @@ const props = defineProps({
   }
 })
 
-const chartData = ref({
+const dealChartData = ref({
   labels: [],
   datasets: []
 })
@@ -50,7 +53,12 @@ const depositChartData = ref({
   datasets: []
 })
 
-const monthlyChartData = ref({
+const monthly_depositChartData = ref({
+  labels: [],
+  datasets: []
+})
+
+const monthly_monthlyChartData = ref({
   labels: [],
   datasets: []
 })
@@ -59,68 +67,113 @@ function processDealData(data, type) {
   const monthlyData = {}
 
   data.forEach((deal) => {
-    const { deal_year, deal_month, deal_amount, deposit_amount, monthly_amount } = deal
+    const { deal_year, deal_month, deal_type, deal_amount, deposit_amount, monthly_amount } = deal
     const key = `${deal_year}-${deal_month}`
-
-    let deposit = 0
-    let monthly = 0
-    if (type === 'dealAmount' && deal_amount) {
-      deposit = parseFloat(deal_amount.replace(/,/g, ''))
-    } else if (type === 'depositAmount' && deposit_amount) {
-      deposit = parseFloat(deposit_amount.replace(/,/g, '') || 0)
-    } else if (type === 'monthlyRentAmount') {
-      deposit = parseFloat(deposit_amount?.replace(/,/g, '') || 0)
-      monthly = parseFloat(monthly_amount?.replace(/,/g, '') || 0)
-    }
-
     if (!monthlyData[key]) {
-      monthlyData[key] = { depositTotal: 0, monthlyTotal: 0, count: 0 }
+      monthlyData[key] = {
+        dealTotal: 0,
+        depositTotal: 0,
+        monthly_depositTotal: 0,
+        monthly_monthlyTotal: 0,
+        dealCount: 0,
+        depositCount: 0,
+        monthlyCount: 0
+      }
     }
+    let dealAmount = 0
+    let depositAmount = 0
+    let monthly_depositAmount = 0
+    let monthly_monthlyAmount = 0
 
-    monthlyData[key].depositTotal += deposit
-    monthlyData[key].monthlyTotal += monthly
-    monthlyData[key].count += 1
+    if (deal_type === 1 && deal_amount) {
+      dealAmount = parseFloat(deal_amount.replace(/,/g, ''))
+      monthlyData[key].dealTotal += dealAmount
+      monthlyData[key].dealCount += 1
+    } else if (deal_type === 2 && deposit_amount) {
+      depositAmount = parseFloat(deposit_amount.replace(/,/g, '') || 0)
+      monthlyData[key].depositTotal += depositAmount
+      monthlyData[key].depositCount += 1
+    } else if (deal_type === 3 && deposit_amount && monthly_amount) {
+      monthly_depositAmount = parseFloat(deposit_amount?.replace(/,/g, '') || 0)
+      monthly_monthlyAmount = parseFloat(monthly_amount?.replace(/,/g, '') || 0)
+      monthlyData[key].monthly_depositTotal += monthly_depositAmount
+      monthlyData[key].monthly_monthlyTotal += monthly_monthlyAmount
+      monthlyData[key].monthlyCount += 1
+    }
   })
 
   const sortedKeys = Object.keys(monthlyData).sort((a, b) => new Date(a) - new Date(b))
 
-  const labels = []
-  const depositAmounts = []
-  const monthlyAmounts = []
+  const dealLabels = []
+  const depositLabels = []
+  const monthlyLabels = []
+  const dealChart = []
+  const depositChart = []
+  const monthlyChart_depositData = []
+  const monthlyChart_monthlyData = []
 
   sortedKeys.forEach((key) => {
-    const avgDeposit = monthlyData[key].depositTotal / monthlyData[key].count
-    const avgMonthly = monthlyData[key].monthlyTotal / monthlyData[key].count
-    if (avgDeposit > 0 || avgMonthly > 0) {
-      labels.push(key)
-      depositAmounts.push(avgDeposit)
-      monthlyAmounts.push(avgMonthly)
+    const avgDeal = monthlyData[key].dealTotal / (monthlyData[key].dealCount || 1)
+    const avgDeposit = monthlyData[key].depositTotal / (monthlyData[key].depositCount || 1)
+    const avgMonthly_deposit =
+      monthlyData[key].monthly_depositTotal / (monthlyData[key].monthlyCount || 1)
+    const avgMonthly_monthly =
+      monthlyData[key].monthly_monthlyTotal / (monthlyData[key].monthlyCount || 1)
+
+    if (avgDeal > 0) {
+      dealLabels.push(key)
+      dealChart.push(avgDeal)
+    }
+    if (avgDeposit > 0) {
+      depositLabels.push(key)
+      depositChart.push(avgDeposit)
+    }
+    if (avgMonthly_deposit > 0 && avgMonthly_monthly > 0) {
+      monthlyLabels.push(key)
+      monthlyChart_depositData.push(avgMonthly_deposit)
+      monthlyChart_monthlyData.push(avgMonthly_monthly)
     }
   })
 
-  if (type === 'monthlyRentAmount') {
-    depositChartData.value = {
-      labels,
+  // 데이터 포인트가 하나일 경우, 두 배로 만들어서 차트를 정상적으로 표시되도록 처리
+  if (dealChart.length === 1) {
+    dealLabels.push(dealLabels[0])
+    dealChart.push(dealChart[0])
+  }
+  if (depositChart.length === 1) {
+    depositLabels.push(depositLabels[0])
+    depositChart.push(depositChart[0])
+  }
+  if (monthlyChart_depositData.length === 1) {
+    monthlyLabels.push(monthlyLabels[0])
+    monthlyChart_depositData.push(monthlyChart_depositData[0])
+    monthlyChart_monthlyData.push(monthlyChart_monthlyData[0])
+  }
+
+  if (type === 'dealAmount') {
+    dealChartData.value = {
+      labels: dealLabels,
       datasets: [
         {
-          label: '평균 보증금 금액',
+          label: '평균 거래 금액',
           backgroundColor: 'rgba(66, 165, 245, 0.2)',
           borderColor: 'rgba(66, 165, 245, 1)',
-          data: depositAmounts,
+          data: dealChart,
           fill: true,
           pointRadius: 0,
           pointHoverRadius: 0
         }
       ]
     }
-    monthlyChartData.value = {
-      labels,
+  } else if (type === 'depositAmount') {
+    depositChartData.value = {
+      labels: depositLabels,
       datasets: [
         {
-          label: '평균 월세 금액',
+          label: '평균 보증금 금액',
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
           borderColor: 'rgba(255, 99, 132, 1)',
-          data: monthlyAmounts,
+          data: depositChart,
           fill: true,
           pointRadius: 0,
           pointHoverRadius: 0
@@ -128,14 +181,28 @@ function processDealData(data, type) {
       ]
     }
   } else {
-    chartData.value = {
-      labels,
+    monthly_depositChartData.value = {
+      labels: monthlyLabels,
       datasets: [
         {
-          label: type === 'dealAmount' ? '평균 거래 금액' : '평균 보증금 금액',
+          label: '평균 보증금 금액',
           backgroundColor: 'rgba(66, 165, 245, 0.2)',
           borderColor: 'rgba(66, 165, 245, 1)',
-          data: depositAmounts,
+          data: monthlyChart_depositData,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 0
+        }
+      ]
+    }
+    monthly_monthlyChartData.value = {
+      labels: monthlyLabels,
+      datasets: [
+        {
+          label: '평균 월세 금액',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          data: monthlyChart_monthlyData,
           fill: true,
           pointRadius: 0,
           pointHoverRadius: 0
@@ -226,7 +293,7 @@ const options = {
         }
       },
       grid: {
-        color: 'rgba(200, 200, 200, 0.2)'
+        display: false
       }
     }
   }
@@ -242,6 +309,8 @@ const options = {
 .sub-chart-container {
   position: relative;
   height: 50%; /* 차트의 높이를 조정 */
-  margin-bottom: 10px; /* 차트 간 간격 추가 */
+  margin-bottom: 20px; /* 차트 간 간격 추가 */
+  padding: 10px; /* 내부 패딩 추가 */
+  background-color: #fff; /* 배경색을 흰색으로 설정 */
 }
 </style>
