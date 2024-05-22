@@ -11,6 +11,14 @@ const isChatBotOpen = ref(false)
 
 const toggleChatBot = () => {
   isChatBotOpen.value = !isChatBotOpen.value
+  if (isChatBotOpen.value) {
+    setTimeout(() => {
+      const chatBotInstance = document.querySelector('ChatBot')
+      if (chatBotInstance && chatBotInstance.addInitialBotMessage) {
+        chatBotInstance.addInitialBotMessage()
+      }
+    }, 100)
+  }
 }
 
 onMounted(() => {
@@ -88,7 +96,7 @@ onMounted(() => {
   bottom: 80px;
   right: 20px;
   width: 350px;
-  height: 500px;
+  height: 510px;
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 10px;

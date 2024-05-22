@@ -29,9 +29,36 @@ const getHouseInfo = (house_code, success, fail) => {
 const searchHouseInfoByQuery = (query, success, fail) => {
   mapAPI.get(`api/map/search`, { params: { query } }).then(success).catch(fail)
 }
-
 const searchHouseInfoByRoadAddress = (road_address, success, fail) => {
   mapAPI.get(`api/map/search/${road_address}`).then(success).catch(fail)
+}
+
+const toggleFavoritePlace = (houseCode, success, fail) => {
+  const token = localStorage.getItem('token')
+  mapAPI
+    .post(
+      '/auth/me/favorite',
+      { houseCode },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+    .then(success)
+    .catch(fail)
+}
+
+const getFavoritePlaces = (success, fail) => {
+  const token = localStorage.getItem('token')
+  mapAPI
+    .get('/auth/me/favorites', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(success)
+    .catch(fail)
 }
 
 export default {
@@ -42,5 +69,7 @@ export default {
   getHouseDealList,
   getHouseInfo,
   searchHouseInfoByQuery,
-  searchHouseInfoByRoadAddress
+  searchHouseInfoByRoadAddress,
+  toggleFavoritePlace,
+  getFavoritePlaces
 }

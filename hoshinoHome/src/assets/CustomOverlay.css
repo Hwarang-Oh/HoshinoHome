@@ -11,10 +11,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition:
-    width 0.3s,
-    height 0.3s,
-    font-size 0.3s; /* Smooth transition */
+  transition: width 0.3s, height 0.3s, font-size 0.3s; /* Smooth transition */
 }
 .custom-overlay.selected {
   width: 100px; /* Larger width */
@@ -77,4 +74,10 @@
   font-weight: bold; /* Bold text */
   line-height: 1;
   white-space: nowrap;
+}
+.fas.fa-heart.favorite-icon {
+  color: #ff0000;
+  position: absolute;
+  top: 4px;
+  right: 4px;
 }
