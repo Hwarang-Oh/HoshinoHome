@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/auth")
@@ -97,6 +98,42 @@ public class AuthController {
         return ResponseEntity.badRequest().body("Invalid token");
     }
 
+    @PostMapping("/me/favorite")
+    public ResponseEntity<?> toggleFavoritePlace(@RequestHeader("Authorization") String token, @RequestBody Map<String, Long> payload) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String username = jwtUtil.extractUsername(token);
+        Long houseCode = payload.get("houseCode");
+        if (houseCode == null) {
+            return ResponseEntity.badRequest().body("houseCode is required");
+        }
+        if (userInfoService.toggleFavoritePlace(username, houseCode)) {
+            UserInfo updatedUser = userInfoService.getUserByUsername(username);
+            return ResponseEntity.ok(updatedUser.getUserFavoritePlaceSet());
+        }
+        return ResponseEntity.badRequest().body("Unable to toggle favorite place");
+    }
+
+    @GetMapping("/me/favorites")
+    public ResponseEntity<?> getFavoritePlaces(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String username = jwtUtil.extractUsername(token);
+        UserInfo user = userInfoService.getUserByUsername(username);
+        if (user != null) {
+            Set<Long> favoritePlaces = user.getUserFavoritePlaceSet();
+            return ResponseEntity.ok(favoritePlaces);
+        }
+        return ResponseEntity.badRequest().body("Invalid token");
+    }
+
+
+
+
+
+
     @GetMapping("/kakao/login")
     public void kakaoLogin(HttpServletResponse response) throws IOException {
         String redirectUrl = "https://kauth.kakao.com/oauth/authorize" +
@@ -161,7 +198,7 @@ public class AuthController {
             user.setUser_name(email);
             user.setUser_password(passwordEncoder.encode("kakao")); // 임의의 비밀번호 설정
             user.setUser_address("");
-            user.setUser_favorite_place("");
+            user.setUser_favorite_place("[]");
             user.setUser_type("user"); // 일반 사용자로 설정
             userInfoService.registerUser(user);
         }
