@@ -262,6 +262,10 @@ watch(dealVoList, () => {
   drawMarker(dealVoList)
 })
 
+watch(activeButtons, () => {
+  drawApts()
+})
+
 // 4. Marker Click Event Function => Which will get detailDealList of that House Code
 const getHouseDealList = (house_code) => {
   return new Promise((resolve, reject) => {
