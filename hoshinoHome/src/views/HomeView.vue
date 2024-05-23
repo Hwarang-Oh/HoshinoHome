@@ -223,10 +223,10 @@ onMounted(() => {
         <div
           class="absolute inset-0 flex flex-col justify-center items-center text-center text-white"
         >
-          <h1 class="text-4xl font-bold mb-4 animate-fade-slide-in">
-            오화랑 이찬민 취업열차 출발!
-          </h1>
-          <p class="text-lg mb-4 animate-fade-slide-in">어떻게든 완성해야 한다! 부릉부릉!</p>
+        <h1 class="text-4xl font-bold mb-4 animate-fade-slide-in">
+       <span class="text-pink-400">최애의 집</span>을 찾으러 갈 준비가 되셨나요?
+    </h1>
+          <p class="text-lg mb-4 animate-fade-slide-in">아파트, 주택, 오피스텔까지 모두 알려드려요!</p>
 
           <div class="relative w-96 animate-fade-slide-in">
             <div class="pt-2 relative mx-auto text-gray-600 suggestion-container">

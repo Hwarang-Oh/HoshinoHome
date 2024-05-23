@@ -69,7 +69,7 @@ watch(
   <!-- Left Side (Property Detail) -->
   <div
     id="houseDetail"
-    class="absolute top-0 left-0 h-full bg-white shadow-lg overflow-auto p-4 z-50"
+    class="absolute top-0 left-0 h-full bg-white shadow-lg overflow-auto p-4 z-50 custom-scrollbar"
   >
     <!-- Header Section -->
     <Header />
@@ -100,5 +100,26 @@ watch(
   height: 1px;
   background: #e5e7eb; /* Gray color */
   margin-bottom: 1rem;
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px; /* For horizontal scrollbar if needed */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #bebebe;
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a1a1a1;
 }
 </style>

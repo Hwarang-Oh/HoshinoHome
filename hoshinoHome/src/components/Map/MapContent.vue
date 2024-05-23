@@ -84,7 +84,7 @@ onMounted(() => {
   bottom: 80px;
   right: 20px;
   width: 350px;
-  height: 500px;
+  height: 510px; /* 510px로 해야 스크롤바 없어 */
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 10px;

@@ -57,14 +57,14 @@ const toggleMyPageModal = () => {
     <div class="flex items-center space-x-5">
       <!-- Home Icon -->
       <RouterLink to="/">
-        <img src="/home-icon2.png" alt="Home" class="cursor-pointer" style="width: 130px; height: auto;"/>
+        <img src="/LastLogo.png" alt="Home" class="cursor-pointer" style="width: 175px; height: 35px;"/>
       </RouterLink>
       
-      <RouterLink 
+      <!-- <RouterLink 
         to="/about" 
         class="text-lg hover:text-gray-400 transition duration-300"
         active-class="text-blue-400" exact-active-class="text-blue-400"
-      >비타민</RouterLink>
+      >비타민</RouterLink> -->
       <RouterLink 
         to="/notice" 
         class="text-lg hover:text-gray-400 transition duration-300"
