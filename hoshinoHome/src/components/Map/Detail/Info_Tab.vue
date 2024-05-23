@@ -29,7 +29,7 @@
       >
         거래 내역
       </button>
-      <button class="tab-button" @click="goToDongStory">Dong Story</button>
+      <button class="tab-button" @click="goToDongStory">지역이야기</button>
     </nav>
   </div>
 </template>

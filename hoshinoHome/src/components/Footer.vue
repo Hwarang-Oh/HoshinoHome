@@ -13,9 +13,9 @@
         <p class="text-sm text-gray-400">All rights reserved.</p>
       </div>
       <div class="flex space-x-6">
-        <a href="#" class="hover:underline text-lg">Privacy Policy</a>
-        <a href="#" class="hover:underline text-lg">Terms of Service</a>
-        <a href="#" class="hover:underline text-lg">Contact</a>
+        <a href="#" class="hover:underline text-md">개인정보보호정책</a>
+        <a href="#" class="hover:underline text-md">서비스</a>
+        <a href="#" class="hover:underline text-md">고객센터</a>
       </div>
       <div class="flex space-x-4">
         <a

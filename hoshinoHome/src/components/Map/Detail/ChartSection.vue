@@ -53,7 +53,7 @@
             <DealAmountChart :dealData="detailDealList" :chartType="chartType" />
           </div>
           <div v-else class="empty-list h-40">
-            <p>해당 거래 유형의 내역이 없습니다.</p>
+            <p><img src="https://i.namu.wiki/i/d3Hb766-6zV7ghgjoN21EKQTiNZLccPhXus2oSEYUM__btiILfmIHv5WMzLJFrohgPNumr3oeTKotx3zwJAQfQ.webp" class="h-40"></p>
           </div>
         </div>
       </div>

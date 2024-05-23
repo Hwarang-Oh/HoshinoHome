@@ -29,6 +29,7 @@ const activeButtons = ref(['apartment', 'multiFamily', 'officetel', 'sale', 'lea
 const createdMarkers = new Map() // Set에서 Map으로 변경하여 house_code와 overlay를 매핑
 const favoritePlaces = ref(new Set()) // 관심 주거지 목록
 const selectedOverlay = ref(null) // 선택된 오버레이
+const selectedOverlayHouseCode = ref(null); // 선택된 오버레이의 house_code를 저장
 
 const initMap = () => {
   const container = document.getElementById('map')
@@ -61,16 +62,17 @@ const initMap = () => {
 }
 
 const drawApts = () => {
-  const houseTypes = []
-  const dealTypes = []
+  fetchFavoritePlaces().then(() => {
+    const houseTypes = []
+    const dealTypes = []
 
-  if (activeButtons.value.includes('apartment')) houseTypes.push(1)
-  if (activeButtons.value.includes('multiFamily')) houseTypes.push(2)
-  if (activeButtons.value.includes('officetel')) houseTypes.push(3)
+    if (activeButtons.value.includes('apartment')) houseTypes.push(1)
+    if (activeButtons.value.includes('multiFamily')) houseTypes.push(2)
+    if (activeButtons.value.includes('officetel')) houseTypes.push(3)
 
-  if (activeButtons.value.includes('sale')) dealTypes.push(1)
-  if (activeButtons.value.includes('lease')) dealTypes.push(2)
-  if (activeButtons.value.includes('monthly')) dealTypes.push(3)
+    if (activeButtons.value.includes('sale')) dealTypes.push(1)
+    if (activeButtons.value.includes('lease')) dealTypes.push(2)
+    if (activeButtons.value.includes('monthly')) dealTypes.push(3)
 
   let range = {
     lngFrom: map.getBounds().getSouthWest().getLng().toString(),
@@ -122,14 +124,18 @@ const drawApts = () => {
 }
 
 const fetchFavoritePlaces = () => {
-  mapAPI.getFavoritePlaces(
-    (response) => {
-      favoritePlaces.value = new Set(response.data)
-    },
-    (error) => {
-      console.error('Failed to fetch favorite places:', error)
-    }
-  )
+  return new Promise((resolve, reject) => {
+    mapAPI.getFavoritePlaces(
+      (response) => {
+        favoritePlaces.value = new Set(response.data)
+        resolve()
+      },
+      (error) => {
+        console.error('Failed to fetch favorite places:', error)
+        reject(error)
+      }
+    )
+  })
 }
 
 const formatAmount = (amount) => {
@@ -145,32 +151,36 @@ const formatArea = (area) => {
 }
 
 const drawMarker = (dealVoList) => {
-  let coords, content
-  const houseTypeMap = { 1: '아파트', 2: '연립/다세대', 3: '오피스텔' }
-  const houseTypeColors = { 1: '#001f3f', 2: '#003366', 3: '#005f7f' }
-  const dealTypeMap = { 1: '매매', 2: '전세', 3: '월세' }
+  let coords, content;
+  const houseTypeMap = { 1: '아파트', 2: '연립/다세대', 3: '오피스텔' };
+  const houseTypeColors = { 1: '#001f3f', 2: '#003366', 3: '#005f7f' };
+  const dealTypeMap = { 1: '매매', 2: '전세', 3: '월세' };
+
+  // 기존에 생성된 모든 오버레이를 제거
+  createdMarkers.forEach((overlay) => {
+    overlay.setMap(null);
+  });
+  createdMarkers.clear();
 
   dealVoList.value.forEach((dealVo) => {
-    if (createdMarkers.has(dealVo.house_code)) return
+    coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng);
 
-    coords = new kakao.maps.LatLng(dealVo.lat, dealVo.lng)
-
-    let price = ''
-    let dealTypeText = ''
+    let price = '';
+    let dealTypeText = '';
     if (dealVo.deal_type === 1) {
-      price = `${formatAmount(dealVo.deal_amount)}`
-      dealTypeText = dealTypeMap[1]
+      price = `${formatAmount(dealVo.deal_amount)}`;
+      dealTypeText = dealTypeMap[1];
     } else if (dealVo.deal_type === 2) {
-      price = `${formatAmount(dealVo.deposit_amount)}`
-      dealTypeText = dealTypeMap[2]
+      price = `${formatAmount(dealVo.deposit_amount)}`;
+      dealTypeText = dealTypeMap[2];
     } else if (dealVo.deal_type === 3) {
-      price = `${formatAmount(dealVo.deposit_amount)} / ${dealVo.monthly_amount}`
-      dealTypeText = dealTypeMap[3]
+      price = `${formatAmount(dealVo.deposit_amount)} / ${dealVo.monthly_amount}`;
+      dealTypeText = dealTypeMap[3];
     }
 
-    content = document.createElement('div')
-    content.className = 'custom-overlay'
-    content.style.backgroundColor = houseTypeColors[dealVo.house_type]
+    content = document.createElement('div');
+    content.className = 'custom-overlay';
+    content.style.backgroundColor = houseTypeColors[dealVo.house_type];
     content.innerHTML = `
       <div class="custom-overlay-top">
         <div class="custom-overlay-title">
@@ -183,50 +193,52 @@ const drawMarker = (dealVoList) => {
         <div class="custom-overlay-year">${dealVo.deal_year} - ${dealVo.deal_month}</div>
         <div class="custom-overlay-area">${formatArea(dealVo.area)} m²</div>
       </div>
-      <div class="custom-overlay-type">${dealTypeText}</div>`
+      <div class="custom-overlay-type">${dealTypeText}</div>`;
 
     const customOverlay = new kakao.maps.CustomOverlay({
       map: map,
       position: coords,
       content: content,
       yAnchor: 1
-    })
+    });
 
-    if (
-      userInfoStore.searchedHouseInfo &&
-      userInfoStore.searchedHouseInfo.house_code === dealVo.house_code
-    ) {
-      content.classList.add('selected')
-      selectedOverlay.value = customOverlay
+    // 선택된 오버레이인지 확인하여 스타일 적용
+    if (selectedOverlayHouseCode.value === dealVo.house_code) {
+      content.classList.add('selected', 'no-animation'); // 'no-animation' 클래스를 추가하여 애니메이션 방지
+      customOverlay.setZIndex(100);
+      selectedOverlay.value = customOverlay;
     }
 
     content.addEventListener('click', () => {
-      handleOverlayClick(customOverlay)
-      userInfoStore.setSelectedHouseDealVo(dealVo)
-      router.push(`/map/houseDetail/${dealVo.house_code}`)
-    })
+      handleOverlayClick(customOverlay, dealVo.house_code);
+      userInfoStore.setSelectedHouseDealVo(dealVo);
+      router.push(`/map/houseDetail/${dealVo.house_code}`);
+    });
 
-    // 마커 생성 후 set에 추가
-    createdMarkers.set(dealVo.house_code, customOverlay)
-  })
-}
+    createdMarkers.set(dealVo.house_code, customOverlay);
+  });
+};
 
-// 4.1 Marker Click Event Functions
-const handleOverlayClick = (overlay) => {
+const handleOverlayClick = (overlay, houseCode) => {
   if (selectedOverlay.value && selectedOverlay.value !== overlay) {
-    const selectedContent = selectedOverlay.value.getContent()
-    selectedContent.classList.remove('selected')
+    const selectedContent = selectedOverlay.value.getContent();
+    selectedContent.classList.remove('selected');
+    selectedOverlay.value.setZIndex(1);
   }
   if (selectedOverlay.value === overlay) {
-    const selectedContent = selectedOverlay.value.getContent()
-    selectedContent.classList.remove('selected')
-    selectedOverlay.value = null
+    const selectedContent = selectedOverlay.value.getContent();
+    selectedContent.classList.remove('selected');
+    selectedOverlay.value.setZIndex(1);
+    selectedOverlay.value = null;
+    selectedOverlayHouseCode.value = null; // 선택된 오버레이 상태 초기화
   } else {
-    const overlayContent = overlay.getContent()
-    overlayContent.classList.add('selected')
-    selectedOverlay.value = overlay
+    const overlayContent = overlay.getContent();
+    overlayContent.classList.add('selected');
+    overlay.setZIndex(100);
+    selectedOverlay.value = overlay;
+    selectedOverlayHouseCode.value = houseCode; // 선택된 오버레이 상태 저장
   }
-}
+};
 
 watch(dealVoList, () => {
   drawMarker(dealVoList)
@@ -268,6 +280,8 @@ onMounted(() => {
   script.src =
     '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=4aa94d500c252274b8dc18944a4026f5&libraries=clusterer'
   document.head.appendChild(script)
-  fetchFavoritePlaces()
+  fetchFavoritePlaces().then(() => {
+    initMap()
+  });
 })
 </script>
