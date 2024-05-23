@@ -25,17 +25,17 @@ const chartData = ref({
 })
 
 const cmykColors = {
-  c: 'rgba(0, 255, 255, 0.6)',
-  m: 'rgba(255, 0, 255, 0.6)',
-  y: 'rgba(255, 255, 0, 0.6)',
-  k: 'rgba(0, 0, 0, 0.6)'
+  c: 'rgba(0, 31, 63, 0.6)', // #001f3f
+  m: 'rgba(0, 86, 163, 0.6)', // #0056a3
+  y: 'rgba(51, 153, 204, 0.6)', // #3399cc
+  k: 'rgba(0, 0, 0, 0.6)' // 검정색 그대로 유지
 }
 
 const cmykBorderColors = {
-  c: 'rgba(0, 255, 255, 1)',
-  m: 'rgba(255, 0, 255, 1)',
-  y: 'rgba(255, 255, 0, 1)',
-  k: 'rgba(0, 0, 0, 1)'
+  c: 'rgba(0, 31, 63, 1)', // #001f3f
+  m: 'rgba(0, 86, 163, 1)', // #0056a3
+  y: 'rgba(51, 153, 204, 1)', // #3399cc
+  k: 'rgba(0, 0, 0, 1)' // 검정색 그대로 유지
 }
 
 // Function to set up chart data

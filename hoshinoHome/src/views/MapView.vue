@@ -80,6 +80,10 @@ const drawApts = () => {
     houseTypes: houseTypes,
     dealTypes: dealTypes
   }
+  userInfoStore.setUserLocation({
+    lat: (parseFloat(range.latFrom) + parseFloat(range.latTo)) / 2,
+    lng: (parseFloat(range.lngFrom) + parseFloat(range.lngTo)) / 2
+  })
   mapAPI.getHouseDealVoList2(
     range,
     (response) => {
@@ -100,6 +104,7 @@ const drawApts = () => {
               userInfoStore.setSelectedHouseDealVo(response.data)
               dealVoList.value.push(response.data)
               drawMarker(dealVoList)
+              router.push(`/map/houseDetail/${searchedHouse.houseCode}`)
               userInfoStore.searchedHouseInfo = null
             },
             () => {

@@ -34,7 +34,6 @@ const loadHouseDetail = async (house_code) => {
       },
       () => {}
     )
-    createdMarkers.find
     selectedDealVo.value = userInfoStore.selectedHouseDealVo
   } catch (error) {
     console.error('Failed to load house detail:', error)

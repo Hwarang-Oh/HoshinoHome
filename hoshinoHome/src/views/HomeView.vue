@@ -38,7 +38,7 @@ const suggestions = ref([])
 const newsPosts = ref([])
 const showSuggestions = ref(false)
 const selectedSuggestionIndex = ref(-1)
-const searchedHouse = ref('')
+const searchedHouse = ref(null)
 const isSuggestionSelected = ref(false)
 const userLocation = ref({ lat: null, lng: null })
 const locationError = ref(null)
@@ -126,7 +126,7 @@ const fetchHouseDetailAndNavigate = async () => {
             lng: searchedHouse.value.lng
           })
           userInfoStore.setSearchedHouseInfo(searchedHouse.value)
-          router.push(`/map/houseDetail/${searchedHouse.value.house_code}`)
+          router.push('/map')
         } else {
           console.log('해당하는 검색 결과가없습니다.')
         }

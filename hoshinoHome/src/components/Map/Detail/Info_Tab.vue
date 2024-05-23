@@ -59,13 +59,13 @@ const convertToPyeong = (squareMeters) => {
   return (squareMeters / 3.3058).toFixed(2) // 1평 = 3.3058 제곱미터
 }
 
-// Watch for changes in selectedHouse to perform any required action
-watch(
-  () => selectedHouse.value,
-  () => {
-    // Perform any required action when selectedHouse changes
-  }
-)
+// // Watch for changes in selectedHouse to perform any required action
+// watch(
+//   () => selectedHouse.value,
+//   () => {
+//     // Perform any required action when selectedHouse changes
+//   }
+// )
 </script>
 
 <style scoped>
