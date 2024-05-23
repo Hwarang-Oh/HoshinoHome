@@ -59,31 +59,27 @@ const toggleMyPageModal = () => {
       <RouterLink to="/">
         <img src="/home-icon2.png" alt="Home" class="cursor-pointer" style="width: 130px; height: auto;"/>
       </RouterLink>
-      <RouterLink 
-        to="/" 
-        class="text-lg hover:text-gray-400 transition duration-300"
-        active-class="text-blue-400" exact-active-class="text-blue-400"
-      >Home</RouterLink>
+      
       <RouterLink 
         to="/about" 
         class="text-lg hover:text-gray-400 transition duration-300"
         active-class="text-blue-400" exact-active-class="text-blue-400"
-      >About</RouterLink>
+      >비타민</RouterLink>
       <RouterLink 
         to="/notice" 
         class="text-lg hover:text-gray-400 transition duration-300"
         active-class="text-blue-400" exact-active-class="text-blue-400"
-      >Notice</RouterLink>
+      >공지사항</RouterLink>
       <RouterLink 
         to="/map" 
         class="text-lg hover:text-gray-400 transition duration-300"
         active-class="text-blue-400" exact-active-class="text-blue-400"
-      >Map</RouterLink>
+      >매물</RouterLink>
       <RouterLink 
         to="/dongStory" 
         class="text-lg hover:text-gray-400 transition duration-300"
         active-class="text-blue-400" exact-active-class="text-blue-400"
-      >Dong Story</RouterLink>
+      >지역이야기</RouterLink>
 
     </div>
 
@@ -93,22 +89,22 @@ const toggleMyPageModal = () => {
         <span
           @click="toggleLoginModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >Login</span>
+        >로그인</span>
         <span
           @click="toggleRegisterModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >Register</span>
+        >회원가입</span>
       </template>
       <!-- 로그인이 유지되는 중 보일 부분 -->
       <template v-else>
         <span
           @click="logout"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >Logout</span>
+        >로그아웃</span>
         <span
           @click="toggleMyPageModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >MyPage</span>
+        >마이페이지</span>
       </template>
     </nav>
   </header>
