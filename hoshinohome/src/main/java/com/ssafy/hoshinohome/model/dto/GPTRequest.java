@@ -38,4 +38,19 @@ public class GPTRequest {
         this.frequencyPenalty = frequencyPenalty;
         this.presencePenalty = presencePenalty;
     }
+
+    public void addMessage(String role, String content) {
+        this.messages.add(new Message(role, content));
+    }
+
+    @Data
+    public static class Message {
+        private String role;
+        private String content;
+
+        public Message(String role, String content) {
+            this.role = role;
+            this.content = content;
+        }
+    }
 }

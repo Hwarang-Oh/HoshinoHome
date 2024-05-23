@@ -93,6 +93,6 @@
 
   <!-- Query for selectHouseDealList using resultMap -->
   <select id="selectHouseDealList" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
-    house_code = #{houseCode}; </select>
+    house_code = #{houseCode} ORDER BY deal_year DESC, deal_month DESC, deal_day DESC; </select>
 
 </mapper>
