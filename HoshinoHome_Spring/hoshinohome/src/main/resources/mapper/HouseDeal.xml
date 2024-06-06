@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseDealDao">
+
+  <!-- ResultMap for HouseDealVo -->
+  <resultMap id="HouseDealVoResultMap" type="com.ssafy.hoshinohome.model.vo.HouseDealVo">
+    <result property="house_code" column="house_code" />
+    <result property="house_type" column="house_type" />
+    <result property="deal_type" column="deal_type" />
+    <result property="house_name" column="house_name" />
+    <result property="jibun_address" column="jibun_address" />
+    <result property="road_address" column="road_address" />
+    <result property="deal_amount" column="deal_amount" />
+    <result property="deposit_amount" column="deposit_amount" />
+    <result property="monthly_amount" column="monthly_amount" />
+    <result property="deal_year" column="deal_year" />
+    <result property="deal_month" column="deal_month" />
+    <result property="deal_day" column="deal_day" />
+    <result property="area" column="area" />
+    <result property="floor" column="floor" />
+    <result property="lng" column="lng" />
+    <result property="lat" column="lat" />
+  </resultMap>
+
+  <!-- ResultMap for HouseDeal -->
+  <resultMap id="HouseDealResultMap" type="com.ssafy.hoshinohome.model.dto.HouseDeal">
+    <result property="deal_code" column="deal_code" />
+    <result property="deal_type" column="deal_type" />
+    <result property="deal_amount" column="deal_amount" />
+    <result property="deposit_amount" column="deposit_amount" />
+    <result property="monthly_amount" column="monthly_amount" />
+    <result property="jibun_address" column="jibun_address" />
+    <result property="road_address" column="road_address" />
+    <result property="deal_year" column="deal_year" />
+    <result property="deal_month" column="deal_month" />
+    <result property="deal_day" column="deal_day" />
+    <result property="area" column="area" />
+    <result property="floor" column="floor" />
+    <result property="house_code" column="house_code" />
+    <result property="house_type" column="house_type" />
+  </resultMap>
+
+  <!-- Query for selectHouseDealLocations using resultMap -->
+  <!-- <select id="selectHouseDealVoList" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo
+  AS (
+    SELECT house_code, house_name, jibun_address, road_address, lng, lat FROM houseinfo WHERE lng
+    BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ORDER BY house_code
+    LIMIT 20) SELECT ranked.* FROM ( SELECT hd.house_code, hd.house_type, hd.deal_type,
+    hi.house_name, hd.deal_amount, hd.deposit_amount, hd.monthly_amount, hi.jibun_address,
+    hi.road_address, hd.deal_year, hd.deal_month, hd.deal_day, hd.area, hd.floor, hi.lng, hi.lat,
+    ROW_NUMBER() OVER (PARTITION BY hd.house_code ORDER BY hd.deal_code DESC) AS row_num FROM
+    housedeal hd INNER JOIN filteredHouseInfo hi ON hd.house_code = hi.house_code ) ranked WHERE
+    ranked.row_num = 1; </select> -->
+
+  <select id="selectHouseDealVoList" resultMap="HouseDealVoResultMap"> WITH filteredHouseInfo AS (
+    SELECT house_code, house_name, jibun_address, road_address, lng, lat FROM houseinfo WHERE lng
+    BETWEEN #{lngFrom} AND #{lngTo} AND lat BETWEEN #{latFrom} AND #{latTo} ORDER BY house_code
+    LIMIT 20 ), rankedDeals AS ( SELECT hd.house_code, hd.house_type, hd.deal_type, hi.house_name,
+    hd.deal_amount, hd.deposit_amount, hd.monthly_amount, hi.jibun_address, hi.road_address,
+    hd.deal_year, hd.deal_month, hd.deal_day, hd.area, hd.floor, hi.lng, hi.lat, ROW_NUMBER() OVER
+    (PARTITION BY hd.house_code ORDER BY hd.deal_year DESC, hd.deal_month DESC, hd.deal_day DESC) AS
+    row_num FROM housedeal hd INNER JOIN filteredHouseInfo hi ON hd.house_code = hi.house_code )
+    SELECT * FROM rankedDeals WHERE row_num = 1; </select>
+
+  <select id="selectEachHouseDealVo" resultMap="HouseDealVoResultMap"> SELECT r.house_code,
+    r.house_type, r.deal_type, r.deal_code, r.deal_amount, r.deposit_amount, r.monthly_amount,
+    r.jibun_address, r.road_address, r.deal_year, r.deal_month, r.deal_day, r.area, r.floor,
+    hi.house_name, hi.lng, hi.lat FROM recent_housedeal r INNER JOIN houseinfo hi ON r.house_code =
+    hi.house_code WHERE r.house_code = #{houseCode} <if
+      test="houseTypes != null and houseTypes.size() > 0"> AND r.house_type IN <foreach item="type"
+        index="index" collection="houseTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+      <if
+      test="dealTypes != null and dealTypes.size() > 0"> AND r.deal_type IN <foreach item="type"
+        index="index" collection="dealTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+    ORDER BY r.deal_year DESC, r.deal_month DESC, r.deal_day DESC LIMIT 1; </select>
+
+  <select id="selectHouseDealVoList2" resultMap="HouseDealVoResultMap"> SELECT r.house_code,
+    r.house_type, r.deal_type, r.deal_code, r.deal_amount, r.deposit_amount, r.monthly_amount,
+    r.jibun_address, r.road_address, r.deal_year, r.deal_month, r.deal_day, r.area, r.floor,
+    hi.house_name, hi.lng, hi.lat FROM recent_housedeal r INNER JOIN houseinfo hi ON r.house_code =
+    hi.house_code WHERE hi.lng BETWEEN #{lngFrom} AND #{lngTo} AND hi.lat BETWEEN #{latFrom} AND
+    #{latTo} <if test="houseTypes != null and houseTypes.size() > 0"> AND r.house_type IN <foreach
+        item="type" index="index" collection="houseTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+        <if
+      test="dealTypes != null and dealTypes.size() > 0"> AND r.deal_type IN <foreach item="type"
+        index="index" collection="dealTypes" open="(" separator="," close=")"> #{type} </foreach>
+    </if>
+    ORDER BY r.deal_year DESC, r.deal_month DESC, r.deal_day DESC LIMIT 20; </select>
+
+  <!-- Query for selectHouseDealList using resultMap -->
+  <select id="selectHouseDealList" resultMap="HouseDealResultMap"> SELECT * FROM housedeal WHERE
+    house_code = #{houseCode} ORDER BY deal_year DESC, deal_month DESC, deal_day DESC; </select>
+
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.hoshinohome.model.dao.CommentDao">
+    <!-- 댓글 삽입 -->
+    <insert id="insertComment" parameterType="com.ssafy.hoshinohome.model.dto.Comment">
+        INSERT INTO Comment (post_id, board_type, user_id, user_name, content, date)
+        VALUES (#{post_id}, #{board_type}, #{user_id}, #{user_name}, #{content}, NOW())
+    </insert>
+
+    <!-- 댓글 수정 -->
+    <update id="updateComment" parameterType="com.ssafy.hoshinohome.model.dto.Comment">
+        UPDATE Comment SET content = #{content}, date = NOW()
+        WHERE comment_id = #{comment_id}
+    </update>
+
+    <!-- 댓글 삭제 -->
+    <delete id="deleteComment" parameterType="int">
+        DELETE FROM Comment WHERE comment_id = #{comment_id}
+    </delete>
+
+    <!-- 댓글 조회 -->
+    <select id="selectCommentsByPostAndBoard" parameterType="map" resultType="com.ssafy.hoshinohome.model.dto.Comment">
+        SELECT * FROM Comment WHERE post_id = #{post_id} AND board_type = #{board_type}
+    </select>
+
+    <!-- 댓글 매핑 -->
+    <resultMap id="CommentResultMap" type="com.ssafy.hoshinohome.model.dto.Comment">
+        <id column="comment_id" property="comment_id"/>
+        <result column="post_id" property="post_id"/>
+        <result column="board_type" property="board_type"/>
+        <result column="user_id" property="user_id"/>
+        <result column="user_name" property="user_name"/>
+        <result column="content" property="content"/>
+        <result column="date" property="date"/>
+    </resultMap>
+</mapper>
