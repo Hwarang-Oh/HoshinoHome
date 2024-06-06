@@ -1,0 +1,91 @@
+.custom-overlay {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 6px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-size: 10px;
+  color: black;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: width 0.3s, height 0.3s, font-size 0.3s;
+}
+.custom-overlay.selected {
+  width: 100px;
+  height: 100px;
+  font-size: 12px;
+}
+.custom-overlay.selected.no-animation {
+  transition: none;
+}
+.custom-overlay-top {
+  padding: 4px 0;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  color: white;
+}
+.custom-overlay-title {
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.custom-overlay.selected .custom-overlay-title {
+  font-size: 14px;
+}
+.custom-overlay-price {
+  font-size: 12px;
+}
+.custom-overlay.selected .custom-overlay-price {
+  font-size: 14px;
+}
+.custom-overlay-bottom {
+  background: #fff;
+  padding: 4px 0;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  color: #000;
+}
+.custom-overlay-year {
+  font-size: 10px;
+  font-weight: bold;
+}
+.custom-overlay.selected .custom-overlay-year {
+  font-size: 12px;
+}
+.custom-overlay-area {
+  font-size: 10px;
+}
+.custom-overlay.selected .custom-overlay-area {
+  font-size: 12px;
+}
+.custom-overlay-type {
+  position: absolute;
+  bottom: -23px;
+  right: -18px;
+  background: white;
+  color: #1d4ed8;
+  border: 1px solid #1d4ed8;
+  border-radius: 12px;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  white-space: nowrap;
+}
+.custom-overlay.selected .custom-overlay-type {
+  bottom: -7px;
+  right: -13px;
+}
+.fas.fa-heart.favorite-icon {
+  color: #ff0000;
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  font-size: 15px;
+}
