@@ -28,7 +28,7 @@ onMounted(() => {
 // 로그아웃 함수
 const logout = () => {
   localStorage.removeItem('token')
-  localStorage.removeItem('kakao_')
+  localStorage.removeItem('Your API KEY')
   isLoggedIn.value = false
   router.push('/').then(() => {
     window.location.reload() // 홈 화면으로 이동 후 새로고침
@@ -57,30 +57,40 @@ const toggleMyPageModal = () => {
     <div class="flex items-center space-x-5">
       <!-- Home Icon -->
       <RouterLink to="/">
-        <img src="/LastLogo.png" alt="Home" class="cursor-pointer" style="width: 175px; height: 35px;"/>
+        <img
+          src="/LastLogo.png"
+          alt="Home"
+          class="cursor-pointer"
+          style="width: 175px; height: 35px"
+        />
       </RouterLink>
-      
+
       <!-- <RouterLink 
         to="/about" 
         class="text-lg hover:text-gray-400 transition duration-300"
         active-class="text-blue-400" exact-active-class="text-blue-400"
       >비타민</RouterLink> -->
-      <RouterLink 
-        to="/notice" 
+      <RouterLink
+        to="/notice"
         class="text-lg hover:text-gray-400 transition duration-300"
-        active-class="text-blue-400" exact-active-class="text-blue-400"
-      >공지사항</RouterLink>
-      <RouterLink 
-        to="/map" 
+        active-class="text-blue-400"
+        exact-active-class="text-blue-400"
+        >공지사항</RouterLink
+      >
+      <RouterLink
+        to="/map"
         class="text-lg hover:text-gray-400 transition duration-300"
-        active-class="text-blue-400" exact-active-class="text-blue-400"
-      >매물</RouterLink>
-      <RouterLink 
-        to="/dongStory" 
+        active-class="text-blue-400"
+        exact-active-class="text-blue-400"
+        >매물</RouterLink
+      >
+      <RouterLink
+        to="/dongStory"
         class="text-lg hover:text-gray-400 transition duration-300"
-        active-class="text-blue-400" exact-active-class="text-blue-400"
-      >지역이야기</RouterLink>
-
+        active-class="text-blue-400"
+        exact-active-class="text-blue-400"
+        >지역이야기</RouterLink
+      >
     </div>
 
     <nav class="space-x-4 flex text-lg">
@@ -89,22 +99,26 @@ const toggleMyPageModal = () => {
         <span
           @click="toggleLoginModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >로그인</span>
+          >로그인</span
+        >
         <span
           @click="toggleRegisterModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >회원가입</span>
+          >회원가입</span
+        >
       </template>
       <!-- 로그인이 유지되는 중 보일 부분 -->
       <template v-else>
         <span
           @click="logout"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >로그아웃</span>
+          >로그아웃</span
+        >
         <span
           @click="toggleMyPageModal"
           class="ml-5 text-lg cursor-pointer hover:text-gray-400 transition duration-300"
-        >마이페이지</span>
+          >마이페이지</span
+        >
       </template>
     </nav>
   </header>

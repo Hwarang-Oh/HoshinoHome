@@ -47,8 +47,7 @@ onMounted(async () => {
   } else {
     const script = document.createElement('script')
     script.onload = () => kakao.maps.load(initMiniMap)
-    script.src =
-      '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey='
+    script.src = 'Your API KEY'
     document.head.appendChild(script)
   }
 })

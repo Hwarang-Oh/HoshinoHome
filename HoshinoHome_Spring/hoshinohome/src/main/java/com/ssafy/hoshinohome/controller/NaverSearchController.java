@@ -18,8 +18,8 @@ public class NaverSearchController {
 
     @GetMapping("/news")
     public String searchNews() {
-        String clientId = ""; // 애플리케이션 클라이언트 아이디
-        String clientSecret = ""; // 애플리케이션 클라이언트 시크릿
+        String clientId = "Your API KEY"; // 애플리케이션 클라이언트 아이디
+        String clientSecret = "Your API KEY"; // 애플리케이션 클라이언트 시크릿
 
         String text = null;
         try {

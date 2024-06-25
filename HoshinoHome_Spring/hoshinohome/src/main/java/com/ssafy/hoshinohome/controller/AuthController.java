@@ -29,7 +29,7 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private final String kakaoClientId = "";
+    private final String kakaoClientId = "Your API KEY";
     private final String kakaoRedirectUri = "http://127.0.0.1:8080/auth/kakao/callback";
 
     @PostMapping("/register")

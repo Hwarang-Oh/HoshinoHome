@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private String secretKey = "your_secret_key";
+    private String secretKey = "Your API KEY";
 
     public String generateToken(String username) {
         return Jwts.builder()

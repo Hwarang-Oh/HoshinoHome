@@ -276,8 +276,7 @@ provide('service', {
 
 onMounted(() => {
   const script = document.createElement('script')
-  script.src =
-    '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey='
+  script.src = '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=Your API KEY=clusterer'
   document.head.appendChild(script)
   fetchFavoritePlaces().then(() => {
     initMap()

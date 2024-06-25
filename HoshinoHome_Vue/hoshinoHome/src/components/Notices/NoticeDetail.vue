@@ -1,78 +1,83 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import noticeAPI from '@/api/notice.js';
-import commentAPI from '@/api/comment.js';
-import axios from 'axios';
-import Swal from 'sweetalert2';
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import noticeAPI from '@/api/notice.js'
+import commentAPI from '@/api/comment.js'
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
-const selectedNotice = ref({});
-const comments = ref([]);
-const newComment = ref('');
-const isAdmin = ref(false);
-const editingCommentId = ref(null);
-const editingCommentContent = ref('');
-const userId = ref(null);
-const userName = ref('');
+const selectedNotice = ref({})
+const comments = ref([])
+const newComment = ref('')
+const isAdmin = ref(false)
+const editingCommentId = ref(null)
+const editingCommentContent = ref('')
+const userId = ref(null)
+const userName = ref('')
 
-const router = useRouter();
-const route = useRoute();
+const router = useRouter()
+const route = useRoute()
 
 const toNoticeModify = (id) => {
-  router.push({ name: 'noticeModify', params: { id } });
-};
+  router.push({ name: 'noticeModify', params: { id } })
+}
 
 const removeNotice = (id) => {
-  noticeAPI.removeNotice(id, 
+  noticeAPI.removeNotice(
+    id,
     () => {
-      router.push({ name: 'notice' });
+      router.push({ name: 'notice' })
     },
     (error) => {
-      console.error('공지사항 데이터를 삭제하는 데 실패했습니다.', error);
-    });
-};
+      console.error('공지사항 데이터를 삭제하는 데 실패했습니다.', error)
+    }
+  )
+}
 
 const toNoticeList = () => {
-  router.push({ name: 'notice' });
-};
+  router.push({ name: 'notice' })
+}
 
 const checkAdmin = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     const response = await axios.get('http://localhost:8080/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`
       }
-    });
-    const userData = response.data;
-    userId.value = userData.user_id;
-    userName.value = userData.user_name;
-    isAdmin.value = response.data.user_type === '1234';
+    })
+    const userData = response.data
+    userId.value = userData.user_id
+    userName.value = userData.user_name
+    isAdmin.value = response.data.user_type === 'your Custom Admin Value'
   } catch (error) {
-    console.error('사용자 정보를 불러오지 못했습니다.', error);
+    console.error('사용자 정보를 불러오지 못했습니다.', error)
   }
-};
+}
 
 const fetchComments = () => {
-  commentAPI.getCommentsByPostAndBoard(selectedNotice.value.post_id, 'notice',
+  commentAPI.getCommentsByPostAndBoard(
+    selectedNotice.value.post_id,
+    'notice',
     (response) => {
-      comments.value = response.data;
+      comments.value = response.data
     },
     (error) => {
-      console.error('댓글 데이터를 불러오는 데 실패했습니다.', error);
-    });
-};
+      console.error('댓글 데이터를 불러오는 데 실패했습니다.', error)
+    }
+  )
+}
 
 const addComment = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token')
   if (!token) {
     Swal.fire({
       icon: 'error',
       title: '로그인이 필요한 서비스입니다.',
       showConfirmButton: true,
       confirmButtonText: '확인'
-    });
-    return;
+    })
+    return
   }
 
   const comment = {
@@ -80,72 +85,84 @@ const addComment = () => {
     board_type: 'notice',
     user_id: userId.value,
     user_name: userName.value,
-    content: newComment.value,
-  };
-  commentAPI.addComment(comment, 
+    content: newComment.value
+  }
+  commentAPI.addComment(
+    comment,
     () => {
-      newComment.value = '';
-      fetchComments();
+      newComment.value = ''
+      fetchComments()
     },
     (error) => {
-      console.error('댓글을 추가하는 데 실패했습니다.', error);
-    });
-};
+      console.error('댓글을 추가하는 데 실패했습니다.', error)
+    }
+  )
+}
 
 const editComment = (comment) => {
-  editingCommentId.value = comment.comment_id;
-  editingCommentContent.value = comment.content;
-};
+  editingCommentId.value = comment.comment_id
+  editingCommentContent.value = comment.content
+}
 
 const updateComment = (commentId) => {
   const updatedComment = {
     comment_id: commentId,
-    content: editingCommentContent.value,
-  };
-  commentAPI.updateComment(commentId, updatedComment, 
+    content: editingCommentContent.value
+  }
+  commentAPI.updateComment(
+    commentId,
+    updatedComment,
     () => {
-      editingCommentId.value = null;
-      editingCommentContent.value = '';
-      fetchComments();
+      editingCommentId.value = null
+      editingCommentContent.value = ''
+      fetchComments()
     },
     (error) => {
-      console.error('댓글을 수정하는 데 실패했습니다.', error);
-    });
-};
+      console.error('댓글을 수정하는 데 실패했습니다.', error)
+    }
+  )
+}
 
 const deleteComment = (commentId) => {
-  commentAPI.deleteComment(commentId, 
+  commentAPI.deleteComment(
+    commentId,
     () => {
-      fetchComments();
+      fetchComments()
     },
     (error) => {
-      console.error('댓글을 삭제하는 데 실패했습니다.', error);
-    });
-};
+      console.error('댓글을 삭제하는 데 실패했습니다.', error)
+    }
+  )
+}
 
 const fetchSelectedNotice = (id) => {
-  noticeAPI.getNoticeDetail(id, 
+  noticeAPI.getNoticeDetail(
+    id,
     (response) => {
-      selectedNotice.value = response.data;
-      fetchComments();
+      selectedNotice.value = response.data
+      fetchComments()
     },
     (error) => {
-      console.error('공지사항 데이터를 불러오는 데 실패했습니다.', error);
-    });
-};
+      console.error('공지사항 데이터를 불러오는 데 실패했습니다.', error)
+    }
+  )
+}
 
 onMounted(async () => {
-  await checkAdmin();
-  const noticeId = route.params.id;
-  fetchSelectedNotice(noticeId);
-});
+  await checkAdmin()
+  const noticeId = route.params.id
+  fetchSelectedNotice(noticeId)
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100 py-8">
     <div class="max-w-2xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
       <h1 class="text-2xl font-bold text-green-600 text-center mb-6">공지사항 상세</h1>
-      <div v-if="selectedNotice.title" class="bg-green-100 text-green-700 py-2 px-4 rounded-md mb-4">
+      <div
+        v-if="selectedNotice.title"
+        class="bg-green-100 text-green-700 py-2 px-4 rounded-md mb-4"
+      >
         <div class="flex justify-between">
           <span>제목</span>
           <span>등록일</span>
@@ -185,29 +202,47 @@ onMounted(async () => {
       <!-- Comment Section -->
       <div class="mt-8">
         <h2 class="text-xl font-bold text-green-600 mb-4">댓글</h2>
-        <div v-for="comment in comments" :key="comment.comment_id" class="mb-4 p-4 bg-gray-100 rounded-lg">
+        <div
+          v-for="comment in comments"
+          :key="comment.comment_id"
+          class="mb-4 p-4 bg-gray-100 rounded-lg"
+        >
           <p class="font-bold">{{ comment.user_name }}</p>
-          <p class="text-gray-700" v-if="editingCommentId !== comment.comment_id">{{ comment.content }}</p>
+          <p class="text-gray-700" v-if="editingCommentId !== comment.comment_id">
+            {{ comment.content }}
+          </p>
           <div v-else>
-            <textarea v-model="editingCommentContent" rows="3" class="w-full p-2 border rounded-lg"></textarea>
+            <textarea
+              v-model="editingCommentContent"
+              rows="3"
+              class="w-full p-2 border rounded-lg"
+            ></textarea>
             <div class="flex justify-end mb-3">
-            <button
-              @click="updateComment(comment.comment_id)"
-              class="mt-2 bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
-            >
-              댓글 수정
-            </button></div>
+              <button
+                @click="updateComment(comment.comment_id)"
+                class="mt-2 bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+              >
+                댓글 수정
+              </button>
+            </div>
           </div>
           <div class="text-right text-sm text-gray-500">
             <span>{{ new Date(comment.date).toLocaleString() }}</span>
             <template v-if="comment.user_id === userId">
               <button @click="editComment(comment)" class="ml-4 text-blue-500">수정</button>
-              <button @click="deleteComment(comment.comment_id)" class="ml-2 text-red-500">삭제</button>
+              <button @click="deleteComment(comment.comment_id)" class="ml-2 text-red-500">
+                삭제
+              </button>
             </template>
           </div>
         </div>
         <div class="mt-6">
-          <textarea v-model="newComment" rows="3" class="w-full p-2 border rounded-lg" placeholder="댓글을 입력하세요"></textarea>
+          <textarea
+            v-model="newComment"
+            rows="3"
+            class="w-full p-2 border rounded-lg"
+            placeholder="댓글을 입력하세요"
+          ></textarea>
           <div class="flex justify-end space-x-4">
             <button
               @click="addComment"

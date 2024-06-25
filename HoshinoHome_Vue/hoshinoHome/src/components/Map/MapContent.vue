@@ -15,8 +15,7 @@ onMounted(() => {
   } else {
     const script = document.createElement('script')
     script.onload = () => kakao.maps.load(initMap)
-    script.src =
-      '//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey='
+    script.src = 'Your API KEY'
     document.head.appendChild(script)
   }
 })

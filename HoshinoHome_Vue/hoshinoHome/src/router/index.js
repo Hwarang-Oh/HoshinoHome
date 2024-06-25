@@ -118,7 +118,7 @@ router.beforeEach(async (to, from, next) => {
           Authorization: `Bearer ${token}`
         }
       })
-      if (response.data.user_type !== '1234') {
+      if (response.data.user_type !== 'Your Custom Admin Value') {
         alert('관리자 권한이 필요합니다.')
         return next('/')
       }

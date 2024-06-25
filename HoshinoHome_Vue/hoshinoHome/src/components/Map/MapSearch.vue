@@ -138,7 +138,7 @@ const fetchHouseDetailAndNavigate = async () => {
       }
     )
   } else {
-    const kakaoApiKey = '' // 여기에 Kakao REST API 키를 입력하세요.
+    const kakaoApiKey = 'Your API KEY' // 여기에 Kakao REST API 키를 입력하세요.
     const kakaoApiUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${query.value}`
 
     try {

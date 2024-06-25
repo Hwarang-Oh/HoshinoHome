@@ -17,7 +17,7 @@ public class Eviroment {
     }
 
     public Eviroment(String dong_code, int station_proximity, int commercial_area, int academic_num,
-                     int security_index, int dong_score) {
+            int security_index, int dong_score) {
         this.dong_code = dong_code;
         Station_proximity = station_proximity;
         this.commercial_area = commercial_area;

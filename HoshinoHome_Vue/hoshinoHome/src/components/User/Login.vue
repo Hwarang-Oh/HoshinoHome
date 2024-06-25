@@ -28,13 +28,10 @@ const login = async () => {
     })
   } catch (error) {
     Swal.fire({
-        icon: 'error',
+      icon: 'error',
       title: '로그인 실패!',
-      text: '아이디 또는 비밀번호를 확인하세요.',
-      
-    },
-    
-    ).then(() => {
+      text: '아이디 또는 비밀번호를 확인하세요.'
+    }).then(() => {
       emit('close')
     })
   }
@@ -117,7 +114,7 @@ const showLoginModal = () => {
 // 카카오 SDK 초기화
 const initKakao = () => {
   if (!window.Kakao.isInitialized()) {
-    window.Kakao.init('') // 여기를 실제 JavaScript 키로 교체
+    window.Kakao.init('Your API KEY') // 여기를 실제 JavaScript 키로 교체
   }
 }
 
@@ -128,16 +125,16 @@ const kakaoLogin = () => {
     success: (authObj) => {
       getKakaoAccount(authObj)
       Swal.fire({
-      icon: 'success',
-      title: '로그인 성공!',
-      showConfirmButton: false,
-      timer: 1500
-    }).then(() => {
-      emit('close') // 부모 컴포넌트에 close 이벤트 전송
-      router.push('/').then(() => {
-        window.location.reload() // 홈 화면으로 이동 후 새로고침
+        icon: 'success',
+        title: '로그인 성공!',
+        showConfirmButton: false,
+        timer: 1500
+      }).then(() => {
+        emit('close') // 부모 컴포넌트에 close 이벤트 전송
+        router.push('/').then(() => {
+          window.location.reload() // 홈 화면으로 이동 후 새로고침
+        })
       })
-    })
     },
     fail: (err) => {
       console.error(err)
@@ -163,7 +160,6 @@ const getKakaoAccount = (authObj) => {
     }
   })
 }
-
 
 // 컴포넌트가 마운트될 때 카카오 SDK 초기화
 onMounted(() => {
