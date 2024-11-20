@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.hoshinohome.model.dao.DongStoryDao">
+    <insert id="insertDongStory" parameterType="com.ssafy.hoshinohome.model.dto.DongStory">
+        INSERT INTO DongStory (dong_code, title, content, date, user_id)
+        VALUES (#{dong_code}, #{title}, #{content}, NOW(), #{user_id})
+    </insert>
+
+    <update id="updateDongStory" parameterType="com.ssafy.hoshinohome.model.dto.DongStory">
+        UPDATE DongStory SET dong_code = #{dong_code}, title = #{title}, content = #{content}, date = NOW()
+        WHERE post_id = #{post_id}
+    </update>
+
+    <delete id="deleteDongStory" parameterType="int">
+        DELETE FROM DongStory WHERE post_id = #{post_id}
+    </delete>
+
+    <select id="selectDongStory" parameterType="int" resultMap="DongStoryResultMap">
+        SELECT ds.*, d.dong_name, u.user_name
+        FROM DongStory ds
+        JOIN dong d ON ds.dong_code = d.dong_code
+        JOIN UserInfo u ON ds.user_id = u.user_id
+        WHERE ds.post_id = #{post_id}
+    </select>
+
+    <select id="selectDongStoriesByDongCode" parameterType="String" resultMap="DongStoryResultMap">
+        SELECT ds.*, d.dong_name, u.user_name
+        FROM DongStory ds
+        JOIN dong d ON ds.dong_code = d.dong_code
+        JOIN UserInfo u ON ds.user_id = u.user_id
+        WHERE ds.dong_code = #{dong_code}
+    </select>
+
+    <select id="selectAllDongStories" resultMap="DongStoryResultMap">
+        SELECT ds.*, d.dong_name, u.user_name
+        FROM DongStory ds
+        JOIN dong d ON ds.dong_code = d.dong_code
+        JOIN UserInfo u ON ds.user_id = u.user_id
+    </select>
+
+    <resultMap id="DongStoryResultMap" type="com.ssafy.hoshinohome.model.dto.DongStory">
+        <id column="post_id" property="post_id"/>
+        <result column="dong_code" property="dong_code"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="date" property="date"/>
+        <result column="user_id" property="user_id"/>
+        <result column="user_name" property="user_name"/>
+        <result column="dong_name" property="dong_name"/>
+    </resultMap>
+</mapper>

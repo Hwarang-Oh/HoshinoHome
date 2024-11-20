@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.hoshinohome.model.dao.HouseInfoDao">
+
+  <select id="selectHouseInfo" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo"> SELECT * FROM
+    houseinfo where house_code = #{houseCode};</select>
+
+  <select id="selectHouseInfoListByQuery" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo">
+    SELECT * FROM houseinfo WHERE house_name LIKE CONCAT('%', #{query}, '%') OR road_address LIKE
+    CONCAT('%', #{query}, '%') OR jibun_address LIKE CONCAT('%', #{query}, '%') LIMIT 10;</select>
+
+  <select id="selectHouseInfoByAddress" resultType="com.ssafy.hoshinohome.model.dto.HouseInfo">
+    SELECT * FROM houseinfo where road_address LIKE #{roadAddress}; </select>
+</mapper>
